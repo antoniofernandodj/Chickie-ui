@@ -12,11 +12,11 @@ import { AuthService } from '../../core/services/auth.service';
 import { Produto, CategoriaProdutos, HorarioFuncionamento, AvaliacaoDeLoja, AvaliarLojaRequest } from '../../core/models';
 import { AvaliacaoLojaFormComponent } from './avaliacao-loja-form.component';
 import { CriarPedidoModalComponent } from './criar-pedido-modal.component';
-import { UiEmptyStateComponent } from '../../shared/components';
+import { UiEmptyStateComponent, UiLojaAbertaComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-loja-detalhe',
-  imports: [RouterLink, DecimalPipe, DatePipe, AvaliacaoLojaFormComponent, CriarPedidoModalComponent, UiEmptyStateComponent],
+  imports: [RouterLink, DecimalPipe, DatePipe, AvaliacaoLojaFormComponent, CriarPedidoModalComponent, UiEmptyStateComponent, UiLojaAbertaComponent],
   templateUrl: './loja-detalhe.component.html',
 })
 export class LojaDetalheComponent {

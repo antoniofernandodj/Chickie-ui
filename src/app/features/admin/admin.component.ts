@@ -269,12 +269,20 @@ export class AdminComponent {
   readonly avaliacoesLoading = computed(() => this._avaliacoes() === undefined);
   readonly avaliacoes = computed(() => this._avaliacoes() ?? []);
 
-  readonly notaMedia = computed(() => {
-    const avaliacoes = this.avaliacoes();
-    if (!avaliacoes || avaliacoes.length === 0) return null;
-    const soma = avaliacoes.reduce((acc, a) => acc + this.toNumber(a.nota), 0);
-    return parseFloat((soma / avaliacoes.length).toFixed(1));
-  });
+  private readonly _notaMedia = toSignal(
+    this.refreshAvaliacoesTrigger.pipe(
+      switchMap(() => {
+        const loja = this.lojaSelecionada();
+        if (!loja) return of(null as number | null);
+        return this.lojaService.buscarNotaMedia(loja.uuid).pipe(
+          map(r => r.nota_media),
+          catchError(() => of(null as number | null)),
+        );
+      }),
+    ),
+    { initialValue: null as number | null },
+  );
+  readonly notaMedia = computed(() => this._notaMedia());
 
   readonly distribuicaoNotas = computed(() => {
     const avaliacoes = this.avaliacoes();

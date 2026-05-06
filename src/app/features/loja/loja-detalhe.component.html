@@ -74,15 +74,7 @@
       @if (loja()!.celular) {
         <span class="flex items-center gap-1.5 shrink-0">📞 {{ loja()!.celular }}</span>
       }
-      @if (lojaAbertaAgora()) {
-        <span class="ml-auto flex items-center gap-1 text-green-600 font-medium shrink-0">
-          <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>Aberto agora
-        </span>
-      } @else {
-        <span class="ml-auto flex items-center gap-1 text-red-500 font-medium shrink-0">
-          <span class="w-2 h-2 bg-red-500 rounded-full"></span>Fechado
-        </span>
-      }
+      <ui-loja-aberta class="ml-auto" [aberta]="lojaAbertaAgora()" variant="chip"/>
     </div>
   </div>
 

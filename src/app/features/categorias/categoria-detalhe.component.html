@@ -94,13 +94,7 @@
                 <div>
                   <h2 class="font-bold text-gray-900 group-hover:text-orange-600 transition-colors flex items-center gap-2 flex-wrap">
                     {{ item.loja.nome }}
-                    @if (item.loja.ativa) {
-                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>Aberto
-                      </span>
-                    } @else {
-                      <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Fechado</span>
-                    }
+                    <ui-loja-aberta [aberta]="item.abertaAgora"/>
                   </h2>
                   <p class="text-xs text-gray-500 mt-0.5">
                     ⏱ {{ item.loja.tempo_preparo_min }}min &nbsp;·&nbsp;

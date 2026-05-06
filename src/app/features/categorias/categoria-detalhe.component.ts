@@ -13,8 +13,9 @@ import {
 } from 'rxjs';
 import { CatalogoService } from '../../core/services/catalogo.service';
 import { LojaService } from '../../core/services/loja.service';
+import { HorarioService } from '../../core/services/horario.service';
 import { CategoriaCobertura, Loja, Produto } from '../../core/models';
-import { UiEmptyStateComponent } from '../../shared/components';
+import { UiEmptyStateComponent, UiLojaAbertaComponent } from '../../shared/components';
 
 const EMOJI_MAP: [string, string][] = [
   ['pizza', '🍕'],
@@ -46,8 +47,9 @@ export function categoriaEmoji(nome: string): string {
 }
 
 interface LojaComProdutos {
-  loja:     Loja;
-  produtos: Produto[];
+  loja:        Loja;
+  produtos:    Produto[];
+  abertaAgora: boolean;
 }
 
 interface PageData {
@@ -58,13 +60,14 @@ interface PageData {
 
 @Component({
   selector: 'app-categoria-detalhe',
-  imports: [RouterLink, DecimalPipe, UiEmptyStateComponent],
+  imports: [RouterLink, DecimalPipe, UiEmptyStateComponent, UiLojaAbertaComponent],
   templateUrl: './categoria-detalhe.component.html',
 })
 export class CategoriaDetalheComponent {
   private readonly route           = inject(ActivatedRoute);
   private readonly catalogoService = inject(CatalogoService);
   private readonly lojaService     = inject(LojaService);
+  private readonly horarioService  = inject(HorarioService);
 
   readonly skeletons = Array(6);
 
@@ -95,8 +98,15 @@ export class CategoriaDetalheComponent {
 
         return forkJoin(
           response.lojas.map(l =>
-            this.lojaService.buscarPorUuid(l.uuid).pipe(
-              map(loja => ({ loja, produtos: l.produtos }) as LojaComProdutos),
+            forkJoin({
+              loja:   this.lojaService.buscarPorUuid(l.uuid),
+              status: this.horarioService.verificarStatus(l.uuid).pipe(catchError(() => of(null))),
+            }).pipe(
+              map(({ loja, status }) => ({
+                loja,
+                produtos:    l.produtos,
+                abertaAgora: status?.aberta ?? false,
+              }) as LojaComProdutos),
               catchError(() => of(null)),
             ),
           ),

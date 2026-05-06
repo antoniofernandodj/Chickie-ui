@@ -106,6 +106,7 @@ export interface Loja {
   taxa_entrega:        number;
   valor_minimo_pedido: number;
   raio_entrega_km:     number;
+  nota_media:          number | null;
   criado_em:           string;
   atualizado_em:       string;
 }
