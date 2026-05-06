@@ -152,7 +152,7 @@ export class PedidosComponent {
         toast.success('Carrinho carregado! Revise seu pedido.');
       }
 
-      this.router.navigate(['/lojas', data.loja.slug]);
+      this.router.navigate(['/loja', data.loja.slug]);
     });
   }
 }
