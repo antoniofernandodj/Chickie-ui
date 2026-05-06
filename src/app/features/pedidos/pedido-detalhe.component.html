@@ -260,6 +260,118 @@
       </div>
     }
 
+    <!-- Seção de avaliação (aparece quando pedido é entregue) -->
+    @if (isAuthenticated() && pedido()!.status === 'entregue') {
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        @if (!avaliacaoInline()) {
+          <div class="text-center py-4">
+            <p class="text-sm text-gray-600 mb-4">Seu pedido foi entregue! Que tal avaliar?</p>
+            <button (click)="abrirAvaliacaoInline()"
+                    class="px-6 py-3 rounded-xl font-semibold text-sm text-white"
+                    style="background:var(--color-brand)">
+              ⭐ Avaliar pedido
+            </button>
+          </div>
+        } @else {
+          @switch (inlineStep()) {
+            @case ('loja') {
+              <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-sm font-semibold text-gray-700">Avalie a loja</h2>
+                <button (click)="onInlinePularLoja()"
+                        class="text-xs text-gray-400 hover:text-gray-600">Pular</button>
+              </div>
+              <p class="text-sm text-gray-500 mb-5">Como foi a experiência com a loja?</p>
+              <app-avaliacao-loja-form
+                [loading]="inlineLoadingLoja()"
+                (salvar)="onInlineAvaliarLoja($event)"
+              />
+            }
+            @case ('produtos') {
+              @if (inlineProdutoAtual(); as produto) {
+                <div class="mb-4 flex items-center justify-between">
+                  <h2 class="text-sm font-semibold text-gray-700">Avalie os produtos</h2>
+                  <p class="text-xs text-gray-400">
+                    Produto {{ inlineProdutoIndex() + 1 }} de {{ inlineTotalProdutos() }}
+                  </p>
+                </div>
+                @for (p of [produto]; track p.uuid) {
+                  <app-avaliacao-produto-form
+                    [produto]="p"
+                    [loading]="inlineLoadingProduto()"
+                    (salvar)="onInlineAvaliarProduto($event)"
+                    (pular)="onInlinePularProduto()"
+                  />
+                }
+              }
+            }
+            @case ('concluido') {
+              <div class="text-center py-4">
+                <div class="text-4xl mb-3">⭐</div>
+                <h3 class="text-base font-bold text-gray-900 mb-1">Obrigado pela avaliação!</h3>
+                <p class="text-sm text-gray-500">Sua opinião ajuda outros clientes e melhora nosso serviço.</p>
+              </div>
+            }
+          }
+        }
+      </div>
+    }
+
+    <!-- Seção de avaliação (aparece quando pedido é entregue) -->
+    @if (isAuthenticated() && pedido()!.status === 'entregue') {
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        @if (!avaliacaoInline()) {
+          <div class="text-center py-4">
+            <p class="text-sm text-gray-600 mb-4">Seu pedido foi entregue! Que tal avaliar?</p>
+            <button (click)="abrirAvaliacaoInline()"
+                    class="px-6 py-3 rounded-xl font-semibold text-sm text-white"
+                    style="background:var(--color-brand)">
+              ⭐ Avaliar pedido
+            </button>
+          </div>
+        } @else {
+          @switch (inlineStep()) {
+            @case ('loja') {
+              <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-sm font-semibold text-gray-700">Avalie a loja</h2>
+                <button (click)="onInlinePularLoja()"
+                        class="text-xs text-gray-400 hover:text-gray-600">Pular</button>
+              </div>
+              <p class="text-sm text-gray-500 mb-5">Como foi a experiência com a loja?</p>
+              <app-avaliacao-loja-form
+                [loading]="inlineLoadingLoja()"
+                (salvar)="onInlineAvaliarLoja($event)"
+              />
+            }
+            @case ('produtos') {
+              @if (inlineProdutoAtual(); as produto) {
+                <div class="mb-4 flex items-center justify-between">
+                  <h2 class="text-sm font-semibold text-gray-700">Avalie os produtos</h2>
+                  <p class="text-xs text-gray-400">
+                    Produto {{ inlineProdutoIndex() + 1 }} de {{ inlineTotalProdutos() }}
+                  </p>
+                </div>
+                @for (p of [produto]; track p.uuid) {
+                  <app-avaliacao-produto-form
+                    [produto]="p"
+                    [loading]="inlineLoadingProduto()"
+                    (salvar)="onInlineAvaliarProduto($event)"
+                    (pular)="onInlinePularProduto()"
+                  />
+                }
+              }
+            }
+            @case ('concluido') {
+              <div class="text-center py-4">
+                <div class="text-4xl mb-3">⭐</div>
+                <h3 class="text-base font-bold text-gray-900 mb-1">Obrigado pela avaliação!</h3>
+                <p class="text-sm text-gray-500">Sua opinião ajuda outros clientes e melhora nosso serviço.</p>
+              </div>
+            }
+          }
+        }
+      </div>
+    }
+
     <!-- Modal de avaliação pós-entrega -->
     @if (mostrarModalAvaliacao() && pedido()) {
       <app-avaliar-pedido-modal
