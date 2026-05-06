@@ -45,12 +45,6 @@ O modelo `Entregador` já existe (`models/index.ts`) e o admin consegue criar/ed
 
 ## 2. Fluxo do Cliente Logado
 
-### 2.3 Repetir Pedido (Re-order)
-- **Por que**: feature de retenção. Cliente que pediu sushi terça quer pedir de novo na sexta com 1 clique.
-- **O que construir**: botão "Pedir novamente" no card de `pedidos.component.html`, que chama nova action `CartService.carregarDePedido(pedido)` populando o carrinho com os mesmos itens (verificando `disponivel` no catálogo atual).
-- **Prioridade**: **Média**.
-- **Dependências**: 2.2.
-
 ### 2.6 Histórico/Comprovantes de Pagamento
 - **Por que**: `PagamentoService` existe e cria PIX, mas não há listagem de pagamentos passados, comprovantes, status `pago/pendente/expirado`.
 - **O que construir**:
@@ -157,20 +151,6 @@ O role `funcionario` está modelado (`Funcionario` em `models/index.ts`), o admi
 - **O que construir**: `GeolocationService` que pede `navigator.geolocation`, salva em signal global, usa coordenadas em `LojaService.filtrar`. Adicionar campo "endereço de entrega ativo" no `HeaderComponent`.
 - **Prioridade**: **Alta** — UX padrão.
 - **Dependências**: 5.1.
-
-### 5.7 Onboarding/Tutorial (primeiro acesso)
-- **Por que**: `Usuario.passou_pelo_primeiro_acesso: boolean` existe no model mas a UI nunca consulta. É um hook de onboarding desperdiçado.
-- **O que construir**: `OnboardingTourComponent` (overlay tipo Shepherd.js) disparado quando `passou_pelo_primeiro_acesso === false`, terminando com PUT para marcar `true`.
-- **Prioridade**: **Baixa**.
-- **Dependências**: endpoint para flipar a flag.
-
-### 5.8 Recuperação de senha ("Esqueci minha senha")
-- **Por que**: ausente nas rotas (`/auth/login`, `/auth/signup`, `/auth/verificar-email`, `/auth/confirmar-email` — sem reset). Bloqueia usuários reais constantemente.
-- **O que construir**:
-  - Rotas `/auth/esqueci-senha` (formulário de email) e `/auth/redefinir-senha?token=...`.
-  - Métodos `AuthService.solicitarRedefinicao(email)` e `redefinirSenha(token, senha)`.
-- **Prioridade**: **Alta** — bloqueador real para usuários.
-- **Dependências**: backend de envio de email + token de reset.
 
 ## 6. Infra & Qualidade
 

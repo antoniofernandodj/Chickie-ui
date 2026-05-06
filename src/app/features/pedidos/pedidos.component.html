@@ -112,11 +112,30 @@
               <span class="text-gray-500">Total </span>
               <span class="font-bold text-gray-900">R$ {{ pedido.total | number:'1.2-2' }}</span>
             </div>
-            <div class="flex items-center gap-1 text-xs text-gray-400 font-medium">
-              Ver detalhes
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
+            <div class="flex items-center gap-3">
+              <button
+                type="button"
+                (click)="pedirNovamente(pedido, $event)"
+                [disabled]="reordenando().has(pedido.uuid)"
+                class="flex items-center gap-1.5 text-xs font-semibold transition-colors disabled:opacity-50"
+                style="color: var(--color-brand)"
+              >
+                @if (reordenando().has(pedido.uuid)) {
+                  <ui-spinner size="xs"/>
+                } @else {
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                  </svg>
+                  Pedir novamente
+                }
+              </button>
+              <div class="flex items-center gap-1 text-xs text-gray-400 font-medium">
+                Ver detalhes
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
             </div>
           </div>
         </a>

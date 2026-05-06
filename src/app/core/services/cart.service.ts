@@ -1,6 +1,6 @@
 import { Injectable, inject, PLATFORM_ID, signal, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Loja, Produto, Adicional } from '../models';
+import { Loja, Produto, Adicional, Pedido } from '../models';
 
 export interface CartParte {
   produto:    Produto;
@@ -76,6 +76,54 @@ export class CartService {
     this.lojaAtual.set(null);
     this.itens.set([]);
     if (isPlatformBrowser(this.platformId)) localStorage.removeItem(KEY);
+  }
+
+  carregarDePedido(
+    pedido: Pedido,
+    loja: Loja,
+    produtos: Produto[],
+    adicionaisDisponiveis: Adicional[],
+  ): { carregados: number; ignorados: string[] } {
+    const produtoMap = new Map(produtos.filter(p => p.disponivel).map(p => [p.uuid, p]));
+    const adicionalMap = new Map(
+      adicionaisDisponiveis.map(a => [a.nome.toLowerCase().trim(), a]),
+    );
+
+    let nextId = Date.now();
+    const cartItems: CartItem[] = [];
+    const ignorados: string[] = [];
+
+    for (const item of pedido.itens) {
+      const partes: CartParte[] = [];
+
+      for (const parte of item.partes) {
+        const produto = produtoMap.get(parte.produto_uuid);
+        if (!produto) {
+          ignorados.push(parte.produto_nome);
+          continue;
+        }
+        const adicionais = parte.adicionais
+          .map(a => adicionalMap.get(a.nome.toLowerCase().trim()))
+          .filter((a): a is Adicional => a !== undefined);
+
+        partes.push({ produto, posicao: parte.posicao, adicionais });
+      }
+
+      if (partes.length > 0) {
+        cartItems.push({
+          id: nextId++,
+          categoria_uuid: partes[0].produto.categoria_uuid,
+          partes,
+          quantidade: item.quantidade,
+        });
+      }
+    }
+
+    if (cartItems.length > 0) {
+      this.sincronizar(loja, cartItems);
+    }
+
+    return { carregados: cartItems.length, ignorados };
   }
 
   openDrawer()  { this.drawerOpen.set(true); }

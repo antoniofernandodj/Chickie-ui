@@ -1,20 +1,24 @@
 import { Component, inject, signal, computed, afterNextRender, LOCALE_ID, DestroyRef } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { forkJoin, catchError, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toast } from 'ngx-sonner';
 import { PedidoService } from '../../core/services/pedido.service';
 import { PedidoLocalStorageService } from '../../core/services/pedido-local-storage.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PedidosLiveService } from '../../core/services/pedidos-live.service';
+import { LojaService } from '../../core/services/loja.service';
+import { CatalogoService } from '../../core/services/catalogo.service';
+import { CartService } from '../../core/services/cart.service';
 import { Pedido, StatusPedido } from '../../core/models';
-import { STATUS_PEDIDO_CFG, UiModalComponent, UiEmptyStateComponent, UiStatusBadgeComponent, UiSkeletonComponent } from '../../shared/components';
+import { STATUS_PEDIDO_CFG, UiModalComponent, UiEmptyStateComponent, UiStatusBadgeComponent, UiSkeletonComponent, UiSpinnerComponent } from '../../shared/components';
 
 const STATUS_TERMINAL = new Set<StatusPedido>(['entregue', 'cancelado']);
 
 @Component({
   selector: 'app-pedidos',
-  imports: [RouterLink, DecimalPipe, UiModalComponent, UiEmptyStateComponent, UiStatusBadgeComponent, UiSkeletonComponent],
+  imports: [RouterLink, DecimalPipe, UiModalComponent, UiEmptyStateComponent, UiStatusBadgeComponent, UiSkeletonComponent, UiSpinnerComponent],
   templateUrl: './pedidos.component.html',
 })
 export class PedidosComponent {
@@ -22,12 +26,17 @@ export class PedidosComponent {
   private pedidoLocalStorage = inject(PedidoLocalStorageService);
   private auth               = inject(AuthService);
   private pedidosLive        = inject(PedidosLiveService);
+  private lojaService        = inject(LojaService);
+  private catalogoService    = inject(CatalogoService);
+  private cartService        = inject(CartService);
+  private router             = inject(Router);
   private destroyRef         = inject(DestroyRef);
   private locale             = inject(LOCALE_ID);
 
   readonly filtro            = signal<StatusPedido | 'todos'>('todos');
   readonly loading           = signal(true);
   readonly wsAtivo           = signal(false);
+  readonly reordenando       = signal(new Set<string>());
 
   private readonly _apiPedidos = signal<Pedido[]>([]);
 
@@ -106,4 +115,44 @@ export class PedidosComponent {
   }
 
   statusCfg(s: StatusPedido) { return STATUS_PEDIDO_CFG[s] ?? STATUS_PEDIDO_CFG['criado']; }
+
+  pedirNovamente(pedido: Pedido, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (this.reordenando().has(pedido.uuid)) return;
+    this.reordenando.update(s => new Set([...s, pedido.uuid]));
+
+    forkJoin({
+      loja:      this.lojaService.buscarPorUuid(pedido.loja_uuid),
+      produtos:  this.catalogoService.listarProdutosPorLoja(pedido.loja_uuid),
+      adicionais: this.catalogoService.listarAdicionaisDisponiveis(pedido.loja_uuid),
+    }).pipe(
+      catchError(() => {
+        toast.error('Não foi possível carregar os dados da loja.');
+        return of(null);
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((data) => {
+      this.reordenando.update(s => { const n = new Set(s); n.delete(pedido.uuid); return n; });
+      if (!data) return;
+
+      const { carregados, ignorados } = this.cartService.carregarDePedido(
+        pedido, data.loja, data.produtos, data.adicionais,
+      );
+
+      if (carregados === 0) {
+        toast.error('Nenhum item do pedido está disponível no momento.');
+        return;
+      }
+
+      if (ignorados.length > 0) {
+        toast.warning(`${ignorados.length} produto(s) indisponível(eis) foram removidos do carrinho.`);
+      } else {
+        toast.success('Carrinho carregado! Revise seu pedido.');
+      }
+
+      this.router.navigate(['/lojas', data.loja.slug]);
+    });
+  }
 }
