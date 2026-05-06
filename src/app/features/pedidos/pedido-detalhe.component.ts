@@ -11,6 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { Pedido, StatusPedido, CreatePagamentoResponse } from '../../core/models';
 import { ChatPanelComponent } from '../../shared/components/chat-panel.component';
 import { UiSkeletonComponent } from '../../shared/components';
+import { AvaliarPedidoModalComponent } from './avaliar-pedido-modal.component';
 import { validarCpf, formatCpf } from '../../core/utils/cpf-utils';
 
 type Steps = {
@@ -35,7 +36,7 @@ const STATUS_TERMINAL: StatusPedido[] = ['entregue', 'cancelado'];
 @Component({
   selector: 'app-pedido-detalhe',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, ChatPanelComponent, DatePipe, UiSkeletonComponent],
+  imports: [RouterLink, DecimalPipe, ChatPanelComponent, DatePipe, UiSkeletonComponent, AvaliarPedidoModalComponent],
   templateUrl: './pedido-detalhe.component.html',
 })
 export class PedidoDetalheComponent {
@@ -77,6 +78,7 @@ export class PedidoDetalheComponent {
   readonly pagadorError           = signal('');
   readonly copiado                = signal(false);
   readonly chatAberto             = signal(false);
+  readonly mostrarModalAvaliacao  = signal(false);
 
   private copiadoTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -117,8 +119,13 @@ export class PedidoDetalheComponent {
     ).subscribe(pedido => {
       if (pedido) {
         const foiPago = !this._pedido()?.pago && pedido.pago;
+        const transitouEntregue = pedido.status === 'entregue' && this._pedido()?.status !== 'entregue';
         this._pedido.set(pedido);
         if (foiPago) this.pagamento.set(null);
+        if (transitouEntregue && this.isAuthenticated() && !this.avaliacaoJaMostrada(pedido.uuid)) {
+          this.mostrarModalAvaliacao.set(true);
+          this.marcarAvaliacaoMostrada(pedido.uuid);
+        }
       } else {
         this._pedido.set(null);
       }
@@ -215,5 +222,15 @@ export class PedidoDetalheComponent {
         acc + p.preco_unitario + p.adicionais.reduce((a, ad) => a + ad.preco, 0),
       0,
     ) * item.quantidade;
+  }
+
+  // ── Modal de avaliação ────────────────────────────────────────────────────
+
+  private avaliacaoJaMostrada(pedidoUuid: string): boolean {
+    return localStorage.getItem(`avaliacao_modal_${pedidoUuid}`) !== null;
+  }
+
+  private marcarAvaliacaoMostrada(pedidoUuid: string): void {
+    localStorage.setItem(`avaliacao_modal_${pedidoUuid}`, '1');
   }
 }
