@@ -13,10 +13,11 @@ import { Produto, CategoriaProdutos, HorarioFuncionamento, AvaliacaoDeLoja, Aval
 import { AvaliacaoLojaFormComponent } from './avaliacao-loja-form.component';
 import { CriarPedidoModalComponent } from './criar-pedido-modal.component';
 import { UiEmptyStateComponent, UiLojaAbertaComponent } from '../../shared/components';
+import { PhonePipe } from '../../shared/pipes/phone.pipe';
 
 @Component({
   selector: 'app-loja-detalhe',
-  imports: [RouterLink, DecimalPipe, DatePipe, AvaliacaoLojaFormComponent, CriarPedidoModalComponent, UiEmptyStateComponent, UiLojaAbertaComponent],
+  imports: [RouterLink, DecimalPipe, DatePipe, PhonePipe, AvaliacaoLojaFormComponent, CriarPedidoModalComponent, UiEmptyStateComponent, UiLojaAbertaComponent],
   templateUrl: './loja-detalhe.component.html',
 })
 export class LojaDetalheComponent {

@@ -72,7 +72,7 @@
         💳 Mín. <strong class="text-gray-900">R$ {{ loja()!.valor_minimo_pedido | number:'1.2-2' }}</strong>
       </span>
       @if (loja()!.celular) {
-        <span class="flex items-center gap-1.5 shrink-0">📞 {{ loja()!.celular }}</span>
+        <span class="flex items-center gap-1.5 shrink-0">📞 {{ loja()!.celular | phone }}</span>
       }
       <ui-loja-aberta class="ml-auto" [aberta]="lojaAbertaAgora()" variant="chip"/>
     </div>
