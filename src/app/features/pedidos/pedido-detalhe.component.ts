@@ -39,7 +39,7 @@ const STATUS_TERMINAL: StatusPedido[] = ['entregue', 'cancelado'];
 @Component({
   selector: 'app-pedido-detalhe',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, ChatPanelComponent, DatePipe, UiSkeletonComponent, AvaliarPedidoModalComponent, AvaliacaoLojaFormComponent, AvaliacaoProdutoFormComponent],
+  imports: [RouterLink, DecimalPipe, ChatPanelComponent, UiSkeletonComponent, AvaliarPedidoModalComponent, AvaliacaoLojaFormComponent, AvaliacaoProdutoFormComponent],
   templateUrl: './pedido-detalhe.component.html',
 })
 export class PedidoDetalheComponent {
@@ -83,11 +83,6 @@ export class PedidoDetalheComponent {
   readonly copiado                = signal(false);
   readonly chatAberto             = signal(false);
   readonly mostrarModalAvaliacao  = signal(false);
-  readonly avaliacaoInline        = signal(false);
-  readonly inlineStep             = signal<'loja' | 'produtos' | 'concluido'>('loja');
-  readonly inlineLoadingLoja      = signal(false);
-  readonly inlineLoadingProduto   = signal(false);
-  readonly inlineProdutoIndex     = signal(0);
   readonly avaliacaoInline        = signal(false);
   readonly inlineStep             = signal<'loja' | 'produtos' | 'concluido'>('loja');
   readonly inlineLoadingLoja      = signal(false);
@@ -239,69 +234,6 @@ export class PedidoDetalheComponent {
   }
 
   // ── Modal de avaliação ────────────────────────────────────────────────────
-
-  readonly produtosUnicos = computed(() => {
-    const p = this._pedido();
-    if (!p) return [] as { uuid: string; nome: string }[];
-    const map = new Map<string, { uuid: string; nome: string }>();
-    for (const item of p.itens) {
-      for (const parte of item.partes) {
-        if (!map.has(parte.produto_uuid)) {
-          map.set(parte.produto_uuid, { uuid: parte.produto_uuid, nome: parte.produto_nome });
-        }
-      }
-    }
-    return [...map.values()];
-  });
-
-  readonly inlineProdutoAtual  = computed(() => this.produtosUnicos()[this.inlineProdutoIndex()] ?? null);
-  readonly inlineTotalProdutos = computed(() => this.produtosUnicos().length);
-
-  abrirAvaliacaoInline(): void {
-    this.avaliacaoInline.set(true);
-    this.inlineStep.set('loja');
-  }
-
-  onInlineAvaliarLoja(dados: { nota: number; comentario: string | null }): void {
-    const p = this._pedido();
-    if (!p) return;
-    this.inlineLoadingLoja.set(true);
-    this.marketingService.avaliarLoja(p.loja_uuid, dados).subscribe({
-      next:  () => { this.inlineLoadingLoja.set(false); this.irParaInlineProdutos(); },
-      error: () => { this.inlineLoadingLoja.set(false); this.irParaInlineProdutos(); },
-    });
-  }
-
-  onInlinePularLoja(): void { this.irParaInlineProdutos(); }
-
-  private irParaInlineProdutos(): void {
-    if (this.produtosUnicos().length === 0) {
-      this.inlineStep.set('concluido');
-    } else {
-      this.inlineProdutoIndex.set(0);
-      this.inlineStep.set('produtos');
-    }
-  }
-
-  onInlineAvaliarProduto(dados: { produto_uuid: string; nota: number; descricao: string; comentario: string | null }): void {
-    const p = this._pedido();
-    if (!p) return;
-    this.inlineLoadingProduto.set(true);
-    this.marketingService.avaliarProduto(p.loja_uuid, dados).subscribe({
-      next:  () => { this.inlineLoadingProduto.set(false); this.avancarInlineProduto(); },
-      error: () => { this.inlineLoadingProduto.set(false); this.avancarInlineProduto(); },
-    });
-  }
-
-  onInlinePularProduto(): void { this.avancarInlineProduto(); }
-
-  private avancarInlineProduto(): void {
-    if (this.inlineProdutoIndex() + 1 >= this.inlineTotalProdutos()) {
-      this.inlineStep.set('concluido');
-    } else {
-      this.inlineProdutoIndex.update(i => i + 1);
-    }
-  }
 
   readonly produtosUnicos = computed(() => {
     const p = this._pedido();

@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { SignupRequest } from '../../../core/models';
-import { UiButtonComponent, UiSpinnerComponent } from '../../../shared/components';
+import { UiButtonComponent } from '../../../shared/components';
 
 interface PendingSignup {
   email:   string;
@@ -13,7 +13,7 @@ interface PendingSignup {
 
 @Component({
   selector: 'app-verificar-email',
-  imports: [RouterLink, UiButtonComponent, UiSpinnerComponent],
+  imports: [RouterLink, UiButtonComponent],
   templateUrl: './verificar-email.component.html',
 })
 export class VerificarEmailComponent implements OnInit, OnDestroy {

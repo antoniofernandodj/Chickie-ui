@@ -7,14 +7,14 @@ import { EnderecoUsuarioService } from '../../core/services/endereco-usuario.ser
 import { AuthService } from '../../core/services/auth.service';
 import { EnderecoUsuario, EnderecoUsuarioRequest } from '../../core/models';
 import {
-  UiTabBarComponent, UiCardComponent, UiInputComponent,
+  UiTabBarComponent, UiCardComponent,
   UiButtonComponent, UiAvatarComponent, UiTab, EnderecoFormComponent,
 } from '../../shared/components';
 
 @Component({
   selector: 'app-perfil',
   imports: [ReactiveFormsModule,
-    UiTabBarComponent, UiCardComponent, UiInputComponent, UiButtonComponent, UiAvatarComponent, EnderecoFormComponent],
+    UiTabBarComponent, UiCardComponent, UiButtonComponent, UiAvatarComponent, EnderecoFormComponent],
   templateUrl: './perfil.component.html',
 })
 export class PerfilComponent {
