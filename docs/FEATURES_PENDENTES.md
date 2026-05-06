@@ -182,18 +182,6 @@ O role `funcionario` está modelado (`Funcionario` em `models/index.ts`), o admi
 - **Prioridade**: **Alta** — UX padrão.
 - **Dependências**: 5.1.
 
-### 5.5 Distribuição de estrelas real
-- **Por que**: em `loja-detalhe.component.html` a distribuição de notas não é calculada. A lógica já existe em `admin.component.ts` — precisa ser reutilizada.
-- **O que construir**: usar `marketingService.listarAvaliacoesLoja(uuid)` em `LojaDetalheComponent` e calcular distribuição localmente (mesmo código de `admin.component.ts`).
-- **Prioridade**: **Média**.
-- **Dependências**: nenhuma; lógica já existe.
-
-### 5.6 Modo dark / preferências de acessibilidade
-- **Por que**: padrão moderno. Não há toggle.
-- **O que construir**: `ThemeService` com `localStorage` + `prefers-color-scheme`, toggle no header.
-- **Prioridade**: **Baixa**.
-- **Dependências**: revisão Tailwind para classes `dark:`.
-
 ### 5.7 Onboarding/Tutorial (primeiro acesso)
 - **Por que**: `Usuario.passou_pelo_primeiro_acesso: boolean` existe no model mas a UI nunca consulta. É um hook de onboarding desperdiçado.
 - **O que construir**: `OnboardingTourComponent` (overlay tipo Shepherd.js) disparado quando `passou_pelo_primeiro_acesso === false`, terminando com PUT para marcar `true`.

@@ -107,6 +107,7 @@ export interface Loja {
   valor_minimo_pedido: number;
   raio_entrega_km:     number;
   nota_media:          number | null;
+  aberta?:             boolean;
   criado_em:           string;
   atualizado_em:       string;
 }
