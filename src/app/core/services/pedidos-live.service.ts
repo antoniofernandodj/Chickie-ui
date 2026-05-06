@@ -44,4 +44,21 @@ export class PedidosLiveService {
       },
     );
   }
+
+  conectarMeusPedidos(token: string): Observable<Pedido[]> {
+    const urlFn = () => {
+      const base = environment.apiUrl.replace(/^https/, 'wss').replace(/^http/, 'ws');
+      return `${base}/pedidos/meus/ws?token=${encodeURIComponent(token)}`;
+    };
+
+    return createReconnectingWS<Pedido[]>(
+      urlFn,
+      (data) => PedidoNormalizer.normalizarPedidos(data),
+      this.platformId,
+      {
+        logPrefix: '[WS meus-pedidos]',
+        filterFn: (data) => Array.isArray(data),
+      },
+    );
+  }
 }

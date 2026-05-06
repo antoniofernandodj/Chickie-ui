@@ -45,35 +45,11 @@ O modelo `Entregador` já existe (`models/index.ts`) e o admin consegue criar/ed
 
 ## 2. Fluxo do Cliente Logado
 
-### 2.1 Live tracking integrado em `/pedidos` (lista)
-- **Por que**: `PedidosLiveService.acompanharPorCodigo()` existe e funciona em `/pedidos/:uuid`, mas em `pedidos.component.ts` a lista é fetchada **uma vez** via `pedidoService.listar()` dentro de `afterNextRender`, sem WebSocket. O usuário precisa entrar pedido a pedido para ver mudanças.
-- **O que construir**:
-  - Novo método em `PedidosLiveService.conectarMeusPedidos(token): Observable<Pedido[]>` apontando para `wss://.../api/pedidos/meus/ws` (endpoint a ser criado no backend, espelhando `por-loja/.../ws`).
-  - Em `PedidosComponent`, substituir o `pedidoService.listar()` por subscription ao WS (com fallback HTTP no SSR/erro). Usar `takeUntilDestroyed(destroyRef)`.
-  - Badge animado "ao vivo" (verde pulsante) em cada card cujo status seja não-terminal.
-- **Prioridade**: **Alta** — é UX crítica e a infra (WS + normalizador) já existe.
-- **Dependências**: endpoint `/pedidos/meus/ws` no backend.
-
-
 ### 2.3 Repetir Pedido (Re-order)
 - **Por que**: feature de retenção. Cliente que pediu sushi terça quer pedir de novo na sexta com 1 clique.
 - **O que construir**: botão "Pedir novamente" no card de `pedidos.component.html`, que chama nova action `CartService.carregarDePedido(pedido)` populando o carrinho com os mesmos itens (verificando `disponivel` no catálogo atual).
 - **Prioridade**: **Média**.
 - **Dependências**: 2.2.
-
-### 2.4 Avaliação Pós-Entrega (push-to-rate)
-- **Por que**: `AvaliacaoLojaForm` existe mas não é triggerado automaticamente. Hoje o usuário só avalia se voltar manualmente à página da loja.
-- **O que construir**:
-  - Detectar transição `entregue` no live tracking → exibir modal `AvaliarPedidoModalComponent` em `pedido-detalhe.component.html`.
-  - Suportar avaliação de **produto** também (`AvaliacaoDeProduto` já modelado em `models/index.ts`, mas sem UI).
-- **Prioridade**: **Média** — alto valor para o negócio (review velocity).
-- **Dependências**: nenhuma; modelos prontos.
-
-### 2.5 Endereço selecionável no Checkout (vincular `EnderecoUsuario`)
-- **Por que**: o cliente cadastra endereços em `/perfil` via `EnderecoUsuarioService`, mas no `criar-pedido-modal` o endereço é digitado **do zero a cada compra**. Inconsistência grosseira.
-- **O que construir**: dropdown no modal/checkout listando `EnderecoUsuarioService.listar()` + opção "Novo endereço". Calcular taxa de entrega via raio (`Loja.raio_entrega_km`) — atualmente fixa.
-- **Prioridade**: **Alta** — fricção enorme no checkout.
-- **Dependências**: 2.2 ajuda mas não bloqueia.
 
 ### 2.6 Histórico/Comprovantes de Pagamento
 - **Por que**: `PagamentoService` existe e cria PIX, mas não há listagem de pagamentos passados, comprovantes, status `pago/pendente/expirado`.
