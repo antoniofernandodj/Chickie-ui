@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect, DestroyRef } from '@angular/core';
+import { Component, inject, signal, computed, effect, DestroyRef, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -1058,9 +1058,18 @@ export class AdminComponent {
   prodImagem = signal<File | null>(null);
   prodImagemPreview = signal<string | null>(null);
   prodEditId = signal<string | null>(null);
+  @ViewChild('imagemInput') imagemInput!: ElementRef<HTMLInputElement>;
 
   get fp() {
     return this.prodForm.controls;
+  }
+
+  private limparInputImagem() {
+    this.prodImagem.set(null);
+    this.prodImagemPreview.set(null);
+    if (this.imagemInput?.nativeElement) {
+      this.imagemInput.nativeElement.value = '';
+    }
   }
 
   onImagemSelected(event: Event) {
@@ -1103,8 +1112,7 @@ export class AdminComponent {
             next: () => {
               toast.success('Produto e imagem criados com sucesso!');
               this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
-              this.prodImagem.set(null);
-              this.prodImagemPreview.set(null);
+              this.limparInputImagem();
               // Refresh products for this category
               const catUuid = fv.categoria_uuid!;
               this.carregarProdutosDaCategoria(catUuid);
@@ -1118,8 +1126,7 @@ export class AdminComponent {
           toast.success('Produto criado com sucesso!');
           this.prodLoading.set(false);
           this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
-          this.prodImagem.set(null);
-          this.prodImagemPreview.set(null);
+          this.limparInputImagem();
           // Refresh products for this category
           const catUuid = fv.categoria_uuid!;
           this.carregarProdutosDaCategoria(catUuid);
@@ -1143,9 +1150,7 @@ export class AdminComponent {
       destaque: prod.destaque ?? false,
     });
     this.prodError.set('');
-    // Clear image preview
-    this.prodImagem.set(null);
-    this.prodImagemPreview.set(null);
+    this.limparInputImagem();
   }
 
   salvarEdicaoProduto() {
@@ -1176,8 +1181,7 @@ export class AdminComponent {
               this.prodLoading.set(false);
               this.prodEditId.set(null);
               this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
-              this.prodImagem.set(null);
-              this.prodImagemPreview.set(null);
+              this.limparInputImagem();
               // Refresh products for this category
               const catUuid = fv.categoria_uuid!;
               this.carregarProdutosDaCategoria(catUuid);
@@ -1192,8 +1196,7 @@ export class AdminComponent {
           this.prodLoading.set(false);
           this.prodEditId.set(null);
           this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
-          this.prodImagem.set(null);
-          this.prodImagemPreview.set(null);
+          this.limparInputImagem();
           // Refresh products for this category
           const catUuid = fv.categoria_uuid!;
           this.carregarProdutosDaCategoria(catUuid);
@@ -1209,8 +1212,7 @@ export class AdminComponent {
   cancelarEdicaoProduto() {
     this.prodEditId.set(null);
     this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
-    this.prodImagem.set(null);
-    this.prodImagemPreview.set(null);
+    this.limparInputImagem();
     this.prodError.set('');
   }
 
