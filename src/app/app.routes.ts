@@ -109,7 +109,6 @@ export const routes: Routes = [
     title: 'Meu Perfil — Chiquitos',
   },
   {
-  {
     path: 'funcionario',
     canActivate: [funcionarioGuard],
     loadComponent: () =>
@@ -118,6 +117,7 @@ export const routes: Routes = [
       ),
     title: 'Painel Funcionário — Chiquitos',
   },
+  {
     path: 'owner',
     canActivate: [ownerGuard],
     loadComponent: () =>
