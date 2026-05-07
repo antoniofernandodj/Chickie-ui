@@ -28,6 +28,11 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
   templateUrl: './admin.component.html',
 })
 export class AdminComponent {
+  private static readonly MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
+  private static readonly COMPRESS_AFTER_SIZE= 5 * 1024 * 1024;
+  private static readonly COMPRESSED_IMAGE_MIME = 'image/webp';
+  private static readonly COMPRESSED_IMAGE_QUALITY = 0.82;
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private adminService = inject(AdminService);
@@ -1072,16 +1077,79 @@ export class AdminComponent {
     }
   }
 
-  onImagemSelected(event: Event) {
+  async onImagemSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.prodImagem.set(file);
-    // Preview
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.prodImagemPreview.set(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const prepared = await this.prepareImagemParaUpload(file);
+      this.prodImagem.set(prepared);
+      this.prodImagemPreview.set(await this.fileToDataUrl(prepared));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Falha ao processar a imagem.';
+      toast.error(message);
+      this.limparInputImagem();
+    }
+  }
+
+  private async prepareImagemParaUpload(file: File): Promise<File> {
+
+    if (file.size > AdminComponent.COMPRESS_AFTER_SIZE) {
+      file = await this.comprimirImagem(file);
+    }
+
+    if (file.size > AdminComponent.MAX_IMAGE_SIZE_BYTES) {
+      throw new Error('A imagem deve ter no máximo 20MB.');
+    }
+  
+    return file;
+  }
+
+  private async comprimirImagem(file: File): Promise<File> {
+    const bitmap = await createImageBitmap(file);
+    const maxDimension = 1920;
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext('2d');
+    if (!context) {
+      throw new Error('Não foi possível preparar a imagem para compressão.');
+    }
+
+    context.drawImage(bitmap, 0, 0, width, height);
+
+    const blob = await this.canvasToBlob(canvas, AdminComponent.COMPRESSED_IMAGE_MIME, AdminComponent.COMPRESSED_IMAGE_QUALITY);
+    const nomeBase = file.name.replace(/\.[^.]+$/, '') || 'imagem';
+    return new File([blob], `${nomeBase}.webp`, { type: AdminComponent.COMPRESSED_IMAGE_MIME });
+  }
+
+  private canvasToBlob(
+    canvas: HTMLCanvasElement,
+    type: string,
+    quality: number,
+  ): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          reject(new Error('Não foi possível comprimir a imagem.'));
+          return;
+        }
+        resolve(blob);
+      }, type, quality);
+    });
+  }
+
+  private fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error('Não foi possível gerar a prévia da imagem.'));
+      reader.readAsDataURL(file);
+    });
   }
 
   criarProduto() {
