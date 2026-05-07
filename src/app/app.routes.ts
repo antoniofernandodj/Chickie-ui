@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { ownerGuard } from './core/guards/owner.guard';
+import { funcionarioGuard } from './core/guards/funcionario.guard';
 
 export const routes: Routes = [
   {
@@ -108,6 +109,15 @@ export const routes: Routes = [
     title: 'Meu Perfil — Chiquitos',
   },
   {
+  {
+    path: 'funcionario',
+    canActivate: [funcionarioGuard],
+    loadComponent: () =>
+      import('./features/funcionario/funcionario-panel.component').then(
+        (m) => m.FuncionarioPanelComponent,
+      ),
+    title: 'Painel Funcionário — Chiquitos',
+  },
     path: 'owner',
     canActivate: [ownerGuard],
     loadComponent: () =>

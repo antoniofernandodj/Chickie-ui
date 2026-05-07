@@ -70,30 +70,6 @@ O modelo `Entregador` já existe (`models/index.ts`) e o admin consegue criar/ed
 
 ---
 
-## 3. Fluxo do Funcionário
-
-O role `funcionario` está modelado (`Funcionario` em `models/index.ts`), o admin cadastra via `AdminService.adicionarFuncionario`, mas **nenhuma rota o aceita** — sem guard, sem painel.
-
-### 3.1 Painel do Funcionário (KDS — Kitchen Display System)
-- **Por que**: funcionário de cozinha precisa ver pedidos `confirmado_pela_loja` → `em_preparo` → `pronto`. Hoje só o admin (em `/admin/:loja_uuid` aba "pedidos") tem essa visão, com permissão excessiva (vê cupons, equipe, finanças).
-- **O que construir**:
-  - Rota `/funcionario` com `funcionarioGuard` (verificando `userClass === 'funcionario'`).
-  - `FuncionarioPanelComponent` (`src/app/features/funcionario/funcionario-panel.component.ts`) reutilizando `PedidosLiveService.conectar()` (já parametrizável por status). Layout em colunas tipo Trello: "Confirmados | Em preparo | Prontos".
-  - Determinar `loja_uuid` do funcionário via `GET /api/funcionarios/me` (endpoint novo) — hoje o JWT não carrega esse vínculo na UI.
-  - Botões para avançar status reutilizando `PedidoService.avancar()`.
-- **Prioridade**: **Alta** — sem isso o admin acumula trabalho operacional.
-- **Dependências**: endpoint `/funcionarios/me`, `funcionarioGuard`.
-
-### 3.2 Impressão automática / Bipe de novo pedido
-- **Por que**: cozinha real precisa de áudio + impressão térmica.
-- **O que construir**:
-  - Som configurável quando `PedidosLiveService.conectar()` recebe novo pedido com `status === 'aguardando_confirmacao_de_loja'`.
-  - Integração com impressora ESC/POS via Web USB ou ponte local — exposta como `PrintService`.
-- **Prioridade**: **Média**.
-- **Dependências**: 3.1.
-
----
-
 ## 4. Operações & Admin
 
 ### 4.1 Dashboard com métricas (admin)

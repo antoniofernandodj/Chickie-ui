@@ -45,6 +45,7 @@ export class AuthService {
   });
 
   readonly isAdmin = computed(() => this.userClass() === 'administrador' || this.userClass() === 'owner');
+  readonly isFuncionario = computed(() => this.userClass() === 'funcionario');
   readonly isOwner = computed(() => this.userClass() === 'owner');
 
   constructor() {

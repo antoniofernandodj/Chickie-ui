@@ -1,0 +1,98 @@
+<div class="min-h-screen bg-gray-100 p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Cozinha (KDS)</h1>
+    <div class="flex items-center gap-2">
+      <span 
+        class="w-3 h-3 rounded-full"
+        [ngClass]="{
+          'bg-green-500': connectionStatus() === 'OPEN',
+          'bg-yellow-500': connectionStatus() === 'CONNECTING',
+          'bg-red-500': connectionStatus() === 'CLOSED'
+        }"
+      ></span>
+      <span class="text-sm text-gray-600">{{ connectionStatus() }}</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-150px)]">
+    <!-- Coluna: Confirmados -->
+    <div class="flex flex-col bg-gray-200 rounded-lg p-4 overflow-hidden">
+      <h2 class="text-lg font-semibold mb-4 flex justify-between items-center">
+        <span>Confirmados</span>
+        <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{ confirmados().length }}</span>
+      </h2>
+      <div class="flex-1 overflow-y-auto space-y-3">
+        <div *ngFor="let p of confirmados()" class="bg-white p-4 rounded shadow-sm border-l-4 border-blue-500">
+          <div class="flex justify-between items-start mb-2">
+            <span class="font-bold text-lg">#{{ p.codigo }}</span>
+            <span class="text-xs text-gray-500">{{ p.criado_em | date:'HH:mm' }}</span>
+          </div>
+          <div class="text-sm text-gray-700 mb-4">
+            <div *ngFor="let item of p.itens" class="mb-1">
+              <strong>{{ item.quantidade }}x</strong> {{ item.partes[0].produto_nome }}
+              <span *ngIf="item.partes.length > 1" class="text-xs text-gray-500"> (+{{ item.partes.length - 1 }} partes)</span>
+            </div>
+            <p *ngIf="p.observacoes" class="mt-2 text-xs italic bg-yellow-50 p-1 border border-yellow-200 rounded">
+              "{{ p.observacoes }}"
+            </p>
+          </div>
+          <button 
+            (click)="avancar(p)"
+            class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition font-medium"
+          >
+            Iniciar Preparo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna: Em Preparo -->
+    <div class="flex flex-col bg-gray-200 rounded-lg p-4 overflow-hidden">
+      <h2 class="text-lg font-semibold mb-4 flex justify-between items-center">
+        <span>Em Preparo</span>
+        <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{ emPreparo().length }}</span>
+      </h2>
+      <div class="flex-1 overflow-y-auto space-y-3">
+        <div *ngFor="let p of emPreparo()" class="bg-white p-4 rounded shadow-sm border-l-4 border-yellow-500">
+          <div class="flex justify-between items-start mb-2">
+            <span class="font-bold text-lg">#{{ p.codigo }}</span>
+            <span class="text-xs text-gray-500">{{ p.criado_em | date:'HH:mm' }}</span>
+          </div>
+          <div class="text-sm text-gray-700 mb-4">
+            <div *ngFor="let item of p.itens" class="mb-1">
+              <strong>{{ item.quantidade }}x</strong> {{ item.partes[0].produto_nome }}
+            </div>
+          </div>
+          <button 
+            (click)="avancar(p)"
+            class="w-full bg-yellow-600 text-white py-2 rounded hover:bg-yellow-700 transition font-medium"
+          >
+            Marcar como Pronto
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coluna: Prontos -->
+    <div class="flex flex-col bg-gray-200 rounded-lg p-4 overflow-hidden">
+      <h2 class="text-lg font-semibold mb-4 flex justify-between items-center">
+        <span>Prontos</span>
+        <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{ prontos().length }}</span>
+      </h2>
+      <div class="flex-1 overflow-y-auto space-y-3">
+        <div *ngFor="let p of prontos()" class="bg-white p-4 rounded shadow-sm border-l-4 border-green-500">
+          <div class="flex justify-between items-start mb-2">
+            <span class="font-bold text-lg">#{{ p.codigo }}</span>
+            <span class="text-xs text-gray-500">{{ p.criado_em | date:'HH:mm' }}</span>
+          </div>
+          <div class="text-sm text-gray-700 mb-4">
+            <div *ngFor="let item of p.itens" class="mb-1">
+              <strong>{{ item.quantidade }}x</strong> {{ item.partes[0].produto_nome }}
+            </div>
+          </div>
+          <!-- Botão removido do KDS para a coluna de Prontos -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
