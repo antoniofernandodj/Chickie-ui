@@ -27,8 +27,13 @@
               }
             ],
             "styles": ["src/styles.css"],
+            "server": "src/server/main.server.ts",
+            "outputMode": "server",
             "security": {
               "allowedHosts": ["app.chiquitos.tech"]
+            },
+            "ssr": {
+              "entry": "src/server/index.ts"
             }
           },
           "configurations": {
