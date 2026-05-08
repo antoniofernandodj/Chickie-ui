@@ -41,7 +41,7 @@ export class SignupComponent {
 
   form = this.fb.group({
     nome:        ['', [Validators.required, Validators.minLength(3)]],
-    username:    ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-Z0-9_]+$/)]],
+    username:    ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-z0-9_-]+$/)]],
     email:       ['', [Validators.required, Validators.email]],
     senha:       ['', [Validators.required, Validators.minLength(6)]],
     celular:     ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
@@ -69,11 +69,18 @@ export class SignupComponent {
 
     const username = this.form.get('username')!;
     username.valueChanges.pipe(
-      debounceTime(400), distinctUntilChanged(),
-      filter((v): v is string => v != null && v.length >= 3),
-      switchMap(v => { this.usernameChecking.set(true); this.usernameAvailable.set(null);
-        return this.auth.verificarUsername(v).pipe(catchError(() => { this.usernameChecking.set(false); return of({ disponivel: false }); })); })
-    ).subscribe(r => { this.usernameChecking.set(false); this.usernameAvailable.set(r.disponivel); });
+      debounceTime(100), distinctUntilChanged(),
+      switchMap(v => {
+        const cleaned = (v ?? '').toLowerCase().replace(/[^a-z0-9_-]/g, '');
+        if (cleaned !== v) {
+          username.setValue(cleaned, { emitEvent: false });
+        }
+        v = cleaned;
+        if (v.length < 3) return of(undefined);
+        this.usernameChecking.set(true); this.usernameAvailable.set(null);
+        return this.auth.verificarUsername(v).pipe(catchError(() => { this.usernameChecking.set(false); return of({ disponivel: false }); }));
+      })
+    ).subscribe(r => { this.usernameChecking.set(false); if (r) this.usernameAvailable.set(r.disponivel); });
 
     const celular = this.form.get('celular')!;
     celular.valueChanges.pipe(
@@ -112,7 +119,7 @@ export class SignupComponent {
     if (!c.invalid || !c.touched) return null;
     if (c.errors?.['required'])  return 'Username é obrigatório.';
     if (c.errors?.['minlength']) return 'Username deve ter pelo menos 3 caracteres.';
-    if (c.errors?.['pattern'])   return 'Username pode conter apenas letras, números e underscore.';
+    if (c.errors?.['pattern'])   return 'Username inválido. Use apenas letras sem acento, números, underscore (_) ou hífen (-).';
     return null;
   });
 
