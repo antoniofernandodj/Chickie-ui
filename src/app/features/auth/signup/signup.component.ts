@@ -69,7 +69,7 @@ export class SignupComponent {
 
     const username = this.form.get('username')!;
     username.valueChanges.pipe(
-      debounceTime(100), distinctUntilChanged(),
+      debounceTime(400), distinctUntilChanged(),
       switchMap(v => {
         const cleaned = (v ?? '').toLowerCase().replace(/[^a-z0-9_-]/g, '');
         if (cleaned !== v) {
