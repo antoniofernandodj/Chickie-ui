@@ -19,7 +19,7 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
-            "outputPath": "/tmp/chickie-ui-dist",
+            "outputPath": "dist/chickie-ui",
             "assets": [
               {
                 "glob": "**/*",
