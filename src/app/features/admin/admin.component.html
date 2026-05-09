@@ -1269,7 +1269,10 @@
           } @else {
             <div class="space-y-2">
               @for (adc of adicionais(); track adc.uuid) {
-                <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between hover:border-orange-200 transition-colors">
+                <div
+                  class="cascade-item bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between hover:border-orange-200 transition-colors"
+                  [style.animation-delay]="$index * 25 + 'ms'">
+                >
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-gray-900 truncate">{{ adc.nome }}</p>
                     @if (adc.descricao) {

@@ -22,6 +22,23 @@ import { STATUS_PEDIDO_CFG, UiTabBarComponent, UiSpinnerComponent, UiTab, Endere
 const STATUS_CFG = STATUS_PEDIDO_CFG;
 
 @Component({
+  styles: `
+    @keyframes cascadeFadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .cascade-item {
+      opacity: 0; /* Começa invisível */
+      animation: cascadeFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+  `,
   selector: 'app-admin',
   imports: [ReactiveFormsModule, DecimalPipe, DatePipe, PhoneMaskDirective, PhonePipe, DragDropModule,
     UiTabBarComponent, UiSpinnerComponent, EnderecoFormComponent, ChatPanelComponent, RouterLink],
