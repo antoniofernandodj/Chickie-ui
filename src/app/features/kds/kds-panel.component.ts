@@ -9,7 +9,7 @@ import { FuncionarioService } from '../../core/services/funcionario.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PedidoService } from '../../core/services/pedido.service';
 import { Pedido, StatusPedido } from '../../core/models';
-import { NOTIFICATION_PATH } from '../../../environments/consts';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-kds-panel',
@@ -106,7 +106,7 @@ export class KdsPanelComponent {
       
       // Carregar buffer de áudio se necessário
       if (!this.audioBuffer) {
-        const response = await fetch(NOTIFICATION_PATH);
+        const response = await fetch(environment.NOTIFICATION_PATH);
         const arrayBuffer = await response.arrayBuffer();
         this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
       }
@@ -121,7 +121,7 @@ export class KdsPanelComponent {
       // Fallback para áudio HTML5 se o Web Audio API falhar
       try {
         if (!this.audio) {
-          this.audio = new Audio(NOTIFICATION_PATH);
+          this.audio = new Audio(environment.NOTIFICATION_PATH);
         }
         await this.audio.play();
       } catch (html5Err) {

@@ -1,1 +1,0 @@
-export const NOTIFICATION_PATH = '/sounds/notifications.mp3'

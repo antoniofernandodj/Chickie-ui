@@ -9,7 +9,7 @@ import { FuncionarioService } from '../../core/services/funcionario.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PedidoService } from '../../core/services/pedido.service';
 import { Pedido, StatusPedido } from '../../core/models';
-import { NOTIFICATION_PATH } from '../../../environments/consts';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-funcionario-panel',
@@ -29,7 +29,7 @@ export class FuncionarioPanelComponent {
   // --- Áudio e Silenciamento ---
   private readonly MUTE_KEY = 'chickie_kds_muted';
   readonly isMuted = signal(localStorage.getItem(this.MUTE_KEY) === 'true');
-  private audio = new Audio(NOTIFICATION_PATH);
+  private audio = new Audio(environment.NOTIFICATION_PATH);
 
   readonly _routeLojaUuid = toSignal<string | null>(
     this.route.paramMap.pipe(map(params => params.get('loja_uuid')))
