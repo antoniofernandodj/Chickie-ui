@@ -1,8 +1,9 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { catchError, of, switchMap, filter, tap } from 'rxjs';
+import { catchError, of, switchMap, filter, tap, map } from 'rxjs';
 import { toast } from 'ngx-sonner';
 
 import { FuncionarioService } from '../../core/services/funcionario.service';
@@ -42,23 +43,23 @@ export class PdvComponent implements OnInit {
     this.funcionarioService.getMe().pipe(catchError(() => of(null)))
   );
 
-  readonly _routeLojaUuid = toSignal(
+  readonly _routeLojaUuid = toSignal<string | null>(
     this.route.paramMap.pipe(map(params => params.get('loja_uuid')))
   );
 
-  readonly lojaUuid = computed(() => this._routeLojaUuid() || this._funcionario()?.loja_uuid);
+  readonly lojaUuid = computed(() => this._routeLojaUuid() || this._funcionario()?.loja_uuid || null);
 
   readonly loja = toSignal(
     toObservable(this.lojaUuid).pipe(
-      filter(uuid => !!uuid),
-      switchMap(uuid => this.lojaService.buscarPorUuid(uuid!).pipe(catchError(() => of(null))))
+      filter((uuid): uuid is string => !!uuid),
+      switchMap(uuid => this.lojaService.buscarPorUuid(uuid).pipe(catchError(() => of(null))))
     )
   );
 
   readonly _categoriasRaw = toSignal(
     toObservable(this.lojaUuid).pipe(
-      filter(uuid => !!uuid),
-      switchMap(uuid => this.catalogoService.listarCategorias(uuid!).pipe(catchError(() => of([]))))
+      filter((uuid): uuid is string => !!uuid),
+      switchMap(uuid => this.catalogoService.listarCategorias(uuid).pipe(catchError(() => of([]))))
     ),
     { initialValue: [] as CategoriaProdutos[] }
   );
@@ -73,8 +74,8 @@ export class PdvComponent implements OnInit {
 
   readonly produtos = toSignal(
     toObservable(this.lojaUuid).pipe(
-      filter(uuid => !!uuid),
-      switchMap(uuid => this.catalogoService.listarProdutosPorLoja(uuid!).pipe(
+      filter((uuid): uuid is string => !!uuid),
+      switchMap(uuid => this.catalogoService.listarProdutosPorLoja(uuid).pipe(
         tap(() => this.loading.set(false)),
         catchError(() => {
           this.loading.set(false);

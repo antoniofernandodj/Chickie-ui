@@ -32,11 +32,11 @@ export class FuncionarioPanelComponent {
     )
   );
   
-  readonly _routeLojaUuid = toSignal(
+  readonly _routeLojaUuid = toSignal<string | null>(
     this.route.paramMap.pipe(map(params => params.get('loja_uuid')))
   );
 
-  readonly lojaUuid = computed(() => this._routeLojaUuid() || this._funcionario()?.loja_uuid);
+  readonly lojaUuid = computed(() => this._routeLojaUuid() || this._funcionario()?.loja_uuid || null);
   readonly token = this.auth.token;
 
   // Streams de pedidos por status
@@ -47,11 +47,11 @@ export class FuncionarioPanelComponent {
   private createStream(status: StatusPedido) {
     return toSignal(
       toObservable(this.lojaUuid).pipe(
-        filter(uuid => !!uuid),
+        filter((uuid): uuid is string => !!uuid),
         switchMap(uuid => {
           const t = this.token();
           if (!t) return of([] as Pedido[]);
-          return this.liveService.conectar(uuid!, status, t);
+          return this.liveService.conectar(uuid, status, t);
         }),
         catchError(() => of([] as Pedido[]))
       ),
