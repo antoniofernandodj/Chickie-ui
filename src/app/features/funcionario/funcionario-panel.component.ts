@@ -84,6 +84,23 @@ export class FuncionarioPanelComponent {
     );
   }
   
+  toggleMute() {
+    this.isMuted.update(m => {
+      const newVal = !m;
+      localStorage.setItem(this.MUTE_KEY, String(newVal));
+      return newVal;
+    });
+  }
+
+  private notificarSom() {
+    if (this.isMuted()) return;
+    
+    this.audio.play().catch(err => {
+      // Navegadores bloqueiam áudio sem interação prévia.
+      console.warn('[KDS] Bloqueio de áudio pelo navegador:', err);
+    });
+  }
+
   avancar(pedido: Pedido) {
     // Restrição: KDS só controla estados até "pronto".
     if (pedido.status === 'pronto') {
