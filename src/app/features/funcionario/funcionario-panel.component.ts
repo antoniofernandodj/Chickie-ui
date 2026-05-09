@@ -92,12 +92,15 @@ export class FuncionarioPanelComponent {
     });
   }
 
-  private notificarSom() {
-    if (this.isMuted()) return;
+  notificarSom(force = false) {
+    if (this.isMuted() && !force) return;
     
     this.audio.play().catch(err => {
       // Navegadores bloqueiam áudio sem interação prévia.
       console.warn('[KDS] Bloqueio de áudio pelo navegador:', err);
+      if (force) {
+        toast.error('O áudio foi bloqueado pelo navegador. Clique na tela e tente novamente.');
+      }
     });
   }
 
