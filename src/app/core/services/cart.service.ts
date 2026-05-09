@@ -49,6 +49,35 @@ export class CartService {
     this._save();
   }
 
+  incrementarProdutoSimples(produto: Produto, loja: Loja): void {
+    // Se mudar de loja, limpa o carrinho
+    const atual = this.lojaAtual();
+    if (atual && atual.uuid !== loja.uuid) {
+      this.limpar();
+    }
+    
+    this.lojaAtual.set(loja);
+    
+    const existing = this.itens().find(
+      (i) => i.partes.length === 1 && i.partes[0].produto.uuid === produto.uuid && i.partes[0].adicionais.length === 0,
+    );
+    
+    if (existing) {
+      this.incrementar(existing.id);
+    } else {
+      this.itens.update((c) => [
+        ...c,
+        {
+          id: Date.now(),
+          categoria_uuid: produto.categoria_uuid,
+          partes: [{ produto, posicao: 1, adicionais: [] }],
+          quantidade: 1,
+        },
+      ]);
+      this._save();
+    }
+  }
+
   incrementar(id: number): void {
     this.itens.update(c =>
       c.map(i => i.id === id ? { ...i, quantidade: i.quantidade + 1 } : i),

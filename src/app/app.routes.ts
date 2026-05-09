@@ -92,6 +92,13 @@ export const routes: Routes = [
     title: 'Painel Funcionário — Chiquitos',
   },
   {
+    path: 'pdv',
+    canActivate: [funcionarioGuard],
+    loadComponent: () => import('./features/pdv/pdv.component')
+      .then(m => m.PdvComponent),
+    title: 'PDV — Chiquitos',
+  },
+  {
     path: 'owner',
     canActivate: [ownerGuard],
     loadComponent: () => import('./features/owner/owner-panel.component')
