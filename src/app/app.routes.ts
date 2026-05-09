@@ -85,11 +85,11 @@ export const routes: Routes = [
     title: 'Meu Perfil — Chiquitos',
   },
   {
-    path: 'funcionario',
+    path: 'kds',
     canActivate: [funcionarioGuard],
-    loadComponent: () => import('./features/funcionario/funcionario-panel.component')
-      .then(m => m.FuncionarioPanelComponent),
-    title: 'Painel Funcionário — Chiquitos',
+    loadComponent: () => import('./features/kds/kds-panel.component')
+      .then(m => m.KdsPanelComponent),
+    title: 'KDS — Chiquitos',
   },
   {
     path: 'pdv',
@@ -129,8 +129,8 @@ export const routes: Routes = [
       },
       {
         path: 'kds',
-        loadComponent: () => import('./features/funcionario/funcionario-panel.component')
-          .then(m => m.FuncionarioPanelComponent),
+        loadComponent: () => import('./features/kds/kds-panel.component')
+          .then(m => m.KdsPanelComponent),
         title: 'KDS Admin — Chiquitos',
       }
     ],
