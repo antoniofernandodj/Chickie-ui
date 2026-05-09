@@ -39,12 +39,21 @@ export class PdvComponent implements OnInit {
   readonly enviandoPedido = signal(false);
 
   // --- Dados da Loja e Catálogo ---
-  readonly _funcionario = toSignal(
-    this.funcionarioService.getMe().pipe(catchError(() => of(null)))
-  );
-
   readonly _routeLojaUuid = toSignal<string | null>(
     this.route.paramMap.pipe(map(params => params.get('loja_uuid')))
+  );
+
+  readonly _funcionario = toSignal(
+    this.route.paramMap.pipe(
+      switchMap(params => {
+        const routeUuid = params.get('loja_uuid');
+        // Se já temos a loja na rota (Admin) ou se não é funcionário, não chama /me
+        if (routeUuid || !this.auth.isFuncionario()) {
+          return of(null);
+        }
+        return this.funcionarioService.getMe().pipe(catchError(() => of(null)));
+      })
+    )
   );
 
   readonly lojaUuid = computed(() => this._routeLojaUuid() || this._funcionario()?.loja_uuid || null);

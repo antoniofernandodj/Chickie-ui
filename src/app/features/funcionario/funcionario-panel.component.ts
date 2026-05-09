@@ -25,17 +25,23 @@ export class FuncionarioPanelComponent {
 
   readonly connectionStatus = this.liveService.connectionStatus;
 
-  // Carrega dados do funcionário para obter loja_uuid
-  readonly _funcionario = toSignal(
-    this.funcionarioService.getMe().pipe(
-      catchError(() => of(null))
-    )
-  );
-  
   readonly _routeLojaUuid = toSignal<string | null>(
     this.route.paramMap.pipe(map(params => params.get('loja_uuid')))
   );
 
+  // Carrega dados do funcionário apenas se necessário (não admin)
+  readonly _funcionario = toSignal(
+    this.route.paramMap.pipe(
+      switchMap(params => {
+        const routeUuid = params.get('loja_uuid');
+        if (routeUuid || !this.auth.isFuncionario()) {
+          return of(null);
+        }
+        return this.funcionarioService.getMe().pipe(catchError(() => of(null)));
+      })
+    )
+  );
+  
   readonly lojaUuid = computed(() => this._routeLojaUuid() || this._funcionario()?.loja_uuid || null);
   readonly token = this.auth.token;
 
