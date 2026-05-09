@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { catchError, of, switchMap, filter, tap } from 'rxjs';
@@ -18,7 +18,7 @@ import { CriarPedidoModalComponent } from '../loja/criar-pedido-modal.component'
 @Component({
   selector: 'app-pdv',
   standalone: true,
-  imports: [CommonModule, FormsModule, DecimalPipe, CriarPedidoModalComponent],
+  imports: [CommonModule, FormsModule, CriarPedidoModalComponent],
   templateUrl: './pdv.component.html',
 })
 export class PdvComponent implements OnInit {
