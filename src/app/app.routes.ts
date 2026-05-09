@@ -115,8 +115,25 @@ export const routes: Routes = [
   {
     path: 'admin/:loja_uuid',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/admin/admin.component')
-      .then(m => m.AdminComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/admin/admin.component')
+          .then(m => m.AdminComponent),
+      },
+      {
+        path: 'pdv',
+        loadComponent: () => import('./features/pdv/pdv.component')
+          .then(m => m.PdvComponent),
+        title: 'PDV Admin — Chiquitos',
+      },
+      {
+        path: 'kds',
+        loadComponent: () => import('./features/funcionario/funcionario-panel.component')
+          .then(m => m.FuncionarioPanelComponent),
+        title: 'KDS Admin — Chiquitos',
+      }
+    ],
     title: 'Painel Admin — Chiquitos',
   },
   {

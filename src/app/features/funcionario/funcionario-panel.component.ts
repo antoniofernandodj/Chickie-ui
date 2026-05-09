@@ -1,7 +1,8 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { catchError, of, switchMap, filter } from 'rxjs';
+import { catchError, of, switchMap, filter, map } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import { PedidosLiveService } from '../../core/services/pedidos-live.service';
 import { FuncionarioService } from '../../core/services/funcionario.service';
@@ -16,6 +17,7 @@ import { Pedido, StatusPedido } from '../../core/models';
   templateUrl: './funcionario-panel.component.html',
 })
 export class FuncionarioPanelComponent {
+  private route = inject(ActivatedRoute);
   private liveService = inject(PedidosLiveService);
   private funcionarioService = inject(FuncionarioService);
   private auth = inject(AuthService);
@@ -30,7 +32,11 @@ export class FuncionarioPanelComponent {
     )
   );
   
-  readonly lojaUuid = computed(() => this._funcionario()?.loja_uuid);
+  readonly _routeLojaUuid = toSignal(
+    this.route.paramMap.pipe(map(params => params.get('loja_uuid')))
+  );
+
+  readonly lojaUuid = computed(() => this._routeLojaUuid() || this._funcionario()?.loja_uuid);
   readonly token = this.auth.token;
 
   // Streams de pedidos por status

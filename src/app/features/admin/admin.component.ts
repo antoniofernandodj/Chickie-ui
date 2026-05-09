@@ -24,7 +24,7 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
 @Component({
   selector: 'app-admin',
   imports: [ReactiveFormsModule, DecimalPipe, DatePipe, PhoneMaskDirective, PhonePipe, DragDropModule,
-    UiTabBarComponent, UiSpinnerComponent, EnderecoFormComponent, ChatPanelComponent],
+    UiTabBarComponent, UiSpinnerComponent, EnderecoFormComponent, ChatPanelComponent, RouterLink],
   templateUrl: './admin.component.html',
 })
 export class AdminComponent {

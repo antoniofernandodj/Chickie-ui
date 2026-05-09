@@ -22,6 +22,7 @@ import { CriarPedidoModalComponent } from '../loja/criar-pedido-modal.component'
   templateUrl: './pdv.component.html',
 })
 export class PdvComponent implements OnInit {
+  private route = inject(ActivatedRoute);
   private funcionarioService = inject(FuncionarioService);
   private catalogoService = inject(CatalogoService);
   private lojaService = inject(LojaService);
@@ -41,7 +42,11 @@ export class PdvComponent implements OnInit {
     this.funcionarioService.getMe().pipe(catchError(() => of(null)))
   );
 
-  readonly lojaUuid = computed(() => this._funcionario()?.loja_uuid);
+  readonly _routeLojaUuid = toSignal(
+    this.route.paramMap.pipe(map(params => params.get('loja_uuid')))
+  );
+
+  readonly lojaUuid = computed(() => this._routeLojaUuid() || this._funcionario()?.loja_uuid);
 
   readonly loja = toSignal(
     toObservable(this.lojaUuid).pipe(
