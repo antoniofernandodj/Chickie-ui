@@ -35,7 +35,7 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
     }
 
     .cascade-item {
-      opacity: 0; /* Começa invisível */
+      opacity: 0;
       animation: cascadeFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
   `,
