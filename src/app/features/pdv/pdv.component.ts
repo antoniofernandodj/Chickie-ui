@@ -50,13 +50,21 @@ export class PdvComponent implements OnInit {
     )
   );
 
-  readonly categorias = toSignal(
+  readonly _categoriasRaw = toSignal(
     toObservable(this.lojaUuid).pipe(
       filter(uuid => !!uuid),
       switchMap(uuid => this.catalogoService.listarCategorias(uuid!).pipe(catchError(() => of([]))))
     ),
     { initialValue: [] as CategoriaProdutos[] }
   );
+
+  readonly categorias = computed(() => {
+    const allCats = this._categoriasRaw();
+    const allProds = this.produtos();
+    return allCats.filter(cat => 
+      allProds.some(p => p.categoria_uuid === cat.uuid)
+    ).sort((a, b) => a.ordem - b.ordem);
+  });
 
   readonly produtos = toSignal(
     toObservable(this.lojaUuid).pipe(
