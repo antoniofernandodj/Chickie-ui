@@ -1112,7 +1112,7 @@
                                 {{ prod.disponivel ? 'Disponível' : 'Indisponível' }}
                               </span>
                             </div>
-                            <div class="flex gap-1 shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="flex gap-1 shrink-0 ml-2">
                               <button (click)="toggleDisponibilidadeProduto(prod.uuid, prod.nome, prod.disponivel, cat.uuid)"
                                       class="p-1.5 rounded-lg transition-colors"
                                       [class.hover:bg-orange-50]="prod.disponivel"
