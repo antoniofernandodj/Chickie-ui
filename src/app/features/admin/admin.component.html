@@ -86,7 +86,7 @@
       </div>
 
       <!-- Filtros de status -->
-      <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+      <div class="flex gap-2 overflow-x-auto pb-1">
         @for (entry of statusEntries; track entry.key) {
           <button
             (click)="pedidoFiltroStatus.set(entry.key)"
