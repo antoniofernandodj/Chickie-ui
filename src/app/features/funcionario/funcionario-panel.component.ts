@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
@@ -25,6 +25,11 @@ export class FuncionarioPanelComponent {
 
   readonly connectionStatus = this.liveService.connectionStatus;
 
+  // --- Áudio e Silenciamento ---
+  private readonly MUTE_KEY = 'chickie_kds_muted';
+  readonly isMuted = signal(localStorage.getItem(this.MUTE_KEY) === 'true');
+  private audio = new Audio('/assets/sounds/notification.mp3');
+
   readonly _routeLojaUuid = toSignal<string | null>(
     this.route.paramMap.pipe(map(params => params.get('loja_uuid')))
   );
@@ -49,6 +54,20 @@ export class FuncionarioPanelComponent {
   readonly confirmados = this.createStream('confirmado_pela_loja');
   readonly emPreparo = this.createStream('em_preparo');
   readonly prontos = this.createStream('pronto');
+
+  constructor() {
+    // Efeito para detectar mudanças nos pedidos e tocar som
+    effect(() => {
+      const c = this.confirmados();
+      const e = this.emPreparo();
+      const p = this.prontos();
+      
+      // Sempre que qualquer lista mudar e houver itens, tentamos tocar o som
+      if (c.length > 0 || e.length > 0 || p.length > 0) {
+        untracked(() => this.notificarSom());
+      }
+    });
+  }
 
   private createStream(status: StatusPedido) {
     return toSignal(
