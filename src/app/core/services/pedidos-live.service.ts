@@ -2,7 +2,7 @@ import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { Observable, EMPTY, filter, map, switchMap, of } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
-import { Pedido, StatusPedido } from '../models';
+import { Pedido, StatusPedido, KdsPayload } from '../models';
 import { PedidoNormalizer } from '../utils/pedido.normalizer';
 import { SseStatus, PEDIDO_SSE_EVENTS } from '../utils/reconnecting-sse';
 import { PedidoService } from './pedido.service';
@@ -55,6 +55,61 @@ export class PedidosLiveService {
       () => this.pedidoService.listar(),
       '[SSE meus-pedidos]',
     );
+  }
+
+  conectarKds(lojaUuid: string, token: string): Observable<KdsPayload> {
+    if (!isPlatformBrowser(this.platformId)) return EMPTY;
+
+    const url = `${this.baseUrl}/pedidos/por-loja/${lojaUuid}/kds/sse?token=${encodeURIComponent(token)}`;
+    const logPrefix = `[KDS SSE loja=${lojaUuid}]`;
+
+    return new Observable<KdsPayload>(observer => {
+      let sse: EventSource | null = null;
+      let active = true;
+
+      const connect = () => {
+        if (!active) return;
+        this.connectionStatus.set('CONNECTING');
+        sse = new EventSource(url);
+
+        sse.onopen = () => {
+          console.log(`${logPrefix} conectado`);
+          this.connectionStatus.set('OPEN');
+        };
+
+        sse.addEventListener('kds_snapshot', (e: MessageEvent) => {
+          try {
+            const parsed = JSON.parse(e.data);
+            const payload = parsed.pedidos as KdsPayload;
+            
+            const normalize = (list: any[]) => (list || []).map(p => PedidoNormalizer.normalizarPedido(p));
+            
+            observer.next({
+              confirmados: normalize(payload.confirmados),
+              em_preparo: normalize(payload.em_preparo),
+              prontos: normalize(payload.prontos),
+            });
+          } catch (err) {
+            console.error(`${logPrefix} erro ao processar snapshot`, err);
+          }
+        });
+
+        sse.onerror = () => {
+          sse?.close();
+          this.connectionStatus.set('CLOSED');
+          if (!active) return;
+          console.warn(`${logPrefix} erro — tentando reconectar em 2s`);
+          setTimeout(connect, 2000);
+        };
+      };
+
+      connect();
+
+      return () => {
+        active = false;
+        sse?.close();
+      };
+    });
   }
 
   // ── Stream interno ────────────────────────────────────────────────────────

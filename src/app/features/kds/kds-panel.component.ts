@@ -53,10 +53,22 @@ export class KdsPanelComponent {
   readonly lojaUuid = computed(() => this._routeLojaUuid() || this._funcionario()?.loja_uuid || null);
   readonly token = this.auth.token;
 
-  // Streams de pedidos por status
-  readonly confirmados = this.createStream('confirmado_pela_loja');
-  readonly emPreparo = this.createStream('em_preparo');
-  readonly prontos = this.createStream('pronto');
+  // Stream KDS completo (uma única conexão SSE)
+  private readonly kdsStream = toSignal(
+    toObservable(this.lojaUuid).pipe(
+      filter((uuid): uuid is string => !!uuid),
+      switchMap(uuid => {
+        const t = this.token();
+        if (!t) return of(null);
+        return this.liveService.conectarKds(uuid, t);
+      }),
+      catchError(() => of(null))
+    )
+  );
+
+  readonly confirmados = computed(() => this.kdsStream()?.confirmados || []);
+  readonly emPreparo = computed(() => this.kdsStream()?.em_preparo || []);
+  readonly prontos = computed(() => this.kdsStream()?.prontos || []);
 
   constructor() {
     // Efeito para detectar mudanças nos pedidos e tocar som
@@ -72,20 +84,7 @@ export class KdsPanelComponent {
     });
   }
 
-  private createStream(status: StatusPedido) {
-    return toSignal(
-      toObservable(this.lojaUuid).pipe(
-        filter((uuid): uuid is string => !!uuid),
-        switchMap(uuid => {
-          const t = this.token();
-          if (!t) return of([] as Pedido[]);
-          return this.liveService.conectar(uuid, status, t);
-        }),
-        catchError(() => of([] as Pedido[]))
-      ),
-      { initialValue: [] as Pedido[] }
-    );
-  }
+
   
   toggleMute() {
     this.isMuted.update(m => {

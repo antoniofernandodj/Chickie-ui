@@ -342,6 +342,12 @@ export interface ItemPedido {
   partes:     ParteDeItemPedido[];
 }
 
+export interface KdsPayload {
+  confirmados: Pedido[];
+  em_preparo: Pedido[];
+  prontos: Pedido[];
+}
+
 export interface Pedido {
   uuid:              string;
   codigo:            string;

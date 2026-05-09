@@ -26,6 +26,7 @@ const PEDIDO_SSE_EVENTS = [
   'item_adicionado',
   'item_atualizado',
   'item_removido',
+  'kds_snapshot',
 ] as const;
 
 export type PedidoSseEvent = (typeof PEDIDO_SSE_EVENTS)[number];
