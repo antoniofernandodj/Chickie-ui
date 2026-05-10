@@ -78,6 +78,16 @@ export class CartService {
     }
   }
 
+  adicionarComplexo(item: CartItem, loja: Loja): void {
+    const atual = this.lojaAtual();
+    if (atual && atual.uuid !== loja.uuid) {
+      this.limpar();
+    }
+    this.lojaAtual.set(loja);
+    this.itens.update((c) => [...c, item]);
+    this._save();
+  }
+
   incrementar(id: number): void {
     this.itens.update(c =>
       c.map(i => i.id === id ? { ...i, quantidade: i.quantidade + 1 } : i),

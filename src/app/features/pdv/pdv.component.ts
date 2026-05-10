@@ -14,12 +14,12 @@ import { PedidoService } from '../../core/services/pedido.service';
 import { AuthService } from '../../core/services/auth.service';
 
 import { Produto, CategoriaProdutos, Loja, Adicional, CreatePedidoRequest } from '../../core/models';
-import { CriarPedidoModalComponent } from '../loja/criar-pedido-modal.component';
+import { PdvItemModalComponent } from './pdv-item-modal.component';
 
 @Component({
   selector: 'app-pdv',
   standalone: true,
-  imports: [CommonModule, FormsModule, CriarPedidoModalComponent],
+  imports: [CommonModule, FormsModule, PdvItemModalComponent],
   templateUrl: './pdv.component.html',
 })
 export class PdvComponent implements OnInit {
@@ -35,8 +35,11 @@ export class PdvComponent implements OnInit {
   readonly loading = signal(true);
   readonly searchTerm = signal('');
   readonly categoriaSelecionada = signal<string | null>(null);
-  readonly mostrandoCheckout = signal(false);
   readonly enviandoPedido = signal(false);
+
+  // Novo fluxo de passos
+  readonly pdvStep = signal<'inicio' | 'construcao' | 'finalizacao'>('inicio');
+  readonly today = new Date();
 
   // --- Dados da Loja e Catálogo ---
   readonly _routeLojaUuid = toSignal<string | null>(
@@ -116,8 +119,8 @@ export class PdvComponent implements OnInit {
   readonly itens = this.cartService.itens;
   readonly subtotal = this.cartService.subtotal;
   
-  // Para controle de modal de adicionais
-  readonly produtoParaAdicionais = signal<Produto | null>(null);
+  // Para controle de modal de customização de item
+  readonly itemParaCustomizar = signal<{ produto: Produto, categoria: CategoriaProdutos } | null>(null);
 
   ngOnInit() {
     // Ao entrar no PDV, limpamos o carrinho se for de outra loja
@@ -128,24 +131,38 @@ export class PdvComponent implements OnInit {
     }
   }
 
+  iniciarPedido() {
+    this.cartService.limpar();
+    this.pdvStep.set('construcao');
+  }
+
   selecionarCategoria(uuid: string | null) {
     this.categoriaSelecionada.set(uuid);
   }
 
   adicionarAoCarrinho(produto: Produto) {
-    // Se o produto for de uma categoria que permite múltiplos sabores (pizza) 
-    // ou se o usuário quiser adicionar customizações, abrimos o modal.
-    // Para simplificar no PDV, se clicar direto, adicionamos o item simples.
-    // Mas se a categoria for pizza_mode, PRECISA abrir o modal.
-    
     const cat = this.categorias().find(c => c.uuid === produto.categoria_uuid);
-    if (cat?.pizza_mode) {
-       this.produtoParaAdicionais.set(produto);
+    if (!cat) return;
+
+    // Se for pizza_mode OU se não for drink_mode (para permitir adicionais), abrimos o modal.
+    if (cat.pizza_mode || !cat.drink_mode) {
+       this.itemParaCustomizar.set({ produto, categoria: cat });
        return;
     }
 
+    // Bebidas e outros itens simples são adicionados diretamente
     this.cartService.incrementarProdutoSimples(produto, this.loja()!);
     toast.success(`${produto.nome} adicionado`);
+  }
+
+  onItemCustomizado(itemData: any) {
+    this.cartService.adicionarComplexo({
+      ...itemData,
+      id: Date.now() // Gerar um ID temporário
+    }, this.loja()!);
+    
+    this.itemParaCustomizar.set(null);
+    toast.success('Item adicionado');
   }
 
   removerDoCarrinho(id: number) {
@@ -157,12 +174,16 @@ export class PdvComponent implements OnInit {
     toast.info('Carrinho limpo');
   }
 
-  finalizarVenda() {
+  avancarParaPagamento() {
     if (this.itens().length === 0) {
       toast.error('Carrinho vazio');
       return;
     }
-    this.mostrandoCheckout.set(true);
+    this.pdvStep.set('finalizacao');
+  }
+
+  voltarParaConstrucao() {
+    this.pdvStep.set('construcao');
   }
 
   confirmarVenda(metodoPagamento: string) {
@@ -173,7 +194,7 @@ export class PdvComponent implements OnInit {
 
     const body: CreatePedidoRequest = {
       loja_uuid: loja.uuid,
-      taxa_entrega: 0, // PDV presencial geralmente não tem taxa de entrega
+      taxa_entrega: 0, 
       forma_pagamento: metodoPagamento,
       observacoes: 'Venda PDV',
       itens: this.itens().map(item => ({
@@ -198,7 +219,7 @@ export class PdvComponent implements OnInit {
       next: (res) => {
         toast.success(`Venda #${res.codigo} realizada com sucesso!`);
         this.cartService.limpar();
-        this.mostrandoCheckout.set(false);
+        this.pdvStep.set('inicio');
         this.enviandoPedido.set(false);
       },
       error: (err) => {
