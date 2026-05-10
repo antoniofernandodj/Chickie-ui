@@ -31,7 +31,9 @@ import { AvaliacaoDeLoja } from '../../../core/models';
                 </svg>
               }
             </div>
-            <div class="text-sm text-gray-500 mt-1">{{ avaliacoes().length }} avaliação(ões)</div>
+            <div class="text-sm text-gray-500 mt-1">
+              {{ avaliacoes().length }} avaliação(ões)
+            </div>
           </div>
 
           <!-- Distribuição de Notas -->
@@ -46,13 +48,17 @@ import { AvaliacaoDeLoja } from '../../../core/models';
     } @else {
       <div class="text-center py-10 bg-white rounded-2xl border border-gray-100 mb-8">
         <div class="text-4xl mb-2">⭐</div>
-        <p class="text-gray-500 text-sm">Nenhuma avaliação cadastrada para esta loja.</p>
+        <p class="text-gray-500 text-sm">
+          Nenhuma avaliação cadastrada para esta loja.
+        </p>
       </div>
     }
 
     <!-- Lista de Avaliações -->
     @if (avaliacoes().length > 0) {
-      <h3 class="text-base font-semibold text-gray-900 mb-4">💬 Todas as Avaliações</h3>
+      <h3 class="text-base font-semibold text-gray-900 mb-4">
+        💬 Todas as Avaliações
+      </h3>
       <div class="space-y-4">
         @for (avaliacao of avaliacoes(); track avaliacao.uuid) {
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
@@ -64,7 +70,9 @@ import { AvaliacaoDeLoja } from '../../../core/models';
                       {{ avaliacao.usuario_nome || 'Usuário não informado' }}
                     </span>
                     @if (avaliacao.usuario_email) {
-                      <span class="text-xs text-gray-500 ml-2">({{ avaliacao.usuario_email }})</span>
+                      <span class="text-xs text-gray-500 ml-2">
+                        ({{ avaliacao.usuario_email }})
+                      </span>
                     }
                   </div>
                   <span class="text-xs text-gray-400">
@@ -73,11 +81,15 @@ import { AvaliacaoDeLoja } from '../../../core/models';
                 </div>
                 <div class="flex gap-0.5">
                   @for (star of [1,2,3,4,5]; track star) {
-                    <svg class="w-4 h-4" [class]="star <= toNumber(avaliacao.nota) ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'" viewBox="0 0 24 24">
-                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                    <svg
+                      class="w-4 h-4"
+                      [class]="star <= toNumber(avaliacao.nota) ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'" viewBox="0 0 24 24">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
                     </svg>
                   }
-                  <span class="text-sm font-semibold text-gray-700 ml-1">{{ avaliacao.nota }}</span>
+                  <span class="text-sm font-semibold text-gray-700 ml-1">
+                    {{ avaliacao.nota }}
+                  </span>
                 </div>
               </div>
             </div>

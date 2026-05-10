@@ -19,36 +19,94 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
   selector: 'admin-catalogo-tab',
   standalone: true,
   imports: [
-    ReactiveFormsModule, DragDropModule, AdminCategoryCardComponent,
-    UiInputComponent, UiSelectComponent, UiTextareaComponent, UiCheckboxComponent, UiButtonComponent,
+    ReactiveFormsModule,
+    DragDropModule,
+    AdminCategoryCardComponent,
+    UiInputComponent,
+    UiSelectComponent,
+    UiTextareaComponent,
+    UiCheckboxComponent,
+    UiButtonComponent,
   ],
   template: `
     <div class="grid lg:grid-cols-2 gap-8">
       <!-- Categorias -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h3 class="text-base font-semibold text-gray-900 mb-5">📂 Categorias</h3>
+        <h3 class="text-base font-semibold text-gray-900 mb-5">
+          📂 Categorias
+        </h3>
 
-        <form [formGroup]="catForm" (ngSubmit)="catEditId() ? salvarEdicaoCategoria() : criarCategoria()" class="space-y-3 mb-6">
-          <ui-input formControlName="nome" label="Nome *" size="sm"
-                    [error]="fc.nome.invalid && fc.nome.touched ? 'Nome obrigatório (mín. 2 caracteres)' : null"/>
-          <ui-textarea formControlName="descricao" label="Descrição" size="sm" [rows]="2"/>
+        <form
+          [formGroup]="catForm"
+          (ngSubmit)="catEditId() ? salvarEdicaoCategoria() : criarCategoria()"
+          class="space-y-3 mb-6"
+        >
+
+          <ui-input
+            formControlName="nome"
+            label="Nome *"
+            size="sm"
+            [error]="
+              fc.nome.invalid && fc.nome.touched ?
+                'Nome obrigatório (mín. 2 caracteres)' : null
+            "
+          />
+
+          <ui-textarea
+            formControlName="descricao"
+            label="Descrição"
+            size="sm"
+            [rows]="2"
+          />
+
           <div class="flex gap-4">
-            <ui-checkbox formControlName="pizza_mode" label="🍕 Modo Pizza" size="sm"
-                         (change)="$any($event.target).checked && catForm.get('drink_mode')?.setValue(false)"/>
-            <ui-checkbox formControlName="drink_mode" label="🥤 Modo Drink" size="sm"
-                         (change)="$any($event.target).checked && catForm.get('pizza_mode')?.setValue(false)"/>
+
+            <ui-checkbox
+              formControlName="pizza_mode"
+              label="🍕 Modo Pizza"
+              size="sm"
+              (change)="
+                $any($event.target).checked &&
+                catForm.get('drink_mode')?.setValue(false)
+              "
+            />
+
+            <ui-checkbox
+              formControlName="drink_mode"
+              label="🥤 Modo Drink"
+              size="sm"
+              (change)="
+                $any($event.target).checked &&
+                catForm.get('pizza_mode')?.setValue(false)
+              "
+            />
           </div>
           @if (catError()) {
-            <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{{ catError() }}</p>
+            <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+              {{ catError() }}
+            </p>
           }
           <div class="flex gap-2">
             <div class="flex-1">
-              <ui-button type="submit" [disabled]="catLoadingSubmit() || catForm.invalid" [loading]="catLoadingSubmit()" size="sm" [fullWidth]="true">
+              <ui-button
+                type="submit"
+                [disabled]="catLoadingSubmit() || catForm.invalid"
+                [loading]="catLoadingSubmit()"
+                size="sm"
+                [fullWidth]="true"
+              >
                 @if (catEditId()) { Atualizar } @else { Criar }
               </ui-button>
             </div>
             @if (catEditId()) {
-              <ui-button type="button" variant="secondary" size="sm" (click)="cancelarEdicaoCategoria()">Cancelar</ui-button>
+              <ui-button
+                type="button"
+                variant="secondary"
+                size="sm"
+                (click)="cancelarEdicaoCategoria()"
+              >
+                Cancelar
+              </ui-button>
             }
           </div>
         </form>
@@ -59,21 +117,40 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
             <div class="bg-gray-50 rounded-xl p-4 mb-2 skeleton h-16"></div>
           }
         } @else if (categorias().length === 0) {
-          <p class="text-xs text-gray-400 text-center py-4">Nenhuma categoria cadastrada.</p>
+          <p class="text-xs text-gray-400 text-center py-4">
+              Nenhuma categoria cadastrada.
+          </p>
         } @else {
           @if (catReordering()) {
-            <p class="text-xs text-gray-400 text-center mb-2">Salvando ordem...</p>
+            <p class="text-xs text-gray-400 text-center mb-2">
+                Salvando ordem...
+            </p>
           }
-          <div class="space-y-3" cdkDropList [cdkDropListData]="categorias()" (cdkDropListDropped)="onCategoriaDrop($event)">
+          <div
+            class="space-y-3"
+            cdkDropList
+            [cdkDropListData]="categorias()"
+            (cdkDropListDropped)="onCategoriaDrop($event)"
+          >
             @for (cat of categorias(); track cat.uuid) {
               <admin-category-card
                 [categoria]="cat"
                 [produtos]="produtosPorCategoria().get(cat.uuid) ?? []"
                 (editar)="editarCategoria(cat)"
                 (deletar)="deletarCategoria(cat.uuid, cat.nome)"
-                (toggleProdutoDisponivel)="toggleDisponibilidadeProduto($event.uuid, $event.nome, $event.disponivel, cat.uuid)"
+                (toggleProdutoDisponivel)="
+                  toggleDisponibilidadeProduto(
+                    $event.uuid,
+                    $event.nome,
+                    $event.disponivel,
+                    cat.uuid
+                  )"
                 (editarProduto)="editarProduto($event)"
-                (removerProduto)="deletarProduto($event.uuid, $event.nome, cat.uuid)"
+                (removerProduto)="deletarProduto(
+                  $event.uuid,
+                  $event.nome,
+                  cat.uuid
+                )"
               />
             }
           </div>
@@ -81,53 +158,143 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
       </div>
 
       <!-- Produto -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+      >
         <h3 class="text-base font-semibold text-gray-900 mb-5">
-          @if (prodEditId()) { 📝 Editar Produto } @else { 🍔 Criar Produto }
+          @if (prodEditId()) {
+            📝 Editar Produto
+          } @else {
+            🍔 Criar Produto
+          }
         </h3>
 
-        <form [formGroup]="prodForm" (ngSubmit)="prodEditId() ? salvarEdicaoProduto() : criarProduto()" class="space-y-3">
-          <ui-select formControlName="categoria_uuid" label="Categoria *" size="sm"
-                     [error]="fp.categoria_uuid.invalid && fp.categoria_uuid.touched ? 'Selecione uma categoria' : null">
-            <option value="">Selecione...</option>
+        <form
+          [formGroup]="prodForm"
+          (ngSubmit)="prodEditId() ? salvarEdicaoProduto() : criarProduto()"
+          class="space-y-3"
+        >
+
+          <ui-select
+            formControlName="categoria_uuid"
+            label="Categoria *"
+            size="sm"
+            [error]="
+              fp.categoria_uuid.invalid && fp.categoria_uuid.touched ?
+                'Selecione uma categoria' :
+                null
+            "
+          >
+
+            <option value="">
+              Selecione...
+            </option>
+
             @for (cat of categorias(); track cat.uuid) {
               <option [value]="cat.uuid">{{ cat.nome }}</option>
             }
+
           </ui-select>
-          <ui-input formControlName="nome" label="Nome *" size="sm"
-                    [error]="fp.nome.invalid && fp.nome.touched ? 'Nome obrigatório' : null"/>
-          <ui-textarea formControlName="descricao" label="Descrição" size="sm" [rows]="2"/>
+  
+          <ui-input
+            formControlName="nome"
+            label="Nome *"
+            size="sm"
+            [error]="fp.nome.invalid && fp.nome.touched ? 'Nome obrigatório' : null"
+          />
+
+          <ui-textarea
+            formControlName="descricao"
+            label="Descrição"
+            size="sm"
+            [rows]="2"
+          />
+
           <div class="grid grid-cols-2 gap-3">
-            <ui-input formControlName="preco" type="number" label="Preço (R$) *" size="sm" min="0" step="0.01"
-                      [error]="fp.preco.invalid && fp.preco.touched ? 'Preço obrigatório' : null"/>
-            <ui-input formControlName="tempo_preparo_min" type="number" label="Tempo (min) *" size="sm" min="1"
-                      [error]="fp.tempo_preparo_min.invalid && fp.tempo_preparo_min.touched ? 'Tempo obrigatório' : null"/>
+
+            <ui-input
+              formControlName="preco"
+              type="number"
+              label="Preço (R$) *"
+              size="sm"
+              min="0"
+              step="0.01"
+              [error]="fp.preco.invalid && fp.preco.touched ? 'Preço obrigatório' : null"
+            />
+  
+            <ui-input
+              formControlName="tempo_preparo_min"
+              type="number"
+              label="Tempo (min) *"
+              size="sm" min="1"
+              [error]="
+                fp.tempo_preparo_min.invalid && fp.tempo_preparo_min.touched ?
+                  'Tempo obrigatório' :
+                  null
+                "
+            />
+
           </div>
 
           <!-- Upload de imagem -->
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">Imagem</label>
-            <input #imagemInput type="file" accept="image/*" (change)="onImagemSelected($event)"
-                   class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-orange-100 file:text-orange-700 file:text-xs file:font-medium file:cursor-pointer"/>
+            <label
+              class="block text-xs font-medium text-gray-700 mb-1">
+                Imagem
+            </label>
+
+            <input
+              #imagemInput
+              type="file"
+              accept="image/*"
+              (change)="onImagemSelected($event)"
+              class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-orange-100 file:text-orange-700 file:text-xs file:font-medium file:cursor-pointer"
+            />
+
             @if (prodImagemPreview()) {
-              <img [src]="prodImagemPreview()" class="mt-2 w-24 h-24 object-cover rounded-xl border border-gray-200"/>
+              <img
+                [src]="prodImagemPreview()"
+                class="mt-2 w-24 h-24 object-cover rounded-xl border border-gray-200"
+              />
             }
           </div>
 
-          <ui-checkbox formControlName="destaque" label="Destaque" size="sm"/>
+          <ui-checkbox
+            formControlName="destaque"
+            label="Destaque"
+            size="sm"
+          />
 
           @if (prodError()) {
-            <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{{ prodError() }}</p>
+            <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+              {{ prodError() }}
+            </p>
           }
 
           <div class="flex gap-2">
             <div class="flex-1">
-              <ui-button type="submit" [disabled]="prodLoading() || prodForm.invalid" [loading]="prodLoading()" size="sm" [fullWidth]="true">
+
+              <ui-button
+                type="submit"
+                [disabled]="prodLoading() || prodForm.invalid"
+                [loading]="prodLoading()"
+                size="sm"
+                [fullWidth]="true"
+              >
+
                 @if (prodEditId()) { Atualizar Produto } @else { Criar Produto }
               </ui-button>
+
             </div>
             @if (prodEditId()) {
-              <ui-button type="button" variant="secondary" size="sm" (click)="cancelarEdicaoProduto()">Cancelar</ui-button>
+              <ui-button
+                type="button"
+                variant="secondary"
+                size="sm"
+                (click)="cancelarEdicaoProduto()"
+              >
+                Cancelar
+              </ui-button>
             }
           </div>
         </form>

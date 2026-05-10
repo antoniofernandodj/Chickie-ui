@@ -34,14 +34,18 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
     <div class="grid lg:grid-cols-2 gap-8">
       <!-- Lista de adicionais -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h3 class="text-base font-semibold text-gray-900 mb-5">🧀 Adicionais Cadastrados</h3>
+        <h3 class="text-base font-semibold text-gray-900 mb-5">
+          🧀 Adicionais Cadastrados
+        </h3>
 
         @if (adcLoading()) {
           @for (_ of [1,2,3]; track $index) {
             <div class="bg-gray-50 rounded-xl p-4 mb-2 skeleton h-16"></div>
           }
         } @else if (adicionais().length === 0) {
-          <p class="text-xs text-gray-400 text-center py-4">Nenhum adicional cadastrado.</p>
+          <p class="text-xs text-gray-400 text-center py-4">
+            Nenhum adicional cadastrado.
+          </p>
         } @else {
           <div class="space-y-2">
             @for (adc of adicionais(); track adc.uuid) {
@@ -50,9 +54,13 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
                 [style.animation-delay]="$index * 40 + 'ms'"
               >
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-semibold text-gray-900 truncate">{{ adc.nome }}</p>
+                  <p class="text-sm font-semibold text-gray-900 truncate">
+                    {{ adc.nome }}
+                  </p>
                   @if (adc.descricao) {
-                    <p class="text-xs text-gray-500 truncate">{{ adc.descricao }}</p>
+                    <p class="text-xs text-gray-500 truncate">
+                      {{ adc.descricao }}
+                    </p>
                   }
                   <p class="text-xs text-gray-400 mt-1">
                     Criado em {{ adc.criado_em | date:'dd/MM/yyyy' }}
@@ -60,7 +68,9 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
                 </div>
                 <div class="flex items-center gap-3 shrink-0 ml-3">
                   <div class="text-right">
-                    <p class="text-sm font-semibold text-gray-900">R$ {{ adc.preco | number:'1.2-2' }}</p>
+                    <p class="text-sm font-semibold text-gray-900">
+                      R$ {{ adc.preco | number:'1.2-2' }}
+                    </p>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
                           [class.bg-green-100]="adc.disponivel"
                           [class.text-green-700]="adc.disponivel"
@@ -70,9 +80,16 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
                     </span>
                   </div>
                   <div class="flex gap-1">
-                    <admin-toggle-available-btn [available]="adc.disponivel" (toggle)="toggleDisponibilidadeAdicional(adc.uuid, adc.nome, adc.disponivel)"/>
-                    <admin-edit-btn (edit)="editarAdicional(adc)"/>
-                    <admin-remove-btn (remove)="deletarAdicional(adc.uuid, adc.nome)"/>
+                    <admin-toggle-available-btn
+                      [available]="adc.disponivel"
+                      (toggle)="toggleDisponibilidadeAdicional(adc.uuid, adc.nome, adc.disponivel)
+                    "/>
+                    <admin-edit-btn
+                      (edit)="editarAdicional(adc)"
+                    />
+                    <admin-remove-btn
+                      (remove)="deletarAdicional(adc.uuid, adc.nome)"
+                    />
                   </div>
                 </div>
               </div>
@@ -87,12 +104,35 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
           @if (adcEditId()) { 📝 Editar Adicional } @else { 🧀 Criar Adicional }
         </h3>
 
-        <form [formGroup]="adcForm" (ngSubmit)="adcEditId() ? salvarEdicaoAdicional() : criarAdicional()" class="space-y-3">
-          <ui-input formControlName="nome" label="Nome *" size="sm"
-                    [error]="fa.nome.invalid && fa.nome.touched ? 'Nome obrigatório (mín. 2 caracteres)' : null"/>
-          <ui-textarea formControlName="descricao" label="Descrição" size="sm" [rows]="2"/>
-          <ui-input formControlName="preco" type="number" label="Preço (R$) *" size="sm" min="0" step="0.01"
-                    [error]="fa.preco.invalid && fa.preco.touched ? 'Preço obrigatório e deve ser >= 0' : null"/>
+        <form
+          [formGroup]="adcForm"
+          (ngSubmit)="adcEditId() ? salvarEdicaoAdicional() : criarAdicional()"
+          class="space-y-3"
+        >
+
+          <ui-input
+            formControlName="nome"
+            label="Nome *"
+            size="sm"
+            [error]="fa.nome.invalid && fa.nome.touched ? 'Nome obrigatório (mín. 2 caracteres)' : null"
+          />
+
+          <ui-textarea
+            formControlName="descricao"
+            label="Descrição"
+            size="sm"
+            [rows]="2"
+          />
+
+          <ui-input
+            formControlName="preco"
+            type="number"
+            label="Preço (R$) *"
+            size="sm"
+            min="0"
+            step="0.01"
+            [error]="fa.preco.invalid && fa.preco.touched ? 'Preço obrigatório e deve ser >= 0' : null"
+          />
 
           @if (adcError()) {
             <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{{ adcError() }}</p>
@@ -100,12 +140,24 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
 
           <div class="flex gap-2">
             <div class="flex-1">
-              <ui-button type="submit" [disabled]="adcLoadingSubmit() || adcForm.invalid" [loading]="adcLoadingSubmit()" size="sm" [fullWidth]="true">
+              <ui-button
+                type="submit"
+                [disabled]="adcLoadingSubmit() || adcForm.invalid"
+                [loading]="adcLoadingSubmit()"
+                size="sm"
+                [fullWidth]="true"
+              >
                 @if (adcEditId()) { Atualizar Adicional } @else { Criar Adicional }
               </ui-button>
             </div>
             @if (adcEditId()) {
-              <ui-button type="button" variant="secondary" size="sm" (click)="cancelarEdicaoAdicional()">Cancelar</ui-button>
+              <ui-button
+                type="button"
+                variant="secondary"
+                size="sm"
+                (click)="cancelarEdicaoAdicional()">
+                  Cancelar
+              </ui-button>
             }
           </div>
         </form>
