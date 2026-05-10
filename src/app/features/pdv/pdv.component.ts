@@ -207,10 +207,10 @@ export class PdvComponent implements OnInit {
       })),
       endereco_entrega: {
         logradouro: 'Retirada no Balcão',
-        numero: 'S/N',
-        bairro: 'Centro',
-        cidade: 'Loja',
-        estado: 'ST',
+        numero: '.',
+        bairro: '.',
+        cidade: '.',
+        estado: '.',
         cep: '00000-000'
       }
     };
