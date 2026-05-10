@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal, effect } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { toast } from 'ngx-sonner';
 import { ConfigPedidoService } from '../../../core/services/config-pedido.service';
@@ -61,8 +61,15 @@ export class AdminConfigPedidoTabComponent {
   get fcp() { return this.configPedidoForm.controls; }
 
   constructor() {
-    this.carregarConfigPedido();
+    // Vazio - carregar no effect
   }
+
+  private carregarEffect = effect(() => {
+    const uuid = this.lojaUuid();
+    if (uuid) {
+      this.carregarConfigPedido();
+    }
+  });
 
   carregarConfigPedido() {
     const uuid = this.lojaUuid();
