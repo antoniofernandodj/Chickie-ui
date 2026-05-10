@@ -12,22 +12,45 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
 @Component({
   selector: 'admin-horarios-tab',
   standalone: true,
-  imports: [ReactiveFormsModule, AdminScheduleDayCardComponent, UiInputComponent, UiSelectComponent, UiButtonComponent],
+  imports: [
+    ReactiveFormsModule,
+    AdminScheduleDayCardComponent,
+    UiInputComponent,
+    UiSelectComponent,
+    UiButtonComponent
+  ],
   template: `
     <div class="grid lg:grid-cols-2 gap-8">
       <!-- Criar Horário -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-base font-semibold text-gray-900 mb-5">Adicionar Horário</h2>
-        <form [formGroup]="horarioForm" (ngSubmit)="criarHorario()" class="space-y-4">
+        <h2 class="text-base font-semibold text-gray-900 mb-5">
+          Adicionar Horário
+        </h2>
+        <form
+          [formGroup]="horarioForm"
+          (ngSubmit)="criarHorario()"
+          class="space-y-4"
+        >
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1.5">Dia da Semana *</label>
+            <label
+              class="block text-xs font-medium text-gray-700 mb-1.5">
+              Dia da Semana *
+            </label>
             @if (diasSemanaDisponiveis().length === 0) {
-              <div class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-500 text-center">
+              <div
+                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-500 text-center">
                 Todos os 7 dias já estão cadastrados. Libere um dia para cadastrar outro.
               </div>
             } @else {
-              <ui-select formControlName="dia_semana" size="sm"
-                         [error]="hh.dia_semana.invalid && hh.dia_semana.touched ? 'Dia é obrigatório' : null">
+              <ui-select
+                formControlName="dia_semana"
+                size="sm"
+                [error]="
+                  hh.dia_semana.invalid && hh.dia_semana.touched ?
+                    'Dia é obrigatório' :
+                    null
+                "
+              >
                 @for (dia of diasSemanaDisponiveis(); track dia.valor) {
                   <option [value]="dia.valor">{{ dia.nome }}</option>
                 }
@@ -35,17 +58,43 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
             }
           </div>
           <div class="grid grid-cols-2 gap-3">
-            <ui-input formControlName="abertura" type="time" label="Abertura *" size="sm"
-                      [error]="hh.abertura.invalid && hh.abertura.touched ? 'Hora de abertura é obrigatória' : null"/>
-            <ui-input formControlName="fechamento" type="time" label="Fechamento *" size="sm"
-                      [error]="hh.fechamento.invalid && hh.fechamento.touched ? 'Hora de fechamento é obrigatória' : null"/>
+            <ui-input
+              formControlName="abertura"
+              type="time"
+              label="Abertura *"
+              size="sm"
+              [error]="
+                hh.abertura.invalid && hh.abertura.touched ?
+                  'Hora de abertura é obrigatória' :
+                  null
+              "
+            />
+            <ui-input
+              formControlName="fechamento"
+              type="time"
+              label="Fechamento *"
+              size="sm"
+              [error]="
+                hh.fechamento.invalid && hh.fechamento.touched ?
+                  'Hora de fechamento é obrigatória' :
+                  null
+              "
+            />
           </div>
 
           @if (horarioError()) {
-            <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{{ horarioError() }}</p>
+            <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+              {{ horarioError() }}
+            </p>
           }
 
-          <ui-button type="submit" [disabled]="horarioLoadingSubmit() || horarioForm.invalid" [loading]="horarioLoadingSubmit()" size="sm" [fullWidth]="true">
+          <ui-button
+            type="submit"
+            [disabled]="horarioLoadingSubmit() || horarioForm.invalid"
+            [loading]="horarioLoadingSubmit()"
+            size="sm"
+            [fullWidth]="true"
+          >
             Criar Horário
           </ui-button>
         </form>
@@ -53,11 +102,17 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
 
       <!-- Lista de Horários -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-base font-semibold text-gray-900 mb-5">Horários de Funcionamento</h2>
+        <h2 class="text-base font-semibold text-gray-900 mb-5">
+          Horários de Funcionamento
+        </h2>
         @if (horarioLoading()) {
-          <p class="text-sm text-gray-500 py-8 text-center">Carregando...</p>
+          <p class="text-sm text-gray-500 py-8 text-center">
+            Carregando...
+          </p>
         } @else if (horarios().length === 0) {
-          <p class="text-sm text-gray-500 py-8 text-center">Nenhum horário cadastrado.</p>
+          <p class="text-sm text-gray-500 py-8 text-center">
+            Nenhum horário cadastrado.
+          </p>
         } @else {
           <div class="space-y-3">
             @for (horario of horarios(); track horario.uuid) {
@@ -65,7 +120,12 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
                 [horario]="horario"
                 [diaNome]="diasSemana[horario.dia_semana]?.nome ?? ''"
                 (toggleAtivo)="toggleDiaAtivo(horario)"
-                (deletar)="deletarDia(horario.dia_semana, diasSemana[horario.dia_semana]?.nome ?? '')"
+                (deletar)="
+                  deletarDia(
+                    horario.dia_semana,
+                    diasSemana[horario.dia_semana]?.nome ?? ''
+                  )
+                "
               />
             }
           </div>
@@ -81,10 +141,22 @@ export class AdminHorariosTabComponent {
   private fb = inject(FormBuilder);
 
   private readonly refreshHorarioTrigger = new BehaviorSubject<void>(undefined);
+
+  horarioForm = this.fb.group({
+    dia_semana: [0, Validators.required],
+    abertura: ['', Validators.required],
+    fechamento: ['', Validators.required],
+  });
+
+  horarioLoadingSubmit = signal(false);
+  horarioError = signal('');
+
   private readonly _horarios = toSignal(
     combineLatest([toObservable(this.lojaUuid), this.refreshHorarioTrigger]).pipe(
       switchMap(([uuid]) =>
-        this.adminService.listarHorarios(uuid).pipe(catchError(() => of([] as HorarioFuncionamento[]))),
+        this.adminService.listarHorarios(uuid).pipe(catchError(() => of(
+          [] as HorarioFuncionamento[]))
+        ),
       ),
     ),
     { initialValue: [] as HorarioFuncionamento[] },
@@ -104,26 +176,18 @@ export class AdminHorariosTabComponent {
     { valor: 6, nome: 'Sábado' },
   ];
 
+  constructor() {
+    this.refreshHorarios();
+  }
+
   readonly diasSemanaDisponiveis = computed(() => {
     const horariosList = this.horarios();
     const diasCadastrados = new Set(horariosList.map(h => h.dia_semana));
     return this.diasSemana.filter(dia => !diasCadastrados.has(dia.valor));
   });
 
-  horarioForm = this.fb.group({
-    dia_semana: [0, Validators.required],
-    abertura: ['', Validators.required],
-    fechamento: ['', Validators.required],
-  });
-
-  horarioLoadingSubmit = signal(false);
-  horarioError = signal('');
-
   get hh() { return this.horarioForm.controls; }
 
-  constructor() {
-    this.refreshHorarios();
-  }
 
   criarHorario() {
     if (this.horarioForm.invalid) {
@@ -146,12 +210,17 @@ export class AdminHorariosTabComponent {
         this.horarioForm.reset({ dia_semana: 0 });
         this.refreshHorarios();
       },
-      error: (e) => { this.horarioLoadingSubmit.set(false); this.horarioError.set(e?.error?.error ?? 'Erro ao criar horário.'); },
+      error: (e) => {
+        this.horarioLoadingSubmit.set(false);
+        this.horarioError.set(e?.error?.error ?? 'Erro ao criar horário.');
+      },
     });
   }
 
   toggleDiaAtivo(horario: HorarioFuncionamento) {
-    this.adminService.toggleDiaAtivo(this.lojaUuid(), horario.dia_semana, !horario.ativo).subscribe({
+    this.adminService.toggleDiaAtivo(
+      this.lojaUuid(), horario.dia_semana, !horario.ativo
+    ).subscribe({
       next: () => {
         toast.success(`Dia ${horario.ativo ? 'desativado' : 'ativado'} com sucesso!`);
         this.refreshHorarios();

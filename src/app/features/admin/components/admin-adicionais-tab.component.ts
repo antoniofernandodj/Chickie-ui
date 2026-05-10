@@ -71,18 +71,24 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
                     <p class="text-sm font-semibold text-gray-900">
                       R$ {{ adc.preco | number:'1.2-2' }}
                     </p>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                          [class.bg-green-100]="adc.disponivel"
-                          [class.text-green-700]="adc.disponivel"
-                          [class.bg-red-100]="!adc.disponivel"
-                          [class.text-red-700]="!adc.disponivel">
-                      {{ adc.disponivel ? 'Disponível' : 'Indisponível' }}
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                      [class.bg-green-100]="adc.disponivel"
+                      [class.text-green-700]="adc.disponivel"
+                      [class.bg-red-100]="!adc.disponivel"
+                      [class.text-red-700]="!adc.disponivel">
+                        {{ adc.disponivel ? 'Disponível' : 'Indisponível' }}
                     </span>
                   </div>
                   <div class="flex gap-1">
                     <admin-toggle-available-btn
                       [available]="adc.disponivel"
-                      (toggle)="toggleDisponibilidadeAdicional(adc.uuid, adc.nome, adc.disponivel)
+                      (toggle)="
+                        toggleDisponibilidadeAdicional(
+                          adc.uuid,
+                          adc.nome,
+                          adc.disponivel
+                        )
                     "/>
                     <admin-edit-btn
                       (edit)="editarAdicional(adc)"
