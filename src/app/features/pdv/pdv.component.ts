@@ -194,10 +194,12 @@ export class PdvComponent implements OnInit {
 
     const body: CreatePedidoRequest = {
       loja_uuid: loja.uuid,
-      taxa_entrega: 0, 
+      taxa_entrega: 0,
       forma_pagamento: metodoPagamento,
       observacoes: 'Venda PDV',
+      origem: 'pdv',
       itens: this.itens().map(item => ({
+
         quantidade: item.quantidade,
         partes: item.partes.map(p => ({
           produto_uuid: p.produto.uuid,

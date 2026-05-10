@@ -387,8 +387,10 @@ export interface CreatePedidoRequest {
   observacoes?:    string | null;
   contato?:        string | null;
   codigo_cupom?:   string | null;
+  origem?:         'app' | 'pdv' | 'mesa';
   itens:           CreatePedidoItemRequest[];
-  endereco_entrega:{
+  endereco_entrega: {
+
     cep?:         string | null;
     logradouro:   string;
     numero:       string;
