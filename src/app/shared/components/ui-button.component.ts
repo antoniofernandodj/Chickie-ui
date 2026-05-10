@@ -1,20 +1,22 @@
 import { Component, computed, input } from '@angular/core';
 import { UiSpinnerComponent } from './ui-spinner.component';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
-type Size = 'sm' | 'md' | 'lg';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'flat';
+type Size = 'xs' | 'sm' | 'md' | 'lg';
 
 const SIZES: Record<Size, string> = {
-  sm: 'py-2 px-4 text-xs',
+  xs: 'py-2 px-4 text-xs',
+  sm: 'py-2.5 px-4 text-sm',
   md: 'py-3 px-5 text-sm',
   lg: 'py-3.5 px-6 text-sm',
 };
 
 const VARIANTS: Record<Variant, string> = {
-  primary:   'text-white',
-  secondary: 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
-  ghost:     'text-gray-600 hover:bg-gray-100',
-  danger:    'border border-red-200 bg-white text-red-600 hover:bg-red-50',
+  primary:   'rounded-xl text-white',
+  secondary: 'rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+  ghost:     'rounded-xl text-gray-600 hover:bg-gray-100',
+  danger:    'rounded-xl border border-red-200 bg-white text-red-600 hover:bg-red-50',
+  flat:      'rounded-none w-full text-left text-gray-700 hover:bg-orange-50/50 active:!bg-orange-50',
 };
 
 @Component({
@@ -41,16 +43,17 @@ const VARIANTS: Record<Variant, string> = {
   `,
 })
 export class UiButtonComponent {
-  variant  = input<Variant>('primary');
-  size     = input<Size>('md');
-  type     = input('button');
-  loading  = input(false);
-  disabled = input(false);
+  variant   = input<Variant>('primary');
+  size      = input<Size>('md');
+  type      = input('button');
+  loading   = input(false);
+  disabled  = input(false);
   fullWidth = input(false);
 
+
   cls = computed(() => {
-    const base = 'rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed';
-    const w = this.fullWidth() ? 'w-full' : '';
+    const base = 'font-semibold transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed';
+    const w = this.variant() !== 'flat' && this.fullWidth() ? 'w-full' : '';
     return [base, w, SIZES[this.size()], VARIANTS[this.variant()]].filter(Boolean).join(' ');
   });
 }

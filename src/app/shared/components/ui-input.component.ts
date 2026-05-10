@@ -20,6 +20,9 @@ import { formatCpf } from '../../core/utils/cpf-utils';
       [placeholder]="placeholder()"
       [disabled]="isDisabled()"
       [value]="innerValue()"
+      [attr.min]="min() ?? null"
+      [attr.max]="max() ?? null"
+      [attr.step]="step() ?? null"
       (input)="onInput($event)"
       (blur)="onTouched()"
       [class]="inputCls()"
@@ -41,6 +44,9 @@ export class UiInputComponent implements ControlValueAccessor {
   error       = input<string | null | undefined>(null);
   hint        = input<string | null | undefined>(null);
   mask        = input<'phone' | 'cpf' | null>(null);
+  min         = input<string | number | null>(null);
+  max         = input<string | number | null>(null);
+  step        = input<string | number | null>(null);
 
   innerValue = signal('');
   isDisabled = signal(false);

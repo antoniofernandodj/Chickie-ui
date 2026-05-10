@@ -5,6 +5,7 @@ Este documento descreve a estratégia para implementar o fluxo de atendimento pr
 ## 1. Visão Geral
 
 O objetivo é permitir que estabelecimentos físicos ofereçam um cardápio digital interativo onde o cliente:
+
 1. Escaneia um QR Code único por mesa.
 2. Navega pelo cardápio da loja específica.
 3. Adiciona itens ao carrinho.
@@ -84,7 +85,6 @@ Se o contexto for `mesa`:
 3. **Botão "Chamar Garçom"**: No menu flutuante ou rodapé, um botão para notificar o estabelecimento (via SSE/WebSocket).
 4. **Fechamento de Conta**: Permitir que o usuário veja todos os pedidos feitos pela mesa naquela sessão (mesmo de outras pessoas, se o backend suportar agrupamento por mesa ativa).
 
-
 ### 5.1. Kitchen Display System (KDS)
 - Pedidos de mesa devem aparecer com um destaque visual (cor diferente).
 - O número da mesa deve ser exibido de forma proeminente no topo do card de pedido.
@@ -97,7 +97,7 @@ Se o contexto for `mesa`:
 
 ## 6. Próximos Passos (Plano de Ação)
 
-1. **Backend**: Atualizar API de criação de pedido para aceitar `numero_mesa` e validar o `tipo_pedido`.
+1. **Backend**: Atualizar API de criação de pedido para aceitar `numero_mesa`, aceitar o `numero_pedido_dia` (int32), numero do pedido em relação ao dia (pedido 1, pedido 2, etc) e validar o `tipo_pedido`.
 2. **Frontend - Core**: Atualizar interfaces e criar `MesaService` para gerenciar o estado da mesa.
 3. **Frontend - Roteamento**: Implementar a nova rota `/mesa/:numero`.
 4. **Frontend - Checkout**: Ajustar a lógica de `CheckoutComponent` para condicionalmente esconder o formulário de endereço.

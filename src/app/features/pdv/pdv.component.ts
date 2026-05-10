@@ -9,11 +9,11 @@ import { toast } from 'ngx-sonner';
 import { FuncionarioService } from '../../core/services/funcionario.service';
 import { CatalogoService } from '../../core/services/catalogo.service';
 import { LojaService } from '../../core/services/loja.service';
-import { CartService, CartItem, CartParte } from '../../core/services/cart.service';
+import { CartService } from '../../core/services/cart.service';
 import { PedidoService } from '../../core/services/pedido.service';
 import { AuthService } from '../../core/services/auth.service';
 
-import { Produto, CategoriaProdutos, Loja, Adicional, CreatePedidoRequest } from '../../core/models';
+import { Produto, CategoriaProdutos, CreatePedidoRequest } from '../../core/models';
 import { PdvItemModalComponent } from './pdv-item-modal.component';
 
 @Component({
