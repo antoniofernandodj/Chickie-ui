@@ -31,8 +31,8 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
           <ui-select formControlName="tipo_calculo" label="Tipo de Cálculo para Partes *" size="sm"
                      hint="Como calcular o preço quando o cliente pede partes de itens diferentes."
                      [error]="fcp.tipo_calculo.invalid && fcp.tipo_calculo.touched ? 'Selecione um tipo' : null">
-            <option value="MaisCaro">Preço do item mais caro</option>
-            <option value="MediaPonderada">Média ponderada dos preços</option>
+            <option value="mais_caro">Preço do item mais caro</option>
+            <option value="media_ponderada">Média ponderada dos preços</option>
           </ui-select>
           <ui-button type="submit" [disabled]="configPedidoLoadingSubmit()" [loading]="configPedidoLoadingSubmit()" size="sm" [fullWidth]="true">
             💾 Salvar Configuração
@@ -55,7 +55,7 @@ export class AdminConfigPedidoTabComponent {
 
   configPedidoForm = this.fb.group({
     max_partes: [4, [Validators.required, Validators.min(1), Validators.max(8)]],
-    tipo_calculo: ['MaisCaro' as TipoCalculoPedido, Validators.required],
+    tipo_calculo: ['mais_caro' as TipoCalculoPedido, Validators.required],
   });
 
   get fcp() { return this.configPedidoForm.controls; }
@@ -84,7 +84,7 @@ export class AdminConfigPedidoTabComponent {
       },
       error: () => {
         this.configPedidoData.set(null);
-        this.configPedidoForm.reset({ max_partes: 4, tipo_calculo: 'MaisCaro' });
+        this.configPedidoForm.reset({ max_partes: 4, tipo_calculo: 'mais_caro' });
         this.configPedidoLoading.set(false);
       },
     });
@@ -95,10 +95,9 @@ export class AdminConfigPedidoTabComponent {
     const fv = this.configPedidoForm.getRawValue();
     this.configPedidoLoadingSubmit.set(true);
     this.configPedidoError.set('');
-    const tipoCalculoBackend = fv.tipo_calculo === 'MaisCaro' ? 'mais_caro' : 'media_ponderada';
     this.configPedidoService.saveConfigPedido(this.lojaUuid(), {
       max_partes: fv.max_partes!,
-      tipo_calculo: tipoCalculoBackend as any,
+      tipo_calculo: fv.tipo_calculo || "mais_caro",
     }).subscribe({
       next: () => {
         this.configPedidoLoadingSubmit.set(false);
