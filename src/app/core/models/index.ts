@@ -20,7 +20,7 @@ export type StatusPedido =
 export type TipoDesconto = 'percentual' | 'valor_fixo' | 'frete_gratis';
 export type TipoEscopo   = 'loja' | 'produto' | 'categoria';
 export type StatusCupom  = 'Ativo' | 'Inativo' | 'Expirado';
-export type TipoCalculoPedido = 'mais_caro' | 'media_ponderada';
+export type TipoCalculoPedido = 'mais_caro' | 'media_ponderada' | "MaisCaro" | "MediaPonderada";
 
 // ─── Configuração de Pedidos ─────────────────────────────────────────────────
 
