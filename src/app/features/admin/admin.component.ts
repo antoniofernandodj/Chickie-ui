@@ -17,6 +17,7 @@ import { AdminAvaliacoesTabComponent } from './components/admin-avaliacoes-tab.c
 import { AdminConfigPedidoTabComponent } from './components/admin-config-pedido-tab.component';
 import { AdminEnderecosTabComponent } from './components/admin-enderecos-tab.component';
 import { AdminHorariosTabComponent } from './components/admin-horarios-tab.component';
+import { AdminMesasTabComponent } from './components/admin-mesas-tab.component';
 import { AdminNavBtnComponent } from './components/admin-nav-btn.component';
 
 @Component({
@@ -35,6 +36,7 @@ import { AdminNavBtnComponent } from './components/admin-nav-btn.component';
     AdminConfigPedidoTabComponent,
     AdminEnderecosTabComponent,
     AdminHorariosTabComponent,
+    AdminMesasTabComponent,
     AdminNavBtnComponent,
   ],
   templateUrl: './admin.component.html',
@@ -56,6 +58,7 @@ export class AdminComponent {
     { id: 'config-pedido', label: '⚙️ Config Pedido'  },
     { id: 'enderecos',     label: '📍 Endereços'      },
     { id: 'horarios',      label: '🕐 Horários'       },
+    { id: 'mesas',         label: '🪑 Mesas'          },
   ];
 
   readonly lojaUuid$ = this.route.paramMap.pipe(

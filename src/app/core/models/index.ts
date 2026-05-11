@@ -25,15 +25,17 @@ export type TipoCalculoPedido = 'MaisCaro' | 'MediaPonderada';
 // ─── Configuração de Pedidos ─────────────────────────────────────────────────
 
 export interface ConfiguracaoDePedidosLoja {
-  uuid:         string;
-  loja_uuid:    string;
-  max_partes:   number;
-  tipo_calculo: TipoCalculoPedido;
+  uuid:             string;
+  loja_uuid:        string;
+  max_partes:       number;
+  tipo_calculo:     TipoCalculoPedido;
+  quantidade_mesas: number;
 }
 
 export interface UpdateConfigPedidoRequest {
-  max_partes?:   number;
-  tipo_calculo?: string;
+  max_partes?:       number;
+  tipo_calculo?:     string;
+  quantidade_mesas?: number;
 }
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
