@@ -16,6 +16,7 @@ export class LojaService {
 
   /** Pesquisar lojas por termo (com status aberta/fechada) */
   pesquisar(termo: string, aberta?: boolean): Observable<Loja[]> {
+    console.debug(`[OBSERVABILITY] LojaService - Searching lojas. Term: "${termo}", Only open: ${aberta ?? 'all'}`);
     let params = new HttpParams().set('termo', termo);
     if (aberta !== undefined) params = params.set('aberta', String(aberta));
     return this.http.get<Loja[]>(`${this.base}/pesquisar`, { params });
@@ -23,6 +24,7 @@ export class LojaService {
 
   /** Buscar loja por slug */
   buscarPorSlug(slug: string): Observable<Loja> {
+    console.debug(`[OBSERVABILITY] LojaService - Fetching loja by slug: ${slug}`);
     return this.http.get<Loja>(`${this.base}/slug/${slug}`);
   }
 
@@ -33,11 +35,13 @@ export class LojaService {
 
   /** Buscar loja por UUID */
   buscarPorUuid(uuid: string): Observable<Loja> {
+    console.debug(`[OBSERVABILITY] LojaService - Fetching loja by UUID: ${uuid}`);
     return this.http.get<Loja>(`${this.base}/${uuid}`);
   }
 
   /** Buscar nota média pré-calculada da loja */
   buscarNotaMedia(lojaUuid: string): Observable<NotaMediaLojaResponse> {
+    console.debug(`[OBSERVABILITY] LojaService - Fetching average rating for loja: ${lojaUuid}`);
     return this.http.get<NotaMediaLojaResponse>(`${this.base}/${lojaUuid}/nota-media`);
   }
 }

@@ -172,18 +172,33 @@ export class SignupComponent {
   });
 
   submit() {
-    if (this.form.invalid) { this.form.markAllAsTouched(); this.error.set('Preencha todos os campos obrigatórios corretamente.'); return; }
-    if (!this.formReady)   { this.error.set('Aguarde a verificação dos campos ou corrija os erros.'); return; }
+    if (this.form.invalid) {
+      console.warn('[OBSERVABILITY] SignupComponent - Form invalid on submit');
+      this.form.markAllAsTouched();
+      this.error.set('Preencha todos os campos obrigatórios corretamente.');
+      return;
+    }
+    if (!this.formReady) {
+      console.warn('[OBSERVABILITY] SignupComponent - Form not ready (availability checks pending or failed)');
+      this.error.set('Aguarde a verificação dos campos ou corrija os erros.');
+      return;
+    }
     this.loading.set(true);
     this.error.set('');
     const v = this.form.value;
+    console.info(`[OBSERVABILITY] SignupComponent - Submitting signup for email: ${v.email}`);
     this.auth.signup({ nome: v.nome!, username: v.username!, email: v.email!, senha: v.senha!, celular: v.celular!, cpf: v.cpf!, auth_method: v.auth_method!, classe: v.classe! })
       .subscribe({
         next: () => {
+          console.info(`[OBSERVABILITY] SignupComponent - Signup successful for email: ${v.email}. Redirecting to verification.`);
           sessionStorage.setItem('chickie_signup_pending', JSON.stringify({ email: v.email!, nome: v.nome!, payload: { nome: v.nome!, username: v.username!, email: v.email!, senha: v.senha!, celular: v.celular!, cpf: v.cpf!, auth_method: v.auth_method!, classe: v.classe! } }));
           this.router.navigate(['/auth/verificar-email']);
         },
-        error: (err) => { this.loading.set(false); this.error.set(err?.error?.error ?? 'Erro ao criar conta. Tente novamente.'); },
+        error: (err) => {
+          console.error(`[OBSERVABILITY] SignupComponent - Signup failed for email: ${v.email}`, err);
+          this.loading.set(false);
+          this.error.set(err?.error?.error ?? 'Erro ao criar conta. Tente novamente.');
+        },
       });
   }
 }

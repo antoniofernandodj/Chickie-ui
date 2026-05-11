@@ -15,13 +15,17 @@ export const funcionarioGuard: CanActivateFn = () => {
 
   const check = () => {
     // Permite funcionário ou admin/owner (para supervisão)
-    if (auth.isAuthenticated() && (auth.userClass() === 'funcionario' || auth.isAdmin())) {
+    const isAllowed = auth.isAuthenticated() && (auth.userClass() === 'funcionario' || auth.isAdmin());
+    console.info(`[OBSERVABILITY] funcionarioGuard - Permission check. Allowed: ${isAllowed}, Role: ${auth.userClass()}`);
+    
+    if (isAllowed) {
       return true;
     }
     return router.createUrlTree(['/']);
   };
 
   const status = auth.tokenStatus();
+  console.debug(`[OBSERVABILITY] funcionarioGuard - Status: ${status}`);
   if (status !== 'loading') {
     return check();
   }

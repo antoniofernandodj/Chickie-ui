@@ -47,6 +47,7 @@ export class LoginComponent {
 
   submit() {
     if (this.form.invalid) {
+      console.warn('[OBSERVABILITY] LoginComponent - Form invalid on submit');
       this.form.markAllAsTouched();
       this.error.set('Preencha identificador e senha corretamente.');
       return;
@@ -54,20 +55,27 @@ export class LoginComponent {
     this.loading.set(true);
     this.error.set('');
     const { identifier, senha } = this.form.value;
+    console.info(`[OBSERVABILITY] LoginComponent - Submitting login for identifier: ${identifier}`);
     this.auth.login({ identifier: identifier!, senha: senha! }).subscribe({
       next: () => {
+        console.info('[OBSERVABILITY] LoginComponent - Login successful, fetching user profile');
         this.auth.fetchAndSaveUserProfile().subscribe({
           next: (user) => {
+            console.info(`[OBSERVABILITY] LoginComponent - Profile fetched. Class: ${user.classe}. Navigating...`);
             if (user.classe === 'owner') {
               this.router.navigate(['/owner']);
             } else {
               this.router.navigate(['/']);
             }
           },
-          error: () => this.router.navigate(['/']),
+          error: (err) => {
+            console.error('[OBSERVABILITY] LoginComponent - Error fetching profile after login', err);
+            this.router.navigate(['/']);
+          },
         });
       },
       error: (err) => {
+        console.error('[OBSERVABILITY] LoginComponent - Login request failed', err);
         this.loading.set(false);
         this.error.set(err?.error?.error ?? 'Identificador ou senha incorretos.');
       },

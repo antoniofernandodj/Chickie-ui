@@ -50,9 +50,11 @@ export class CartService {
   }
 
   incrementarProdutoSimples(produto: Produto, loja: Loja): void {
+    console.info(`[OBSERVABILITY] CartService - Adding simple product: ${produto.nome} (UUID: ${produto.uuid}) from loja: ${loja.nome}`);
     // Se mudar de loja, limpa o carrinho
     const atual = this.lojaAtual();
     if (atual && atual.uuid !== loja.uuid) {
+      console.warn(`[OBSERVABILITY] CartService - Loja changed (from ${atual.uuid} to ${loja.uuid}). Clearing cart.`);
       this.limpar();
     }
     
@@ -63,8 +65,10 @@ export class CartService {
     );
     
     if (existing) {
+      console.debug(`[OBSERVABILITY] CartService - Product already in cart. Incrementing quantity for item ID: ${existing.id}`);
       this.incrementar(existing.id);
     } else {
+      console.debug('[OBSERVABILITY] CartService - New product for cart. Adding item.');
       this.itens.update((c) => [
         ...c,
         {
@@ -79,8 +83,10 @@ export class CartService {
   }
 
   adicionarComplexo(item: CartItem, loja: Loja): void {
+    console.info(`[OBSERVABILITY] CartService - Adding complex item. Main product: ${item.partes[0]?.produto?.nome} from loja: ${loja.nome}`);
     const atual = this.lojaAtual();
     if (atual && atual.uuid !== loja.uuid) {
+      console.warn(`[OBSERVABILITY] CartService - Loja changed (from ${atual.uuid} to ${loja.uuid}). Clearing cart.`);
       this.limpar();
     }
     this.lojaAtual.set(loja);
@@ -89,6 +95,7 @@ export class CartService {
   }
 
   incrementar(id: number): void {
+    console.debug(`[OBSERVABILITY] CartService - Incrementing item ID: ${id}`);
     this.itens.update(c =>
       c.map(i => i.id === id ? { ...i, quantidade: i.quantidade + 1 } : i),
     );
@@ -96,6 +103,7 @@ export class CartService {
   }
 
   decrementar(id: number): void {
+    console.debug(`[OBSERVABILITY] CartService - Decrementing item ID: ${id}`);
     this.itens.update(c => {
       const item = c.find(i => i.id === id);
       if (!item) return c;
@@ -107,11 +115,13 @@ export class CartService {
   }
 
   removerItem(id: number): void {
+    console.info(`[OBSERVABILITY] CartService - Removing item ID: ${id}`);
     this.itens.update(c => c.filter(i => i.id !== id));
     this._save();
   }
 
   limpar(): void {
+    console.info('[OBSERVABILITY] CartService - Clearing entire cart.');
     this.lojaAtual.set(null);
     this.itens.set([]);
     if (isPlatformBrowser(this.platformId)) localStorage.removeItem(KEY);

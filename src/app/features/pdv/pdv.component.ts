@@ -132,30 +132,39 @@ export class PdvComponent implements OnInit {
   }
 
   iniciarPedido() {
+    console.info('[OBSERVABILITY] PdvComponent - Starting new order');
     this.cartService.limpar();
     this.pdvStep.set('construcao');
   }
 
   selecionarCategoria(uuid: string | null) {
+    console.debug(`[OBSERVABILITY] PdvComponent - Category selected: ${uuid}`);
     this.categoriaSelecionada.set(uuid);
   }
 
   adicionarAoCarrinho(produto: Produto) {
+    console.info(`[OBSERVABILITY] PdvComponent - Adding product to PDV cart: ${produto.nome}`);
     const cat = this.categorias().find(c => c.uuid === produto.categoria_uuid);
-    if (!cat) return;
+    if (!cat) {
+      console.warn(`[OBSERVABILITY] PdvComponent - Category not found for product: ${produto.nome} (Cat UUID: ${produto.categoria_uuid})`);
+      return;
+    }
 
     // Se for pizza_mode OU se não for drink_mode (para permitir adicionais), abrimos o modal.
     if (cat.pizza_mode || !cat.drink_mode) {
+       console.debug(`[OBSERVABILITY] PdvComponent - Opening customization modal for product: ${produto.nome}`);
        this.itemParaCustomizar.set({ produto, categoria: cat });
        return;
     }
 
     // Bebidas e outros itens simples são adicionados diretamente
+    console.debug(`[OBSERVABILITY] PdvComponent - Simple product, adding directly: ${produto.nome}`);
     this.cartService.incrementarProdutoSimples(produto, this.loja()!);
     toast.success(`${produto.nome} adicionado`);
   }
 
   onItemCustomizado(itemData: any) {
+    console.info(`[OBSERVABILITY] PdvComponent - Item customized and added: ${itemData.partes[0]?.produto?.nome}`);
     this.cartService.adicionarComplexo({
       ...itemData,
       id: Date.now() // Gerar um ID temporário
@@ -166,30 +175,39 @@ export class PdvComponent implements OnInit {
   }
 
   removerDoCarrinho(id: number) {
+    console.info(`[OBSERVABILITY] PdvComponent - Removing item from cart. ID: ${id}`);
     this.cartService.removerItem(id);
   }
 
   limparCarrinho() {
+    console.info('[OBSERVABILITY] PdvComponent - Clearing cart');
     this.cartService.limpar();
     toast.info('Carrinho limpo');
   }
 
   avancarParaPagamento() {
     if (this.itens().length === 0) {
+      console.warn('[OBSERVABILITY] PdvComponent - Attempted to advance to payment with empty cart');
       toast.error('Carrinho vazio');
       return;
     }
+    console.info('[OBSERVABILITY] PdvComponent - Advancing to payment step');
     this.pdvStep.set('finalizacao');
   }
 
   voltarParaConstrucao() {
+    console.info('[OBSERVABILITY] PdvComponent - Returning to construction step');
     this.pdvStep.set('construcao');
   }
 
   confirmarVenda(metodoPagamento: string) {
     const loja = this.loja();
-    if (!loja) return;
+    if (!loja) {
+      console.error('[OBSERVABILITY] PdvComponent - Loja not loaded during sale confirmation');
+      return;
+    }
 
+    console.info(`[OBSERVABILITY] PdvComponent - Confirming sale. Method: ${metodoPagamento}, Items: ${this.itens().length}`);
     this.enviandoPedido.set(true);
 
     const body: CreatePedidoRequest = {
@@ -220,12 +238,14 @@ export class PdvComponent implements OnInit {
 
     this.pedidoService.criar(body).subscribe({
       next: (res) => {
+        console.info(`[OBSERVABILITY] PdvComponent - Sale confirmed. Order code: ${res.codigo}`);
         toast.success(`Venda #${res.codigo} realizada com sucesso!`);
         this.cartService.limpar();
         this.pdvStep.set('inicio');
         this.enviandoPedido.set(false);
       },
       error: (err) => {
+        console.error('[OBSERVABILITY] PdvComponent - Failed to confirm sale', err);
         toast.error(err?.error?.error || 'Erro ao processar venda');
         this.enviandoPedido.set(false);
       }

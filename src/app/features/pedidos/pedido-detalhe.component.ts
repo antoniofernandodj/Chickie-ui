@@ -94,32 +94,46 @@ export class PedidoDetalheComponent {
   // ── Ciclo de vida ─────────────────────────────────────────────────────────
 
   constructor() {
+    console.info('[OBSERVABILITY] PedidoDetalheComponent - Initializing order details view');
     this.route.paramMap.pipe(
       map(p => p.get('uuid')?.trim() ?? p.get('codigo')?.trim() ?? ''),
-      tap(() => {
+      tap((id) => {
+        console.debug(`[OBSERVABILITY] PedidoDetalheComponent - Route change, identifier: ${id}`);
         this._pedido.set(undefined);
         this.resetarPagamento();
       }),
       switchMap(identificador => {
-        if (!identificador) return of(null);
+        if (!identificador) {
+          console.warn('[OBSERVABILITY] PedidoDetalheComponent - No identifier provided');
+          return of(null);
+        }
+        console.debug(`[OBSERVABILITY] PedidoDetalheComponent - Fetching order: ${identificador}`);
         const obs = identificador.length === 36 && identificador.includes('-')
           ? this.pedidoService.buscar(identificador)
           : this.pedidoService.buscarPorCodigo(identificador);
         return obs.pipe(
-          catchError(() => {
+          tap((p) => console.info(`[OBSERVABILITY] PedidoDetalheComponent - Order loaded from API: ${p.codigo}`)),
+          catchError((err) => {
+            console.warn(`[OBSERVABILITY] PedidoDetalheComponent - Error loading from API, trying local storage: ${identificador}`, err);
             const local = identificador.length === 36 && identificador.includes('-')
               ? this.pedidoLocalStorage.buscarPorUuid(identificador)
               : this.pedidoLocalStorage.buscarPorCodigo(identificador);
+            console.info(`[OBSERVABILITY] PedidoDetalheComponent - Local storage lookup: ${local ? 'found' : 'not found'}`);
             return of(local ?? null);
           }),
         );
       }),
       switchMap(pedido => {
         if (pedido?.codigo && !STATUS_TERMINAL.includes(pedido.status)) {
+          console.info(`[OBSERVABILITY] PedidoDetalheComponent - Starting live monitoring for order: ${pedido.codigo}`);
           return this.pedidosLiveService.acompanharPorCodigo(pedido.codigo).pipe(
             startWith(pedido),
+            tap((p) => console.debug(`[OBSERVABILITY] PedidoDetalheComponent - Status update from SSE: ${p.status}`)),
             takeWhile(p => !STATUS_TERMINAL.includes(p.status), true),
-            catchError(() => of(pedido))
+            catchError((err) => {
+              console.error('[OBSERVABILITY] PedidoDetalheComponent - Error in live monitoring stream', err);
+              return of(pedido);
+            })
           );
         }
         return of(pedido);
@@ -129,13 +143,19 @@ export class PedidoDetalheComponent {
       if (pedido) {
         const foiPago = !this._pedido()?.pago && pedido.pago;
         const transitouEntregue = pedido.status === 'entregue' && this._pedido()?.status !== 'entregue';
+        
+        if (foiPago) console.info(`[OBSERVABILITY] PedidoDetalheComponent - Order was paid: ${pedido.codigo}`);
+        if (transitouEntregue) console.info(`[OBSERVABILITY] PedidoDetalheComponent - Order was delivered: ${pedido.codigo}`);
+
         this._pedido.set(pedido);
         if (foiPago) this.pagamento.set(null);
         if (transitouEntregue && this.isAuthenticated() && !this.avaliacaoJaMostrada(pedido.uuid)) {
+          console.debug('[OBSERVABILITY] PedidoDetalheComponent - Opening evaluation modal');
           this.mostrarModalAvaliacao.set(true);
           this.marcarAvaliacaoMostrada(pedido.uuid);
         }
       } else {
+        console.warn('[OBSERVABILITY] PedidoDetalheComponent - Order not found');
         this._pedido.set(null);
       }
     });

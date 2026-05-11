@@ -36,7 +36,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err: HttpErrorResponse) => {
       if (!isPlatformBrowser(platformId)) return throwError(() => err);
 
+      const errorMsg = extractErrorMessage(err);
+      console.error(`[OBSERVABILITY] errorInterceptor - HTTP Error: ${err.status} ${err.statusText}. URL: ${req.url}. Message: ${errorMsg}`);
+
       if (err.status === 401) {
+        console.warn('[OBSERVABILITY] errorInterceptor - 401 Unauthorized. Logging out.');
         auth.logout();
         router.navigate(['/auth/login']);
         return throwError(() => err);

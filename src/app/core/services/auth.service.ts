@@ -54,12 +54,15 @@ export class AuthService {
     afterNextRender(() => {
       const token = this.loadToken();
       if (!token) {
+        console.info('[OBSERVABILITY] AuthService - No token found in localStorage.');
         this._tokenStatus.set('unauthenticated');
         return;
       }
 
+      console.debug('[OBSERVABILITY] AuthService - Validating token with /me...');
       this.http.get<Usuario>(`${this.base}/me`).subscribe({
         next: (user) => {
+          console.info(`[OBSERVABILITY] AuthService - Token valid. User: ${user.nome}, Class: ${user.classe}`);
           if (user.classe) {
             this.saveItem('chickie_classe', user.classe);
             this._userClassTrigger.set(new Date());
@@ -68,11 +71,12 @@ export class AuthService {
           this._tokenStatus.set('valid');
         },
         error: (err) => {
-          console.error('[AuthService] Erro ao validar token no startup:', err);
+          console.error('[OBSERVABILITY] AuthService - Error validating token on startup:', err);
           
           // Só limpa o localStorage se for explicitamente 401 (Unauthorized)
           // Se for erro de rede (0), timeout, ou erro de servidor (5xx), não limpamos.
           if (err.status === 401) {
+            console.warn('[OBSERVABILITY] AuthService - 401 Unauthorized during startup validation. Clearing session.');
             this.removeItem('chickie_token');
             this.removeItem('chickie_nome');
             this.removeItem('chickie_classe');
@@ -80,6 +84,7 @@ export class AuthService {
             this._tokenStatus.set('unauthenticated');
             toast.error('Sessão expirada. Faça login novamente.');
           } else {
+            console.warn(`[OBSERVABILITY] AuthService - Network/Server error (${err.status}) during startup validation. Keeping token.`);
             // Em caso de erro de rede ou servidor, paramos o loading mas mantemos o token
             // para permitir que o usuário tente novamente depois (ex: dando F5).
             this._tokenStatus.set('unauthenticated');
@@ -107,12 +112,20 @@ export class AuthService {
   }
 
   signup(body: SignupRequest): Observable<SignupResponse> {
-    return this.http.post<SignupResponse>(`${this.base}/signup`, body);
+    console.info(`[OBSERVABILITY] AuthService - Signup attempt for email: ${body.email}`);
+    return this.http.post<SignupResponse>(`${this.base}/signup`, body).pipe(
+      tap({
+        next: () => console.info(`[OBSERVABILITY] AuthService - Signup successful for email: ${body.email}`),
+        error: (err) => console.error(`[OBSERVABILITY] AuthService - Signup failed for email: ${body.email}`, err)
+      })
+    );
   }
 
   confirmarEmail(token: string): Observable<ConfirmarEmailResponse> {
+    console.info('[OBSERVABILITY] AuthService - Email confirmation attempt.');
     return this.http.get<ConfirmarEmailResponse>(`${this.base}/confirmar-email`, { params: { token } }).pipe(
       tap((res) => {
+        console.info(`[OBSERVABILITY] AuthService - Email confirmed. User: ${res.usuario.nome}`);
         this.saveItem('chickie_token', res.token);
         this._token.set(res.token);
         this._tokenStatus.set('valid');
@@ -128,16 +141,22 @@ export class AuthService {
   }
 
   login(body: LoginRequest): Observable<LoginResponse> {
+    console.info(`[OBSERVABILITY] AuthService - Login attempt for identifier: ${body.identifier}`);
     return this.http.post<LoginResponse>(`${this.base}/login`, body).pipe(
-      tap((res) => {
-        this.saveItem('chickie_token', res.access_token);
-        this._token.set(res.access_token);
-        this._tokenStatus.set('valid');
-        const classe = this.extractClasseFromToken(res.access_token);
-        if (classe) {
-          this.saveItem('chickie_classe', classe);
-          this._userClassTrigger.set(new Date());
-        }
+      tap({
+        next: (res) => {
+          console.info(`[OBSERVABILITY] AuthService - Login successful for identifier: ${body.identifier}`);
+          this.saveItem('chickie_token', res.access_token);
+          this._token.set(res.access_token);
+          this._tokenStatus.set('valid');
+          const classe = this.extractClasseFromToken(res.access_token);
+          if (classe) {
+            console.debug(`[OBSERVABILITY] AuthService - Extracted class from token: ${classe}`);
+            this.saveItem('chickie_classe', classe);
+            this._userClassTrigger.set(new Date());
+          }
+        },
+        error: (err) => console.error(`[OBSERVABILITY] AuthService - Login failed for identifier: ${body.identifier}`, err)
       }),
     );
   }
@@ -218,6 +237,7 @@ export class AuthService {
   }
 
   logout(): void {
+    console.info('[OBSERVABILITY] AuthService - Logging out user.');
     this.removeItem('chickie_token');
     this.removeItem('chickie_nome');
     this.removeItem('chickie_classe');

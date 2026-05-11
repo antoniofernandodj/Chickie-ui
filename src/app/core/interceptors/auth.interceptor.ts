@@ -9,6 +9,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
+  console.debug(`[OBSERVABILITY] authInterceptor - Outgoing request: ${req.method} ${req.url}`);
+
   const token = localStorage.getItem('chickie_token');
   if (!token) {
     return next(req);

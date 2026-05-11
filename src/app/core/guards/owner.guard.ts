@@ -22,7 +22,9 @@ export const ownerGuard: CanActivateFn = () => {
    * Retorna 'true' se for Owner, ou redireciona para a Home ('/') se não for.
    */
   const check = () => {
-    if (auth.isAuthenticated() && auth.isOwner()) {
+    const isAllowed = auth.isAuthenticated() && auth.isOwner();
+    console.info(`[OBSERVABILITY] ownerGuard - Permission check. Allowed: ${isAllowed}`);
+    if (isAllowed) {
       return true;
     }
     return router.createUrlTree(['/']);
@@ -30,18 +32,13 @@ export const ownerGuard: CanActivateFn = () => {
 
   // 1. Se o sistema já terminou de carregar o perfil do usuário...
   const status = auth.tokenStatus();
+  console.debug(`[OBSERVABILITY] ownerGuard - Status: ${status}`);
   if (status !== 'loading') {
     // ...executamos a checagem de permissão imediatamente.
     return check();
   }
 
   // 2. Se ainda estiver carregando (ex: logo após um F5)...
-  //
-  // - toObservable: Começa a "espiar" as mudanças no status do token.
-  // - pipe: Abre um canal de processamento para os dados que chegam.
-  // - filter: Ignora o status enquanto ele for 'loading'. Só deixa a informação passar quando o login terminar.
-  // - take(1): Pega apenas a primeira informação útil e para de espiar (economiza memória).
-  // - map: Assim que a informação chega, executa a nossa função 'check()' lá de cima.
   return toObservable(auth.tokenStatus).pipe(
     filter((s) => s !== 'loading'),
     take(1),

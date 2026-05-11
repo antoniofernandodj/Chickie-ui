@@ -57,12 +57,15 @@ export class FuncionarioPanelComponent {
   readonly prontos = this.createStream('pronto');
 
   constructor() {
+    console.info('[OBSERVABILITY] FuncionarioPanelComponent - Initializing employee panel');
     // Efeito para detectar mudanças nos pedidos e tocar som
     effect(() => {
       const c = this.confirmados();
       const e = this.emPreparo();
       const p = this.prontos();
       
+      console.debug(`[OBSERVABILITY] FuncionarioPanelComponent - Orders updated. Confirmados: ${c.length}, Em Preparo: ${e.length}, Prontos: ${p.length}`);
+
       // Sempre que qualquer lista mudar e houver itens, tentamos tocar o som
       if (c.length > 0 || e.length > 0 || p.length > 0) {
         untracked(() => this.notificarSom());

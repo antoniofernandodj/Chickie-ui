@@ -77,11 +77,14 @@ export class KdsPanelComponent {
   readonly prontos = computed(() => this.kdsStream()?.prontos || []);
 
   constructor() {
+    console.info('[OBSERVABILITY] KdsPanelComponent - Initializing KDS panel');
     // Efeito para detectar mudanças nos pedidos e tocar som
     effect(() => {
       const c = this.confirmados();
       const e = this.emPreparo();
       const p = this.prontos();
+
+      console.debug(`[OBSERVABILITY] KdsPanelComponent - Orders updated. Confirmados: ${c.length}, Em Preparo: ${e.length}, Prontos: ${p.length}`);
 
       // Sempre que qualquer lista mudar e houver itens, tentamos tocar o som
       if (c.length > 0 || e.length > 0 || p.length > 0) {
@@ -94,6 +97,7 @@ export class KdsPanelComponent {
       this.kdsStream();
       untracked(() => {
         if (this.selectedPedido() !== null) {
+          console.debug('[OBSERVABILITY] KdsPanelComponent - Closing details modal due to stream update');
           this.selectedPedido.set(null);
         }
       });
@@ -105,6 +109,7 @@ export class KdsPanelComponent {
   toggleMute() {
     this.isMuted.update(m => {
       const newVal = !m;
+      console.info(`[OBSERVABILITY] KdsPanelComponent - Toggling mute. Now: ${newVal}`);
       localStorage.setItem(this.MUTE_KEY, String(newVal));
       return newVal;
     });
@@ -112,12 +117,15 @@ export class KdsPanelComponent {
 
   toggleFullscreen() {
     if (!document.fullscreenElement) {
+      console.info('[OBSERVABILITY] KdsPanelComponent - Entering fullscreen');
       document.documentElement.requestFullscreen().then(() => {
         this.isFullscreen.set(true);
       }).catch(err => {
+        console.error('[OBSERVABILITY] KdsPanelComponent - Error entering fullscreen', err);
         toast.error(`Erro ao entrar em tela cheia: ${err.message}`);
       });
     } else {
+      console.info('[OBSERVABILITY] KdsPanelComponent - Exiting fullscreen');
       if (document.exitFullscreen) {
         document.exitFullscreen().then(() => {
           this.isFullscreen.set(false);
@@ -127,10 +135,12 @@ export class KdsPanelComponent {
   }
 
   abrirDetalhes(pedido: Pedido) {
+    console.debug(`[OBSERVABILITY] KdsPanelComponent - Opening details for order #${pedido.codigo}`);
     this.selectedPedido.set(pedido);
   }
 
   fecharDetalhes() {
+    console.debug('[OBSERVABILITY] KdsPanelComponent - Closing details');
     this.selectedPedido.set(null);
   }
 
@@ -173,17 +183,21 @@ export class KdsPanelComponent {
   }
 
   avancar(pedido: Pedido) {
+    console.info(`[OBSERVABILITY] KdsPanelComponent - Advancing status for order #${pedido.codigo}. Current: ${pedido.status}`);
     // Restrição: KDS só controla estados até "pronto".
     if (pedido.status === 'pronto') {
+      console.warn('[OBSERVABILITY] KdsPanelComponent - Cannot advance order beyond "pronto"');
       toast.error('O Painel de Cozinha não pode despachar pedidos prontos.');
       return;
     }
     
     this.pedidoService.avancar(pedido.uuid, false).subscribe({
-      next: () => {
+      next: (res) => {
+        console.info(`[OBSERVABILITY] KdsPanelComponent - Order #${pedido.codigo} advanced. New status: ${res.status}`);
         toast.success(`Pedido #${pedido.codigo} atualizado!`);
       },
       error: (err) => {
+        console.error(`[OBSERVABILITY] KdsPanelComponent - Error advancing order #${pedido.codigo}`, err);
         toast.error(err?.error?.error || 'Erro ao atualizar pedido');
       }
     });

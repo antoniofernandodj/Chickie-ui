@@ -20,6 +20,10 @@ export class OwnerPanelComponent {
   private catalogoService = inject(CatalogoService);
   private fb = inject(FormBuilder);
 
+  constructor() {
+    console.info('[OBSERVABILITY] OwnerPanelComponent - Initializing owner panel');
+  }
+
   readonly aba = signal('usuarios');
   readonly tabs = [
     { id: 'usuarios', label: '👥 Usuários' },
@@ -38,8 +42,13 @@ export class OwnerPanelComponent {
     this.refreshUsuariosTrigger.pipe(
       switchMap(() => {
         const classe = this.classeFiltro();
+        console.debug(`[OBSERVABILITY] OwnerPanelComponent - Loading users. Filter: ${classe ?? 'all'}`);
         return this.usuarioService.listar(classe).pipe(
-          catchError(() => of([] as Usuario[])),
+          tap((u) => console.debug(`[OBSERVABILITY] OwnerPanelComponent - Users loaded: ${u.length}`)),
+          catchError((err) => {
+            console.error('[OBSERVABILITY] OwnerPanelComponent - Error loading users', err);
+            return of([] as Usuario[]);
+          }),
         );
       }),
     ),
