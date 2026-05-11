@@ -687,9 +687,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
         partes: item.partes.map((p) => ({
           produto_uuid: p.produto.uuid,
           posicao: p.posicao,
-          adicionais: p.adicionais.length > 0
-            ? p.adicionais.map((a) => ({ adicional_uuid: a.uuid }))
-            : undefined,
+          adicionais: p.adicionais.map((a) => a.uuid),
         })),
       })),
       endereco_entrega: {
