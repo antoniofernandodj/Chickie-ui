@@ -214,90 +214,72 @@
 
         <!-- Body -->
         <div class="p-6 overflow-y-auto flex-1 space-y-6">
-          <!-- Status e Info Geral -->
-          <div class="grid grid-cols-2 gap-4">
-            <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
-              <span class="text-xs text-blue-600 font-bold uppercase block mb-1">Status Atual</span>
-              <span class="font-semibold text-blue-900">{{ getStatusLabel(p.status) }}</span>
-            </div>
-            <div class="p-3 bg-green-50 rounded-lg border border-green-100">
-              <span class="text-xs text-green-600 font-bold uppercase block mb-1">Pagamento</span>
-              <span class="font-semibold text-green-900">{{ p.pago ? 'Pago' : 'Pendente' }}</span>
-            </div>
-          </div>
-
-          <!-- Cliente e Entrega -->
-          <div class="space-y-3">
-            <h3 class="font-bold text-gray-800 flex items-center gap-2">
-              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              Dados do Cliente
-            </h3>
-            <div class="pl-7 space-y-1">
-              @if (p.contato) {
-                <p class="text-gray-700"><strong>Contato:</strong> {{ p.contato }}</p>
-              }
-              
-              @if (p.endereco_entrega) {
-                <div class="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border">
-                  <p class="font-bold text-gray-800 mb-1">Endereço de Entrega:</p>
-                  <p>{{ p.endereco_entrega.logradouro }}, {{ p.endereco_entrega.numero }}</p>
-                  @if (p.endereco_entrega.complemento) {
-                    <p>{{ p.endereco_entrega.complemento }}</p>
-                  }
-                  <p>{{ p.endereco_entrega.bairro }} - {{ p.endereco_entrega.cidade }}/{{ p.endereco_entrega.estado }}</p>
-                </div>
-              } @else {
-                <p class="text-gray-500 italic">Retirada no local ou Consumo no local</p>
-              }
-            </div>
+          <!-- Status -->
+          <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+            <span class="text-xs text-blue-600 font-bold uppercase block mb-1">Status na Cozinha</span>
+            <span class="font-semibold text-blue-900 text-lg">{{ getStatusLabel(p.status) }}</span>
           </div>
 
           <!-- Itens -->
-          <div class="space-y-3">
-            <h3 class="font-bold text-gray-800 flex items-center gap-2">
-              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="space-y-4">
+            <h3 class="font-bold text-gray-800 text-xl flex items-center gap-2 border-b pb-2">
+              <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 00-2-2m0 0V5a2 2 0 012-2h14a2 2 0 012 2v2M7 7h10" />
               </svg>
-              Itens do Pedido
+              Itens para Preparo
             </h3>
-            <div class="space-y-4">
-              <div *ngFor="let item of p.itens" class="pl-7 border-l-2 border-gray-100">
-                <div class="flex justify-between">
-                  <span class="font-bold text-gray-800">{{ item.quantidade }}x {{ item.partes[0].produto_nome }}</span>
+
+            <div class="space-y-6">
+              <div *ngFor="let item of p.itens" class="p-4 bg-white border-2 border-gray-100 rounded-xl shadow-sm">
+                <div class="flex justify-between items-start mb-3">
+                  <span class="text-2xl font-black text-gray-900">{{ item.quantidade }}x</span>
                   @if (item.partes.length > 1) {
-                    <span class="text-xs bg-gray-100 px-2 py-0.5 rounded text-gray-600">Pizza Meio a Meio</span>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold uppercase">Pizza Meio a Meio</span>
                   }
                 </div>
                 
-                <!-- Partes (se houver mais de uma) -->
-                @if (item.partes.length > 1) {
-                  <div class="mt-1 space-y-1">
-                    <div *ngFor="let parte of item.partes" class="text-sm text-gray-600 ml-4">
-                      • {{ parte.produto_nome }}
+                <!-- Nome do Produto (ou Partes) -->
+                <div class="space-y-4">
+                  @for (parte of item.partes; track parte.uuid) {
+                    <div class="pl-4 border-l-4 border-gray-200">
+                      <div class="text-xl font-bold text-gray-800">
+                        {{ parte.produto_nome }}
+                      </div>
+                      
+                      <!-- Adicionais da Parte -->
                       @if (parte.adicionais.length > 0) {
-                        <div class="text-xs text-gray-500 ml-2">
-                          + {{ parte.adicionais.map(a => a.nome).join(', ') }}
+                        <div class="mt-2 flex flex-wrap gap-2">
+                          @for (adicional of parte.adicionais; track adicional.uuid) {
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-sm font-bold border border-yellow-200">
+                              + {{ adicional.nome }}
+                            </span>
+                          }
                         </div>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <!-- Adicionais Globais do Item (se houver) -->
+                @if (item.adicionais.length > 0) {
+                  <div class="mt-4 pt-3 border-t border-dashed">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Adicionais do Item:</span>
+                    <div class="mt-1 flex flex-wrap gap-2">
+                      @for (adicional of item.adicionais; track adicional.uuid) {
+                        <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm font-bold border">
+                          + {{ adicional.nome }}
+                        </span>
                       }
                     </div>
                   </div>
                 }
 
-                <!-- Adicionais (se for item simples) -->
-                @if (item.partes.length === 1 && item.partes[0].adicionais.length > 0) {
-                  <div class="mt-1 text-sm text-gray-500">
-                    <span class="font-medium text-gray-400 text-xs uppercase">Adicionais:</span>
-                    {{ item.partes[0].adicionais.map(a => a.nome).join(', ') }}
-                  </div>
-                }
-
                 <!-- Observações do Item -->
                 @if (item.observacoes) {
-                  <p class="mt-1 text-sm italic text-orange-600">
-                    Obs item: "{{ item.observacoes }}"
-                  </p>
+                  <div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+                    <span class="text-xs font-black text-red-600 uppercase block mb-1">Observação do Item:</span>
+                    <p class="text-lg font-bold text-red-900 italic">"{{ item.observacoes }}"</p>
+                  </div>
                 }
               </div>
             </div>
@@ -305,9 +287,14 @@
 
           <!-- Observações Gerais -->
           @if (p.observacoes) {
-            <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <h4 class="text-xs font-bold text-yellow-800 uppercase mb-1">Observações Gerais</h4>
-              <p class="text-sm text-yellow-900 italic">"{{ p.observacoes }}"</p>
+            <div class="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
+              <h4 class="text-sm font-black text-yellow-800 uppercase mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                Observações Gerais do Pedido
+              </h4>
+              <p class="text-xl font-bold text-yellow-900 italic">"{{ p.observacoes }}"</p>
             </div>
           }
         </div>
