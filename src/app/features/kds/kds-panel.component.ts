@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, effect, untracked } from '@angular/core';
+import { Component, inject, computed, signal, effect, untracked, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
@@ -25,6 +25,12 @@ export class KdsPanelComponent {
   private pedidoService = inject(PedidoService);
 
   readonly connectionStatus = this.liveService.connectionStatus;
+
+  // --- Tela Cheia ---
+  readonly isFullscreen = signal(false);
+
+  // --- Detalhes do Pedido ---
+  readonly selectedPedido = signal<Pedido | null>(null);
 
   // --- Áudio e Silenciamento ---
   private readonly MUTE_KEY = 'chickie_kds_muted';
@@ -94,6 +100,30 @@ export class KdsPanelComponent {
     });
   }
 
+  toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        this.isFullscreen.set(true);
+      }).catch(err => {
+        toast.error(`Erro ao entrar em tela cheia: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().then(() => {
+          this.isFullscreen.set(false);
+        });
+      }
+    }
+  }
+
+  abrirDetalhes(pedido: Pedido) {
+    this.selectedPedido.set(pedido);
+  }
+
+  fecharDetalhes() {
+    this.selectedPedido.set(null);
+  }
+
   async notificarSom(force = false) {
     if (this.isMuted() && !force) return;
     
@@ -156,5 +186,10 @@ export class KdsPanelComponent {
       case 'pronto': return 'Pronto';
       default: return status;
     }
+  }
+
+  @HostListener('document:fullscreenchange')
+  onFullscreenChange() {
+    this.isFullscreen.set(!!document.fullscreenElement);
   }
 }
