@@ -20,6 +20,35 @@ app.get('/api/hello', async () => {
   return { message: 'Olá do servidor chickie-ui! 🐣' };
 });
 
+app.post('/api/logs', async (request, reply) => {
+  const { level, message, timestamp } = request.body as any;
+  const ts = timestamp || new Date().toISOString();
+  const lvl = (level || 'log').toUpperCase().padEnd(5);
+  
+  // ANSI Colors
+  const colors: Record<string, string> = {
+    DEBUG: '\x1b[36m', // Cyan
+    INFO:  '\x1b[32m', // Green
+    LOG:   '\x1b[37m', // White
+    WARN:  '\x1b[33m', // Yellow
+    ERROR: '\x1b[31m', // Red
+    RESET: '\x1b[0m',
+  };
+
+  const color = colors[lvl.trim()] || colors['LOG'];
+  const logMsg = `${colors['RESET']}[${ts}] ${color}${lvl}${colors['RESET']} | ${message}`;
+
+  switch (level) {
+    case 'error': console.error(logMsg); break;
+    case 'warn':  console.warn(logMsg); break;
+    case 'info':  console.info(logMsg); break;
+    case 'debug': console.debug(logMsg); break;
+    default:      console.log(logMsg);
+  }
+
+  return { status: 'ok' };
+});
+
 /**
  * Serve static files from /browser
  */

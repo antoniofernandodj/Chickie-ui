@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
@@ -15,7 +15,7 @@ import { categoriaEmoji } from '../categorias/categoria-detalhe.component';
   imports: [RouterLink, DecimalPipe, UiEmptyStateComponent, UiModalComponent],
   templateUrl: './home.component.html',
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   private lojaService        = inject(LojaService);
   private catalogoService    = inject(CatalogoService);
   private pedidoLocalStorage = inject(PedidoLocalStorageService);
@@ -24,6 +24,10 @@ export class HomeComponent {
   readonly search       = signal('');
   readonly apenasAberta = signal(false);
   private searchSubject = new Subject<string>();
+
+  ngOnInit(): void {
+    console.info('[LOG-TEST] Home inicializada');
+  }
 
   readonly lojas = toSignal(
     combineLatest([

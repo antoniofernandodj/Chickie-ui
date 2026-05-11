@@ -727,3 +727,21 @@ export interface PaginatedResponse<T> {
   per_page:    number;
   total_pages: number;
 }
+
+// ─── Logging ─────────────────────────────────────────────────────────────────
+
+export type LogLevel = 'debug' | 'info' | 'log' | 'warn' | 'error';
+
+export const LogLevelPriority: Record<LogLevel, number> = {
+  'debug': 0,
+  'info':  1,
+  'log':   2,
+  'warn':  3,
+  'error': 4,
+};
+
+export interface LogPayload {
+  level:     LogLevel;
+  message:   string;
+  timestamp?: string;
+}

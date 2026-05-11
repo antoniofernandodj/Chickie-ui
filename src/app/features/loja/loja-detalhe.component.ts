@@ -141,13 +141,11 @@ export class LojaDetalheComponent {
     const cats = this.categorias();
     const prods = this.produtos().filter((p) => p.disponivel);
     
-    console.log('📊 Categorias:', cats);
-    console.log('📦 Produtos disponíveis:', prods);
+    console.debug('[LOG-TEST] Processando produtos por categoria', { catsCount: cats.length, prodsCount: prods.length });
     
     const grouped = cats
       .map((cat) => {
         const catProds = prods.filter((p) => p.categoria_uuid === cat.uuid);
-        console.log(`📂 Categoria ${cat.nome} (${cat.uuid}): ${catProds.length} produtos`, catProds);
         return {
           categoria: cat,
           produtos: catProds,
@@ -155,13 +153,20 @@ export class LojaDetalheComponent {
       })
       .filter((group) => group.produtos.length > 0);
     
-    console.log('📊 Grupos finais:', grouped);
+    if (grouped.length === 0 && cats.length > 0) {
+      console.warn('[LOG-TEST] Nenhuma categoria com produtos disponível encontrada.');
+    }
+
     return grouped;
   });
 
   toggleFav() {
     const l = this.loja();
-    if (!l) return;
+    if (!l) {
+      console.error('[LOG-TEST] Tentativa de favoritar loja inexistente');
+      return;
+    }
+    console.log(`[LOG-TEST] Favoritando/Desfavoritando loja: ${l.nome}`);
     if (this.favorita()) {
       this.favService.remover(l.uuid)
         .subscribe(() => this.favorita.set(false));

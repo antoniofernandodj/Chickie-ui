@@ -210,18 +210,25 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   // ── Navigation ────────────────────────────────────────────────────────────────
   avancar(): void {
+    console.debug('[LOG-TEST] Avançando checkout', { passoAtual: this.step() });
     if (this.step() === 'endereco' && this.enderecoValido) {
       if (!this.auth.isAuthenticated()) {
+        console.log('[LOG-TEST] Salvando endereço de guest');
         this.guestEnderecoService.salvar(this.enderecoForm);
         this.enderecosGuestSalvos.set(this.guestEnderecoService.listar());
       }
       this.step.set('pagamento');
       return;
     }
-    if (this.step() === 'pagamento' && this.pagamentoValido) { this.step.set('resumo'); return; }
+    if (this.step() === 'pagamento' && this.pagamentoValido) { 
+      console.log('[LOG-TEST] Pagamento validado, indo para resumo');
+      this.step.set('resumo'); 
+      return; 
+    }
   }
 
   voltar(): void {
+    console.debug('[LOG-TEST] Voltando checkout', { passoAtual: this.step() });
     if (this.step() === 'pagamento') { this.step.set('endereco');  return; }
     if (this.step() === 'resumo')    { this.step.set('pagamento'); return; }
   }
@@ -340,7 +347,15 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   // ── Submit ────────────────────────────────────────────────────────────────────
   confirmarPedido(): void {
     const loja = this.loja();
-    if (!loja || this.itens().length === 0) return;
+    if (!loja || this.itens().length === 0) {
+      console.warn('[LOG-TEST] Tentativa de confirmar pedido com carrinho vazio ou sem loja');
+      return;
+    }
+
+    console.info(`[LOG-TEST] Iniciando confirmação de pedido para a loja: ${loja.nome}`, {
+      formaPagamento: this.formaPagamento,
+      itensCount: this.itens().length
+    });
 
     if (this.auth.isAuthenticated()) {
       this.push.subscribe();
