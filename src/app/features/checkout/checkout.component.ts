@@ -359,9 +359,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         partes: item.partes.map(p => ({
           produto_uuid: p.produto.uuid,
           posicao:      p.posicao,
-          adicionais:   p.adicionais.length
-            ? p.adicionais.map(a => ({ adicional_uuid: a.uuid }))
-            : undefined,
+          adicionais:   p.adicionais.map(a => a.uuid),
         })),
       })),
       endereco_entrega: {
@@ -380,6 +378,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     const pagador = isPix && !isAuth
       ? { nome: this.pagadorNome().trim(), cpf: this.pagadorCpf() }
       : undefined;
+
+    console.log('[CHECKOUT] criar pedido — payload:', JSON.stringify(body, null, 2));
 
     this.submitting.set(true);
 

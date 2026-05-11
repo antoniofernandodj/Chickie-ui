@@ -199,23 +199,24 @@ export class PdvComponent implements OnInit {
       observacoes: 'Venda PDV',
       origem: 'pdv',
       itens: this.itens().map(item => ({
-
         quantidade: item.quantidade,
         partes: item.partes.map(p => ({
           produto_uuid: p.produto.uuid,
           posicao: p.posicao,
-          adicionais: p.adicionais.map(a => ({ adicional_uuid: a.uuid }))
-        }))
+          adicionais: p.adicionais.map(a => a.uuid),
+        })),
       })),
       endereco_entrega: {
         logradouro: 'Retirada no Balcão',
-        numero: '.',
-        bairro: '.',
-        cidade: '.',
-        estado: '.',
-        cep: '00000-000'
+        numero: '-',
+        bairro: '-',
+        cidade: '-',
+        estado: '-',
+        cep: '-'
       }
     };
+
+    console.log('[PDV] criar pedido — payload:', JSON.stringify(body, null, 2));
 
     this.pedidoService.criar(body).subscribe({
       next: (res) => {

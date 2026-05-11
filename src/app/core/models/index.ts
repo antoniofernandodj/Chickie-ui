@@ -376,7 +376,7 @@ export interface CreatePedidoItemRequest {
   partes: {
     produto_uuid: string;
     posicao:      number;
-    adicionais?:  { adicional_uuid: string }[];
+    adicionais:   string[];
   }[];
 }
 
