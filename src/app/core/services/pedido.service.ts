@@ -7,6 +7,7 @@ import {
   CreatePedidoRequest,
   CreatePedidoResponse,
   Pedido,
+  PaginatedResponse,
   PedidoComEntrega,
   StatusPedido,
   StatusPedidoResponse,
@@ -73,5 +74,41 @@ export class PedidoService {
       `${this.base}/${uuid}/status`,
       body,
     );
+  }
+
+  listarHistoricoCancelados(
+    lojaUuid: string,
+    page = 1,
+    perPage = 20,
+  ): Observable<PaginatedResponse<Pedido>> {
+    return this.http
+      .get<PaginatedResponse<any>>(
+        `${this.base}/por-loja/${lojaUuid}/historico/cancelados`,
+        { params: { page, per_page: perPage } },
+      )
+      .pipe(
+        map((res) => ({
+          ...res,
+          data: PedidoNormalizer.normalizarPedidos(res.data),
+        })),
+      );
+  }
+
+  listarHistoricoEntregues(
+    lojaUuid: string,
+    page = 1,
+    perPage = 20,
+  ): Observable<PaginatedResponse<Pedido>> {
+    return this.http
+      .get<PaginatedResponse<any>>(
+        `${this.base}/por-loja/${lojaUuid}/historico/entregues`,
+        { params: { page, per_page: perPage } },
+      )
+      .pipe(
+        map((res) => ({
+          ...res,
+          data: PedidoNormalizer.normalizarPedidos(res.data),
+        })),
+      );
   }
 }

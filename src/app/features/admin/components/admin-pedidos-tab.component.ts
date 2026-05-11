@@ -7,7 +7,7 @@ import { PedidoService } from '../../../core/services/pedido.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PhonePipe } from '../../../shared/pipes/phone.pipe';
 import { UiTabBarComponent, ChatPanelComponent, STATUS_PEDIDO_CFG } from '../../../shared/components';
-import { Pedido, StatusPedido, ItemPedido } from '../../../core/models';
+import { Pedido, StatusPedido, ItemPedido, PaginatedResponse } from '../../../core/models';
 import type { UiTab } from '../../../shared/components';
 
 const STATUS_CFG = STATUS_PEDIDO_CFG;
@@ -214,6 +214,35 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
             </div>
           }
         </div>
+
+        <!-- Paginação (histórico) -->
+        @if (isHistorico() && historicoTotalPages() > 1) {
+          <div class="flex items-center justify-between pt-2">
+            <p class="text-xs text-gray-400">
+              {{ historicoTotal() }} registros · página {{ historicoPage() }} de {{ historicoTotalPages() }}
+            </p>
+            <div class="flex gap-1.5">
+              <button
+                (click)="irParaPagina(historicoPage() - 1)"
+                [disabled]="historicoPage() <= 1"
+                class="px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all"
+                [class]="historicoPage() <= 1
+                  ? 'border-gray-100 text-gray-300 cursor-not-allowed'
+                  : 'border-gray-200 text-gray-600 hover:border-gray-300'">
+                ← Anterior
+              </button>
+              <button
+                (click)="irParaPagina(historicoPage() + 1)"
+                [disabled]="historicoPage() >= historicoTotalPages()"
+                class="px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all"
+                [class]="historicoPage() >= historicoTotalPages()
+                  ? 'border-gray-100 text-gray-300 cursor-not-allowed'
+                  : 'border-gray-200 text-gray-600 hover:border-gray-300'">
+                Próxima →
+              </button>
+            </div>
+          </div>
+        }
       }
     </div>
 
@@ -455,6 +484,15 @@ export class AdminPedidosTabComponent {
   readonly pedidosLoading = signal(false);
   readonly pedidos = computed(() => this._pedidosLive());
 
+  // Paginação (usado apenas nas abas de histórico)
+  readonly historicoPage = signal(1);
+  readonly historicoPerPage = 20;
+  readonly historicoTotal = signal(0);
+  readonly historicoTotalPages = signal(0);
+  readonly isHistorico = computed(() =>
+    this.pedidoFiltroStatus() === 'cancelado' || this.pedidoFiltroStatus() === 'entregue'
+  );
+
   readonly pedidoDetalheAba = signal<'detalhes' | 'chat'>('detalhes');
   readonly pedidoDetalheTabs: UiTab[] = [
     { id: 'detalhes', label: '📋 Detalhes' },
@@ -475,23 +513,56 @@ export class AdminPedidosTabComponent {
       const uuid = this.lojaUuid();
       const token = this.authService.token();
       if (uuid && token) {
-        this.conectarWsPedidos();
+        this.carregarPedidos();
       } else {
         this.desconectarWsPedidos();
       }
     });
 
     effect(() => {
-      const status = this.pedidoFiltroStatus();
+      this.pedidoFiltroStatus();
       this.expandedPedidos.set(new Set());
+      this.historicoPage.set(1);
       const uuid = this.lojaUuid();
       const token = this.authService.token();
       if (uuid && token) {
-        this.conectarWsPedidos();
+        this.carregarPedidos();
       }
     });
 
     this.destroyRef.onDestroy(() => this.desconectarWsPedidos());
+  }
+
+  private carregarPedidos(): void {
+    if (this.isHistorico()) {
+      this.desconectarWsPedidos();
+      this.carregarHistorico();
+    } else {
+      this.conectarWsPedidos();
+    }
+  }
+
+  private carregarHistorico(): void {
+    const uuid = this.lojaUuid();
+    if (!uuid) return;
+    this.pedidosLoading.set(true);
+    const page = this.historicoPage();
+    const perPage = this.historicoPerPage;
+    const status = this.pedidoFiltroStatus();
+
+    const req$ = status === 'cancelado'
+      ? this.pedidoService.listarHistoricoCancelados(uuid, page, perPage)
+      : this.pedidoService.listarHistoricoEntregues(uuid, page, perPage);
+
+    req$.subscribe({
+      next: (res: PaginatedResponse<Pedido>) => {
+        this.pedidosLoading.set(false);
+        this._pedidosLive.set(res.data);
+        this.historicoTotal.set(res.total);
+        this.historicoTotalPages.set(res.total_pages);
+      },
+      error: () => this.pedidosLoading.set(false),
+    });
   }
 
   private conectarWsPedidos(): void {
@@ -518,6 +589,11 @@ export class AdminPedidosTabComponent {
     this._pedidosLive.set([]);
   }
 
+  irParaPagina(page: number): void {
+    this.historicoPage.set(page);
+    this.carregarHistorico();
+  }
+
   statusCfg(s: StatusPedido) {
     return STATUS_CFG[s];
   }
@@ -540,7 +616,7 @@ export class AdminPedidosTabComponent {
   }
 
   refreshPedidos() {
-    this.conectarWsPedidos();
+    this.carregarPedidos();
   }
 
   isPedidoTerminal(status: StatusPedido): boolean {
