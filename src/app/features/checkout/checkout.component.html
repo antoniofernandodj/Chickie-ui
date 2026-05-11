@@ -91,9 +91,19 @@
         }
       </div>
     } @else {
+      @if (mesa()) {
+        <div class="flex items-center gap-2 mb-6 px-4 py-3 bg-green-50 border border-green-200 rounded-2xl text-green-800 text-sm font-medium">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          Atendimento na <strong class="ml-1">Mesa {{ mesa() }}</strong>
+          <span class="ml-auto text-green-600 font-normal">Sem taxa de entrega</span>
+        </div>
+      }
+
       <!-- Progress steps -->
       <div class="flex items-center gap-2 mb-8">
-        @for (label of ['Endereço', 'Pagamento', 'Confirmar']; track $index) {
+        @for (label of (mesa() ? ['Pagamento', 'Confirmar'] : ['Endereço', 'Pagamento', 'Confirmar']); track $index) {
           <div class="flex items-center gap-2 flex-1">
             <div class="flex items-center gap-2">
               <div
@@ -124,8 +134,8 @@
         <!-- Form area (2/3) -->
         <div class="lg:col-span-2 space-y-4">
 
-          <!-- STEP 1: Endereço -->
-          @if (step() === 'endereco') {
+          <!-- STEP 1: Endereço (apenas delivery) -->
+          @if (step() === 'endereco' && !mesa()) {
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <h2 class="font-bold text-gray-900 text-lg mb-5">Endereço de entrega</h2>
 
@@ -297,15 +307,25 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
               <h2 class="font-bold text-gray-900 text-lg">Confirmar pedido</h2>
 
-              <!-- Address summary -->
+              <!-- Address / Mesa summary -->
               <div>
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Entrega</p>
-                <div class="bg-gray-50 rounded-xl p-3 text-sm">
-                  <p class="font-medium text-gray-900">{{ enderecoForm.logradouro }}, {{ enderecoForm.numero }}
-                    @if (enderecoForm.complemento) { – {{ enderecoForm.complemento }} }
-                  </p>
-                  <p class="text-gray-500 mt-0.5">{{ enderecoForm.bairro }}, {{ enderecoForm.cidade }} – {{ enderecoForm.estado }}</p>
-                </div>
+                @if (mesa()) {
+                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Atendimento</p>
+                  <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-sm flex items-center gap-2 text-green-800">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <p class="font-medium">Mesa {{ mesa() }} &mdash; sem entrega</p>
+                  </div>
+                } @else {
+                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Entrega</p>
+                  <div class="bg-gray-50 rounded-xl p-3 text-sm">
+                    <p class="font-medium text-gray-900">{{ enderecoForm.logradouro }}, {{ enderecoForm.numero }}
+                      @if (enderecoForm.complemento) { – {{ enderecoForm.complemento }} }
+                    </p>
+                    <p class="text-gray-500 mt-0.5">{{ enderecoForm.bairro }}, {{ enderecoForm.cidade }} – {{ enderecoForm.estado }}</p>
+                  </div>
+                }
               </div>
 
               <!-- Payment summary -->
@@ -393,7 +413,12 @@
                 <span>Subtotal</span>
                 <span>R$&nbsp;{{ cart.subtotal() | number:'1.2-2' }}</span>
               </div>
-              @if (loja()?.taxa_entrega) {
+              @if (mesa()) {
+                <div class="flex justify-between text-green-600">
+                  <span>Entrega</span>
+                  <span>Grátis</span>
+                </div>
+              } @else if (loja()?.taxa_entrega) {
                 <div class="flex justify-between text-gray-600">
                   <span>Entrega</span>
                   <span>R$&nbsp;{{ loja()!.taxa_entrega | number:'1.2-2' }}</span>

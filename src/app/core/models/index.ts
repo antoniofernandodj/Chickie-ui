@@ -363,6 +363,8 @@ export interface Pedido {
   observacoes:       string | null;
   contato:           string | null;
   tempo_estimado_min:number | null;
+  numero_mesa:       string | null;
+  tipo_pedido:       'delivery' | 'retirada' | 'mesa';
   criado_em:         string;
   atualizado_em:     string;
   itens:             ItemPedido[];
@@ -388,9 +390,9 @@ export interface CreatePedidoRequest {
   contato?:        string | null;
   codigo_cupom?:   string | null;
   origem?:         'app' | 'pdv' | 'mesa';
+  numero_mesa?:    string | null;
   itens:           CreatePedidoItemRequest[];
-  endereco_entrega: {
-
+  endereco_entrega?: {
     cep?:         string | null;
     logradouro:   string;
     numero:       string;
@@ -398,7 +400,7 @@ export interface CreatePedidoRequest {
     bairro:       string;
     cidade:       string;
     estado:       string;
-  };
+  } | null;
 }
 
 export interface CreatePedidoResponse {

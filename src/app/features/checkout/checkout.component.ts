@@ -57,6 +57,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private router              = inject(Router);
 
   readonly loja  = computed(() => this.cart.lojaAtual());
+  readonly mesa  = computed(() => this.cart.mesa());
 
   private readonly _lojaStatus = toSignal(
     toObservable(this.loja).pipe(
@@ -76,9 +77,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   // ── Steps ────────────────────────────────────────────────────────────────────
   readonly step = signal<CheckoutStep>('endereco');
 
-  readonly stepIndex = computed(() =>
-    ({ endereco: 0, pagamento: 1, resumo: 2 })[this.step()],
-  );
+  readonly stepIndex = computed(() => {
+    if (this.mesa()) {
+      return ({ endereco: 0, pagamento: 0, resumo: 1 } as Record<string, number>)[this.step()] ?? 0;
+    }
+    return ({ endereco: 0, pagamento: 1, resumo: 2 } as Record<string, number>)[this.step()] ?? 0;
+  });
 
   // ── Endereço ─────────────────────────────────────────────────────────────────
   readonly enderecosUsuario      = signal<EnderecoUsuario[]>([]);
@@ -138,6 +142,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   // ── Totais ────────────────────────────────────────────────────────────────────
+  readonly taxaEntrega = computed(() => {
+    if (this.mesa()) return 0;
+    return Number(this.loja()?.taxa_entrega ?? 0);
+  });
+
   readonly desconto = computed(() => {
     const cupom = this.cupomValidado();
     const loja  = this.loja();
@@ -145,14 +154,13 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     const sub = this.cart.subtotal();
     if (cupom.tipo_desconto === 'percentual')  return (sub * cupom.valor_desconto) / 100;
     if (cupom.tipo_desconto === 'valor_fixo')  return Math.min(cupom.valor_desconto, sub);
-    if (cupom.tipo_desconto === 'frete_gratis') return Number(loja.taxa_entrega);
+    if (cupom.tipo_desconto === 'frete_gratis') return this.taxaEntrega();
     return 0;
   });
 
   readonly total = computed(() => {
-    const loja = this.loja();
-    if (!loja) return this.cart.subtotal();
-    return this.cart.subtotal() + Number(loja.taxa_entrega) - this.desconto();
+    if (!this.loja()) return this.cart.subtotal();
+    return this.cart.subtotal() + this.taxaEntrega() - this.desconto();
   });
 
   // ── Submit / PIX ──────────────────────────────────────────────────────────────
@@ -193,6 +201,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     this.push.carregarVapidKey();
 
+    if (this.mesa()) {
+      this.step.set('pagamento');
+      return;
+    }
+
     if (this.auth.isAuthenticated()) {
       this.enderecoService
         .listar()
@@ -229,8 +242,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   voltar(): void {
     console.debug('[LOG-TEST] Voltando checkout', { passoAtual: this.step() });
-    if (this.step() === 'pagamento') { this.step.set('endereco');  return; }
-    if (this.step() === 'resumo')    { this.step.set('pagamento'); return; }
+    if (this.step() === 'pagamento' && !this.mesa()) { this.step.set('endereco');  return; }
+    if (this.step() === 'resumo')                    { this.step.set('pagamento'); return; }
   }
 
   irParaHome(): void {
@@ -361,14 +374,17 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       this.push.subscribe();
     }
 
+    const mesa = this.mesa();
     const f = this.enderecoForm;
     const body: CreatePedidoRequest = {
       loja_uuid:       loja.uuid,
-      taxa_entrega:    Number(loja.taxa_entrega),
+      taxa_entrega:    this.taxaEntrega(),
       forma_pagamento: this.formaPagamento,
       observacoes:     this.observacoes || null,
       contato:         this.contato || null,
       codigo_cupom:    this.cupomValidado()?.codigo ?? null,
+      origem:          mesa ? 'mesa' : undefined,
+      numero_mesa:     mesa ?? null,
       itens: this.itens().map(item => ({
         quantidade: item.quantidade,
         partes: item.partes.map(p => ({
@@ -377,7 +393,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           adicionais:   p.adicionais.map(a => a.uuid),
         })),
       })),
-      endereco_entrega: {
+      endereco_entrega: mesa ? null : {
         logradouro:  f.logradouro,
         numero:      f.numero,
         complemento: f.complemento || null,

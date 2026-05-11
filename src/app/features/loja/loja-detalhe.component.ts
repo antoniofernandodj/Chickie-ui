@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, effect } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { DecimalPipe, DatePipe } from '@angular/common';
@@ -9,6 +9,7 @@ import { HorarioService } from '../../core/services/horario.service';
 import { FavoritosService } from '../../core/services/favoritos.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { AuthService } from '../../core/services/auth.service';
+import { CartService } from '../../core/services/cart.service';
 import { Produto, CategoriaProdutos, HorarioFuncionamento, AvaliacaoDeLoja, AvaliarLojaRequest } from '../../core/models';
 import { AvaliacaoLojaFormComponent } from './avaliacao-loja-form.component';
 import { CriarPedidoModalComponent } from './criar-pedido-modal.component';
@@ -28,10 +29,22 @@ export class LojaDetalheComponent {
   private favService = inject(FavoritosService);
   private marketingService = inject(MarketingService);
   readonly auth = inject(AuthService);
+  readonly cart = inject(CartService);
 
   readonly skeletons = Array(6);
   readonly favorita  = signal(false);
   readonly mostrandoModalPedido = signal(false);
+
+  readonly numeroMesa = toSignal(
+    this.route.paramMap.pipe(map(p => p.get('numero'))),
+  );
+
+  constructor() {
+    effect(() => {
+      const numero = this.numeroMesa();
+      this.cart.definirMesa(numero ?? null);
+    });
+  }
 
   // ── Avaliação de Loja ──────────────────────────────────────────────────────
   readonly avaliacaoDoUsuario = signal<AvaliacaoDeLoja | null>(null);

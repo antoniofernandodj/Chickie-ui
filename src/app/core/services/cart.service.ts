@@ -23,6 +23,7 @@ export class CartService {
 
   readonly lojaAtual  = signal<Loja | null>(null);
   readonly itens      = signal<CartItem[]>([]);
+  readonly mesa       = signal<string | null>(null);
   readonly drawerOpen = signal(false);
 
   readonly subtotal = computed(() =>
@@ -120,10 +121,16 @@ export class CartService {
     this._save();
   }
 
+  definirMesa(numero: string | null): void {
+    this.mesa.set(numero);
+    this._save();
+  }
+
   limpar(): void {
     console.info('[OBSERVABILITY] CartService - Clearing entire cart.');
     this.lojaAtual.set(null);
     this.itens.set([]);
+    this.mesa.set(null);
     if (isPlatformBrowser(this.platformId)) localStorage.removeItem(KEY);
   }
 
@@ -183,17 +190,19 @@ export class CartService {
     if (!isPlatformBrowser(this.platformId)) return;
     const loja  = this.lojaAtual();
     const itens = this.itens();
+    const mesa  = this.mesa();
     if (!loja || itens.length === 0) { localStorage.removeItem(KEY); return; }
-    localStorage.setItem(KEY, JSON.stringify({ loja, itens }));
+    localStorage.setItem(KEY, JSON.stringify({ loja, itens, mesa }));
   }
 
   private _load(): void {
     try {
       const raw = localStorage.getItem(KEY);
       if (!raw) return;
-      const { loja, itens } = JSON.parse(raw);
+      const { loja, itens, mesa } = JSON.parse(raw);
       this.lojaAtual.set(loja);
       this.itens.set(itens);
+      if (mesa) this.mesa.set(mesa);
     } catch {
       localStorage.removeItem(KEY);
     }

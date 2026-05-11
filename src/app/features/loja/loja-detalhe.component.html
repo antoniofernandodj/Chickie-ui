@@ -78,6 +78,17 @@
     </div>
   </div>
 
+  @if (numeroMesa()) {
+    <div class="bg-green-50 border-b border-green-200">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2 text-green-800 text-sm font-medium">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        Atendimento na <strong>Mesa {{ numeroMesa() }}</strong> &mdash; sem taxa de entrega
+      </div>
+    </div>
+  }
+
   <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     @if (loja()!.descricao) {
       <p class="text-gray-500 text-sm mb-8 leading-relaxed max-w-2xl">{{ loja()!.descricao }}</p>

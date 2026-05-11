@@ -47,6 +47,12 @@ export const routes: Routes = [
     title: 'Redefinir senha — Chiquitos',
   },
   {
+    path: 'loja/:slug/mesa/:numero',
+    loadComponent: () => import('./features/loja/loja-detalhe.component')
+      .then(m => m.LojaDetalheComponent),
+    title: 'Pedido na Mesa — Chiquitos',
+  },
+  {
     path: 'loja/:slug',
     loadComponent: () => import('./features/loja/loja-detalhe.component')
       .then(m => m.LojaDetalheComponent),
