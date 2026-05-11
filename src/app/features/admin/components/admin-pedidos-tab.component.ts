@@ -1,12 +1,13 @@
 import { Component, inject, input, signal, computed, effect, DestroyRef, OnInit } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import { PedidosLiveService } from '../../../core/services/pedidos-live.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PhonePipe } from '../../../shared/pipes/phone.pipe';
-import { UiTabBarComponent, ChatPanelComponent, STATUS_PEDIDO_CFG } from '../../../shared/components';
+import { UiTabBarComponent, ChatPanelComponent, STATUS_PEDIDO_CFG, UiButtonComponent, UiCheckboxComponent } from '../../../shared/components';
 import { Pedido, StatusPedido, ItemPedido, PaginatedResponse } from '../../../core/models';
 import type { UiTab } from '../../../shared/components';
 
@@ -15,33 +16,36 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
 @Component({
   selector: 'admin-pedidos-tab',
   standalone: true,
-  imports: [DecimalPipe, DatePipe, PhonePipe, UiTabBarComponent, ChatPanelComponent],
+  imports: [DecimalPipe, DatePipe, PhonePipe, FormsModule, UiTabBarComponent, ChatPanelComponent, UiButtonComponent, UiCheckboxComponent],
   template: `
     <div class="space-y-4">
       <!-- Header + refresh -->
       <div class="flex items-center justify-between mb-1">
         <h2 class="text-lg font-black text-gray-900">Pedidos recebidos</h2>
-        <button (click)="refreshPedidos()"
-                class="inline-flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-full border-2 transition-all hover:opacity-80"
-                style="color:var(--color-brand); border-color:var(--color-brand-light); background:var(--color-brand-light)">
+        <div (click)="refreshPedidos()" (keydown.enter)="refreshPedidos()"
+             role="button" tabindex="0"
+             class="inline-flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-full border-2 transition-all hover:opacity-80 cursor-pointer"
+             style="color:var(--color-brand); border-color:var(--color-brand-light); background:var(--color-brand-light)">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
           Atualizar
-        </button>
+        </div>
       </div>
 
       <!-- Filtros de status -->
       <div class="flex gap-2 overflow-x-auto pb-1">
         @for (entry of statusEntries; track entry.key) {
-          <button
+          <div
             (click)="pedidoFiltroStatus.set(entry.key)"
-            class="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border-2 transition-all duration-150 whitespace-nowrap"
+            (keydown.enter)="pedidoFiltroStatus.set(entry.key)"
+            role="button" tabindex="0"
+            class="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold border-2 transition-all duration-150 whitespace-nowrap cursor-pointer"
             [class]="pedidoFiltroStatus() === entry.key
               ? 'border-transparent text-white shadow-sm'
               : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-700'"
             [style.background]="pedidoFiltroStatus() === entry.key ? 'var(--color-brand)' : ''"
-          >{{ entry.cfg.icon }} {{ entry.cfg.label }}</button>
+          >{{ entry.cfg.icon }} {{ entry.cfg.label }}</div>
         }
       </div>
 
@@ -65,9 +69,10 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                  style="box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.06)">
 
               <!-- Accordion header -->
-              <button type="button"
+              <div role="button" tabindex="0"
                       (click)="toggleExpandPedido(pedido.uuid)"
-                      class="w-full flex items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-orange-50/50 active:bg-orange-50">
+                      (keydown.enter)="toggleExpandPedido(pedido.uuid)"
+                      class="w-full flex items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-orange-50/50 active:bg-orange-50 cursor-pointer">
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-1.5 mb-0.5">
                     <span class="text-xs font-bold font-mono" style="color:var(--color-brand)">{{ pedido.codigo || pedido.uuid.slice(0, 8) }}</span>
@@ -83,7 +88,7 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                      fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
                 </svg>
-              </button>
+              </div>
 
               <!-- Accordion body -->
               <div class="grid overflow-hidden transition-all duration-200 ease-in-out"
@@ -176,15 +181,11 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                   </div>
                   <div class="flex items-center gap-2 shrink-0">
                     @if (!isPedidoTerminal(pedido.status)) {
-                      <button
-                        (click)="pedirConfirmacaoCancelar(pedido, $event)"
-                        class="text-xs font-bold px-3 py-1.5 rounded-full border-2 border-red-200 text-red-500 hover:bg-red-50 transition-colors"
-                      >Cancelar</button>
+                      <ui-button variant="danger" size="xs"
+                        (click)="pedirConfirmacaoCancelar(pedido, $event)">Cancelar</ui-button>
                     }
-                    <button
-                      (click)="abrirDetalhesPedido(pedido)"
-                      class="text-xs font-bold px-3 py-1.5 rounded-full border-2 border-gray-200 bg-white text-gray-600 hover:border-gray-300 transition-colors"
-                    >Detalhes →</button>
+                    <ui-button variant="secondary" size="xs"
+                      (click)="abrirDetalhesPedido(pedido)">Detalhes →</ui-button>
                   </div>
                 </div>
 
@@ -193,19 +194,15 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                   <div class="px-5 py-3.5 border-t border-orange-100 space-y-2.5"
                        style="background:var(--color-brand-light)">
                     @if (pedido.status === 'pronto') {
-                      <label class="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer select-none">
-                        <input type="checkbox"
-                               [checked]="getIsRetirada(pedido.uuid)"
-                               (change)="setIsRetirada(pedido.uuid, $any($event.target).checked)"
-                               class="rounded border-gray-300"/>
-                        Retirada na loja (sem entregador)
-                      </label>
+                      <ui-checkbox
+                        [ngModel]="getIsRetirada(pedido.uuid)"
+                        (ngModelChange)="setIsRetirada(pedido.uuid, $event)"
+                        label="Retirada na loja (sem entregador)"
+                        size="sm"/>
                     }
-                    <button (click)="avancarPedido(pedido.uuid, getIsRetirada(pedido.uuid))"
-                            class="w-full px-4 py-2.5 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 active:scale-[0.98]"
-                            style="background:var(--color-brand)">
+                    <ui-button [fullWidth]="true" (click)="avancarPedido(pedido.uuid, getIsRetirada(pedido.uuid))">
                       Avançar ▶
-                    </button>
+                    </ui-button>
                   </div>
                 }
 
@@ -222,24 +219,16 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
               {{ historicoTotal() }} registros · página {{ historicoPage() }} de {{ historicoTotalPages() }}
             </p>
             <div class="flex gap-1.5">
-              <button
-                (click)="irParaPagina(historicoPage() - 1)"
+              <ui-button variant="secondary" size="xs"
                 [disabled]="historicoPage() <= 1"
-                class="px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all"
-                [class]="historicoPage() <= 1
-                  ? 'border-gray-100 text-gray-300 cursor-not-allowed'
-                  : 'border-gray-200 text-gray-600 hover:border-gray-300'">
+                (click)="irParaPagina(historicoPage() - 1)">
                 ← Anterior
-              </button>
-              <button
-                (click)="irParaPagina(historicoPage() + 1)"
+              </ui-button>
+              <ui-button variant="secondary" size="xs"
                 [disabled]="historicoPage() >= historicoTotalPages()"
-                class="px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all"
-                [class]="historicoPage() >= historicoTotalPages()
-                  ? 'border-gray-100 text-gray-300 cursor-not-allowed'
-                  : 'border-gray-200 text-gray-600 hover:border-gray-300'">
+                (click)="irParaPagina(historicoPage() + 1)">
                 Próxima →
-              </button>
+              </ui-button>
             </div>
           </div>
         }
@@ -267,12 +256,11 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                 </span>
               </div>
             </div>
-            <button (click)="fecharDetalhesPedido()"
-                    class="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-400">
+            <ui-button variant="ghost" size="xs" (click)="fecharDetalhesPedido()">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
               </svg>
-            </button>
+            </ui-button>
           </div>
 
           <!-- Abas do modal -->
@@ -419,23 +407,18 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
             <div class="px-5 py-4 border-t border-gray-100 shrink-0 space-y-2">
               <div class="space-y-2">
                 @if (p.status === 'pronto') {
-                  <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
-                    <input type="checkbox"
-                           [checked]="getIsRetirada(p.uuid)"
-                           (change)="setIsRetirada(p.uuid, $any($event.target).checked)"
-                           class="rounded border-gray-300 text-green-600"/>
-                    Retirada na loja (sem entregador)
-                  </label>
+                  <ui-checkbox
+                    [ngModel]="getIsRetirada(p.uuid)"
+                    (ngModelChange)="setIsRetirada(p.uuid, $event)"
+                    label="Retirada na loja (sem entregador)"/>
                 }
-                <button (click)="avancarPedido(p.uuid, getIsRetirada(p.uuid))"
-                        class="w-full px-3 py-2.5 rounded-xl text-sm font-semibold bg-gray-800 text-white hover:bg-gray-700 transition-colors">
+                <ui-button [fullWidth]="true" (click)="avancarPedido(p.uuid, getIsRetirada(p.uuid))">
                   Avançar ▶
-                </button>
+                </ui-button>
               </div>
-              <button (click)="pedirConfirmacaoCancelar(p)"
-                      class="w-full px-3 py-2 rounded-xl text-sm font-medium border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
+              <ui-button variant="danger" [fullWidth]="true" (click)="pedirConfirmacaoCancelar(p)">
                 Cancelar pedido
-              </button>
+              </ui-button>
             </div>
           }
         </div>
@@ -456,14 +439,16 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
             será cancelado e esta ação não pode ser revertida.
           </p>
           <div class="flex gap-3">
-            <button (click)="pedidoCancelarConfirm.set(null)"
-                    class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
-              Voltar
-            </button>
-            <button (click)="executarCancelarPedido()"
-                    class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors">
-              Confirmar cancelamento
-            </button>
+            <div class="flex-1">
+              <ui-button variant="secondary" [fullWidth]="true" (click)="pedidoCancelarConfirm.set(null)">
+                Voltar
+              </ui-button>
+            </div>
+            <div class="flex-1">
+              <ui-button variant="danger" [fullWidth]="true" (click)="executarCancelarPedido()">
+                Confirmar cancelamento
+              </ui-button>
+            </div>
           </div>
         </div>
       </div>

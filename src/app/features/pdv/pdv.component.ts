@@ -15,11 +15,12 @@ import { AuthService } from '../../core/services/auth.service';
 
 import { Produto, CategoriaProdutos, CreatePedidoRequest } from '../../core/models';
 import { PdvItemModalComponent } from './pdv-item-modal.component';
+import { UiButtonComponent, UiInputComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-pdv',
   standalone: true,
-  imports: [CommonModule, FormsModule, PdvItemModalComponent],
+  imports: [CommonModule, FormsModule, PdvItemModalComponent, UiButtonComponent, UiInputComponent],
   templateUrl: './pdv.component.html',
 })
 export class PdvComponent implements OnInit {

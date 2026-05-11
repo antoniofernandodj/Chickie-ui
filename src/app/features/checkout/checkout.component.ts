@@ -32,14 +32,14 @@ import { EnderecoUsuarioService } from '../../core/services/endereco-usuario.ser
 import { GuestEnderecoService, EnderecoGuestSalvo } from '../../core/services/guest-endereco.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { HorarioService } from '../../core/services/horario.service';
-import { EnderecoFormComponent } from '../../shared/components';
+import { EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent } from '../../shared/components';
 
 type CheckoutStep = 'endereco' | 'pagamento' | 'resumo';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, SlicePipe, EnderecoFormComponent],
+  imports: [FormsModule, DecimalPipe, SlicePipe, EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent],
   templateUrl: './checkout.component.html',
 })
 export class CheckoutComponent implements OnInit, OnDestroy {

@@ -1,5 +1,6 @@
 import { Component, inject, computed, signal, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { UiButtonComponent } from '../../shared/components';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { catchError, of, switchMap, filter, map } from 'rxjs';
@@ -14,7 +15,7 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-funcionario-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, UiButtonComponent],
   templateUrl: './funcionario-panel.component.html',
 })
 export class FuncionarioPanelComponent {

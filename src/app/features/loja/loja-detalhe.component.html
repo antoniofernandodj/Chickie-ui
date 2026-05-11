@@ -36,9 +36,10 @@
         </div>
       </div>
       @if (auth.isAuthenticated()) {
-        <button (click)="toggleFav()"
-                class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center
-                       text-white hover:bg-white/40 transition-colors">
+        <div (click)="toggleFav()" (keydown.enter)="toggleFav()"
+             role="button" tabindex="0"
+             class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center
+                    text-white hover:bg-white/40 transition-colors cursor-pointer">
           @if (favorita()) {
             <svg class="w-5 h-5 fill-red-400 text-red-400" viewBox="0 0 24 24">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -49,7 +50,7 @@
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
             </svg>
           }
-        </button>
+        </div>
       }
     </div>
   </div>
@@ -112,9 +113,7 @@
                     }
                   </div>
                 </div>
-                <button (click)="abrirFormularioAvaliacao()" class="text-sm font-medium hover:underline" style="color:var(--color-brand)">
-                  Editar
-                </button>
+                <ui-button variant="ghost" size="xs" (click)="abrirFormularioAvaliacao()">Editar</ui-button>
               </div>
               @if (avaliacaoDoUsuario()!.comentario) {
                 <p class="text-gray-600 text-sm leading-relaxed">{{ avaliacaoDoUsuario()!.comentario }}</p>
@@ -135,11 +134,7 @@
               <div class="text-4xl mb-3">⭐</div>
               <h3 class="text-base font-semibold text-gray-800 mb-2">Você ainda não avaliou esta loja</h3>
               <p class="text-gray-500 text-sm mb-4">Compartilhe sua experiência com outros clientes!</p>
-              <button (click)="abrirFormularioAvaliacao()"
-                      class="px-6 py-2.5 rounded-xl font-semibold text-sm text-white"
-                      style="background:var(--color-brand)">
-                Avaliar Loja
-              </button>
+              <ui-button (click)="abrirFormularioAvaliacao()">Avaliar Loja</ui-button>
             </div>
           }
         </div>
@@ -309,22 +304,17 @@
   <!-- FAB -->
   @if (!produtosLoading() && produtos().length > 0) {
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm">
-      <button
-        (click)="abrirModalPedido()"
+      <ui-button [fullWidth]="true" size="lg"
         [disabled]="!lojaAbertaAgora()"
-        class="w-full py-4 rounded-2xl font-bold text-white text-base shadow-xl flex items-center justify-center gap-2 transition-all"
-        [class.hover:opacity-90]="lojaAbertaAgora()"
-        [class.active:scale-95]="lojaAbertaAgora()"
-        [class.opacity-60]="!lojaAbertaAgora()"
-        [class.cursor-not-allowed]="!lojaAbertaAgora()"
-        style="background: var(--color-brand)"
+        (click)="abrirModalPedido()"
+        class="shadow-xl rounded-2xl"
       >
         @if (lojaAbertaAgora()) {
           🛒 Fazer Pedido
         } @else {
           🔒 Loja fechada no momento
         }
-      </button>
+      </ui-button>
     </div>
   }
 }

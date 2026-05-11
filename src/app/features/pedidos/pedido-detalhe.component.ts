@@ -10,8 +10,9 @@ import { PagamentoService } from '../../core/services/pagamento.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { Pedido, StatusPedido, CreatePagamentoResponse } from '../../core/models';
+import { FormsModule } from '@angular/forms';
 import { ChatPanelComponent } from '../../shared/components/chat-panel.component';
-import { UiSkeletonComponent } from '../../shared/components';
+import { UiSkeletonComponent, UiButtonComponent, UiInputComponent } from '../../shared/components';
 import { AvaliarPedidoModalComponent } from './avaliar-pedido-modal.component';
 import { AvaliacaoLojaFormComponent } from '../loja/avaliacao-loja-form.component';
 import { AvaliacaoProdutoFormComponent } from '../loja/avaliacao-produto-form.component';
@@ -39,7 +40,7 @@ const STATUS_TERMINAL: StatusPedido[] = ['entregue', 'cancelado'];
 @Component({
   selector: 'app-pedido-detalhe',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, ChatPanelComponent, UiSkeletonComponent, AvaliarPedidoModalComponent, AvaliacaoLojaFormComponent, AvaliacaoProdutoFormComponent],
+  imports: [RouterLink, DecimalPipe, FormsModule, ChatPanelComponent, UiSkeletonComponent, UiButtonComponent, UiInputComponent, AvaliarPedidoModalComponent, AvaliacaoLojaFormComponent, AvaliacaoProdutoFormComponent],
   templateUrl: './pedido-detalhe.component.html',
 })
 export class PedidoDetalheComponent {

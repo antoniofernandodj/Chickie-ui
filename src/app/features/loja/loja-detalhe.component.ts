@@ -13,12 +13,12 @@ import { CartService } from '../../core/services/cart.service';
 import { Produto, CategoriaProdutos, HorarioFuncionamento, AvaliacaoDeLoja, AvaliarLojaRequest } from '../../core/models';
 import { AvaliacaoLojaFormComponent } from './avaliacao-loja-form.component';
 import { CriarPedidoModalComponent } from './criar-pedido-modal.component';
-import { UiEmptyStateComponent, UiLojaAbertaComponent } from '../../shared/components';
+import { UiEmptyStateComponent, UiLojaAbertaComponent, UiButtonComponent } from '../../shared/components';
 import { PhonePipe } from '../../shared/pipes/phone.pipe';
 
 @Component({
   selector: 'app-loja-detalhe',
-  imports: [RouterLink, DecimalPipe, DatePipe, PhonePipe, AvaliacaoLojaFormComponent, CriarPedidoModalComponent, UiEmptyStateComponent, UiLojaAbertaComponent],
+  imports: [RouterLink, DecimalPipe, DatePipe, PhonePipe, AvaliacaoLojaFormComponent, CriarPedidoModalComponent, UiEmptyStateComponent, UiLojaAbertaComponent, UiButtonComponent],
   templateUrl: './loja-detalhe.component.html',
 })
 export class LojaDetalheComponent {

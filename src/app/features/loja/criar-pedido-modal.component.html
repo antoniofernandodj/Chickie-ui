@@ -40,11 +40,11 @@
           </div>
         }
 
-        <button (click)="irParaDetalhe()"
-                class="w-full py-3.5 rounded-2xl font-semibold text-white hover:opacity-90 transition-opacity"
-                style="background: var(--color-brand)">
-          Ver acompanhamento do pedido
-        </button>
+        <div class="flex-1">
+          <ui-button [fullWidth]="true" (click)="irParaDetalhe()">
+            Ver acompanhamento do pedido
+          </ui-button>
+        </div>
       </div>
     } @else if (pagamentoPix(); as pix) {
       <!-- ── Tela de QR Code PIX ─────────────────────────────────────── -->
@@ -64,21 +64,18 @@
           <p class="text-xs font-mono text-gray-700 break-all leading-relaxed">{{ pix.pix_copia_cola }}</p>
         </div>
 
-        <button (click)="copiarPix()"
-                class="w-full py-3 rounded-2xl border text-sm font-semibold transition-all mb-4"
-                [class.border-green-400]="copiado()" [class.text-green-600]="copiado()" [class.bg-green-50]="copiado()"
-                [class.border-gray-200]="!copiado()" [class.text-gray-600]="!copiado()">
+        <ui-button [variant]="copiado() ? 'secondary' : 'primary'" [fullWidth]="true" (click)="copiarPix()" class="mb-4">
           {{ copiado() ? '✅ Copiado!' : 'Copiar código PIX' }}
-        </button>
+        </ui-button>
 
         <p class="text-xs text-gray-400 mb-6">Vence em {{ pix.vencimento }}</p>
 
         <!-- CTA -->
-        <button (click)="irParaDetalhe()"
-                class="w-full py-3.5 rounded-2xl font-semibold text-white hover:opacity-90 transition-opacity"
-                style="background: var(--color-brand)">
-          Ver acompanhamento do pedido
-        </button>
+        <div class="flex-1">
+          <ui-button [fullWidth]="true" (click)="irParaDetalhe()">
+            Ver acompanhamento do pedido
+          </ui-button>
+        </div>
         <p class="text-xs text-gray-400 mt-4">
           O pedido será confirmado automaticamente após o pagamento.
         </p>
@@ -113,20 +110,14 @@
         </div>
 
         <!-- CTAs -->
-        <button
-          (click)="irParaDetalhe()"
-          class="w-full py-3.5 rounded-2xl font-semibold text-white mb-3 hover:opacity-90 transition-opacity"
-          style="background: var(--color-brand)"
-        >
-          Ver detalhes do pedido
-        </button>
-        <button
-          (click)="irParaPedidos()"
-          class="text-sm font-semibold hover:underline transition-all"
-          style="color: var(--color-brand)"
-        >
+        <div class="w-full flex-1 mb-3">
+          <ui-button [fullWidth]="true" (click)="irParaDetalhe()">
+            Ver detalhes do pedido
+          </ui-button>
+        </div>
+        <ui-button variant="ghost" [fullWidth]="true" (click)="irParaPedidos()">
           Ver todos os pedidos deste dispositivo →
-        </button>
+        </ui-button>
       </div>
     } @else {
 
@@ -134,21 +125,22 @@
     <div class="px-5 pt-5 pb-4 border-b border-gray-100 shrink-0">
       <!-- Top row: back/close + step counter + cart badge -->
       <div class="flex items-center gap-3 mb-3">
-        <button
-          (click)="currentStepIndex() > 0 ? voltar() : fechar.emit()"
-          class="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors shrink-0"
+        <ui-button
+          variant="ghost"
+          size="sm"
           [attr.aria-label]="currentStepIndex() > 0 ? 'Voltar' : 'Fechar'"
+          (click)="currentStepIndex() > 0 ? voltar() : fechar.emit()"
         >
           @if (currentStepIndex() > 0) {
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
             </svg>
           } @else {
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           }
-        </button>
+        </ui-button>
 
         <div class="flex-1 min-w-0">
           <p class="text-xs text-gray-400">{{ stepNumber }}</p>
@@ -169,12 +161,13 @@
       <!-- Progress bar -->
       <div class="flex gap-1">
         @for (s of steps; track $index) {
-          <button
-            class="h-1.5 flex-1 rounded-full transition-all duration-300"
+          <div role="button" tabindex="0"
+            class="h-1.5 flex-1 rounded-full transition-all duration-300 cursor-pointer"
             [style.background]="$index < currentStepIndex() ? 'var(--color-brand)' : $index === currentStepIndex() ? 'var(--color-brand)' : '#e5e7eb'"
             [style.opacity]="$index === currentStepIndex() ? '1' : $index < currentStepIndex() ? '0.5' : '1'"
             (click)="irParaStep($index)"
-          ></button>
+            (keydown.enter)="irParaStep($index)"
+          ></div>
         }
       </div>
     </div>
@@ -212,20 +205,22 @@
                   <!-- Quantity -->
                   <div class="flex items-center gap-2 shrink-0">
                     @if (getQuantidadeProduto(produto.uuid) > 0) {
-                      <button
+                      <div role="button" tabindex="0"
                         (click)="decrementarProduto(produto)"
-                        class="w-8 h-8 rounded-full border-2 font-bold text-lg flex items-center justify-center transition-colors hover:bg-orange-50"
+                        (keydown.enter)="decrementarProduto(produto)"
+                        class="w-8 h-8 rounded-full border-2 font-bold text-lg flex items-center justify-center transition-colors hover:bg-orange-50 cursor-pointer"
                         style="border-color: var(--color-brand); color: var(--color-brand)"
-                      >−</button>
+                      >−</div>
                       <span class="w-6 text-center font-bold text-sm text-gray-900">
                         {{ getQuantidadeProduto(produto.uuid) }}
                       </span>
                     }
-                    <button
+                    <div role="button" tabindex="0"
                       (click)="incrementarProduto(produto)"
-                      class="w-8 h-8 rounded-full text-white font-bold text-lg flex items-center justify-center transition-opacity hover:opacity-85"
+                      (keydown.enter)="incrementarProduto(produto)"
+                      class="w-8 h-8 rounded-full text-white font-bold text-lg flex items-center justify-center transition-opacity hover:opacity-85 cursor-pointer"
                       style="background: var(--color-brand)"
-                    >+</button>
+                    >+</div>
                   </div>
                 </div>
               }
@@ -249,19 +244,17 @@
                           </div>
                           <div class="flex items-center gap-2 shrink-0 ml-2">
                             @if (!currentCategoriaStep?.categoria?.drink_mode && adicionaisDisponiveis().length > 0) {
-                              <button
+                              <ui-button
+                                [variant]="item.partes[0].adicionais.length > 0 ? 'primary' : 'secondary'"
+                                size="xs"
                                 (click)="expandirAdicionaisItem(item.id)"
-                                class="text-xs px-2 py-0.5 rounded-full border transition-colors"
-                                [class]="item.partes[0].adicionais.length > 0
-                                  ? 'border-green-400 text-green-700 bg-green-100'
-                                  : 'border-gray-200 text-gray-400 hover:border-green-300 hover:text-green-600'"
                               >
                                 @if (item.partes[0].adicionais.length > 0) {
                                   +{{ item.partes[0].adicionais.length }} extra{{ item.partes[0].adicionais.length > 1 ? 's' : '' }}
                                 } @else {
                                   + extras
                                 }
-                              </button>
+                              </ui-button>
                             }
                             <span class="text-sm font-semibold" style="color: var(--color-brand)">
                               R$ {{ (itemPreco(item) * item.quantidade) | number:'1.2-2' }}
@@ -272,16 +265,16 @@
                           <div class="border-t border-green-100 px-3 py-2.5 bg-green-50/60">
                             <div class="flex flex-wrap gap-1.5">
                               @for (ad of adicionaisDisponiveis(); track ad.uuid) {
-                                <button
+                                <ui-button
+                                  [variant]="isAdicionalSelectedForItem(item.id, ad.uuid) ? 'primary' : 'secondary'"
+                                  size="xs"
                                   (click)="toggleAdicionalItem(item.id, ad)"
-                                  class="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border transition-all"
-                                  [class]="isAdicionalSelectedForItem(item.id, ad.uuid)
-                                    ? 'bg-green-600 border-green-600 text-white'
-                                    : 'bg-white border-gray-200 text-gray-600 hover:border-green-300'"
                                 >
-                                  {{ ad.nome }}
-                                  <span class="font-semibold">+R${{ ad.preco | number:'1.2-2' }}</span>
-                                </button>
+                                  <span class="flex items-center gap-1">
+                                    {{ ad.nome }}
+                                    <span class="font-semibold">+R${{ ad.preco | number:'1.2-2' }}</span>
+                                  </span>
+                                </ui-button>
                               }
                             </div>
                           </div>
@@ -324,39 +317,34 @@
                           >{{ parte.posicao }}</span>
                           <span class="flex-1 text-xs font-medium text-gray-700">{{ parte.produto.nome }}</span>
                           @if (adicionaisDisponiveis().length > 0) {
-                            <button
+                            <ui-button
+                              [variant]="(pizzaAdicionaisPorPosicao()[parte.posicao]?.length ?? 0) > 0 ? 'primary' : 'secondary'"
+                              size="xs"
                               (click)="expandirAdicionaisPizzaParte(parte.posicao)"
-                              class="text-xs px-2 py-0.5 rounded-full border transition-colors"
-                              [class]="(pizzaAdicionaisPorPosicao()[parte.posicao]?.length ?? 0) > 0
-                                ? 'border-orange-400 text-orange-600 bg-orange-50'
-                                : 'border-gray-200 text-gray-400 hover:border-orange-300 hover:text-orange-500'"
                             >
                               @if ((pizzaAdicionaisPorPosicao()[parte.posicao]?.length ?? 0) > 0) {
                                 +{{ pizzaAdicionaisPorPosicao()[parte.posicao].length }} extra{{ pizzaAdicionaisPorPosicao()[parte.posicao].length > 1 ? 's' : '' }}
                               } @else {
                                 + extras
                               }
-                            </button>
+                            </ui-button>
                           }
-                          <button
-                            (click)="togglePizzaParte(parte.produto)"
-                            class="text-gray-400 hover:text-red-500 ml-1 leading-none text-base"
-                          >×</button>
+                          <ui-button variant="ghost" size="xs" (click)="togglePizzaParte(parte.produto)">×</ui-button>
                         </div>
                         @if (pizzaParteExpandida() === parte.posicao) {
                           <div class="border-t border-orange-100 px-3 py-2.5 bg-orange-50/40">
                             <div class="flex flex-wrap gap-1.5">
                               @for (ad of adicionaisDisponiveis(); track ad.uuid) {
-                                <button
+                                <ui-button
+                                  [variant]="isAdicionalSelectedForParte(parte.posicao, ad.uuid) ? 'primary' : 'secondary'"
+                                  size="xs"
                                   (click)="toggleAdicionalPizzaParte(parte.posicao, ad)"
-                                  class="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border transition-all"
-                                  [class]="isAdicionalSelectedForParte(parte.posicao, ad.uuid)
-                                    ? 'bg-orange-500 border-orange-500 text-white'
-                                    : 'bg-white border-gray-200 text-gray-600 hover:border-orange-300'"
                                 >
-                                  {{ ad.nome }}
-                                  <span class="font-semibold">+R${{ ad.preco | number:'1.2-2' }}</span>
-                                </button>
+                                  <span class="flex items-center gap-1">
+                                    {{ ad.nome }}
+                                    <span class="font-semibold">+R${{ ad.preco | number:'1.2-2' }}</span>
+                                  </span>
+                                </ui-button>
                               }
                             </div>
                           </div>
@@ -365,13 +353,11 @@
                     }
                   </div>
 
-                  <button
-                    (click)="adicionarPizza()"
-                    class="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                    style="background: var(--color-brand)"
-                  >
-                    Adicionar pizza ao pedido
-                  </button>
+                  <div class="flex-1">
+                    <ui-button [fullWidth]="true" (click)="adicionarPizza()">
+                      Adicionar pizza ao pedido
+                    </ui-button>
+                  </div>
                 </div>
               } @else {
                 <div class="mb-4 p-3 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-500 text-center">
@@ -384,12 +370,12 @@
                 @for (produto of currentCategoriaStep?.produtos; track produto.uuid) {
                   @let isSelected = isPizzaParteSelected(produto.uuid);
                   @let isFull = !isSelected && pizzaPartes().length >= maxPartes();
-                  <button
-                    (click)="togglePizzaParte(produto)"
-                    [disabled]="isFull"
+                  <div role="button" tabindex="0"
+                    (click)="!isFull && togglePizzaParte(produto)"
+                    (keydown.enter)="!isFull && togglePizzaParte(produto)"
                     class="relative p-3 rounded-2xl border-2 text-left transition-all"
                     [style.border-color]="isSelected ? 'var(--color-brand)' : ''"
-                    [class]="isSelected ? 'bg-orange-50 border-orange-500' : isFull ? 'border-gray-100 bg-gray-50 opacity-40 cursor-not-allowed' : 'border-gray-100 bg-white hover:border-gray-300'"
+                    [class]="isSelected ? 'bg-orange-50 border-orange-500 cursor-pointer' : isFull ? 'border-gray-100 bg-gray-50 opacity-40 cursor-not-allowed' : 'border-gray-100 bg-white hover:border-gray-300 cursor-pointer'"
                   >
                     <!-- Image -->
                     <div class="w-full h-24 rounded-xl overflow-hidden mb-2 bg-gray-100">
@@ -415,7 +401,7 @@
                     <p class="text-xs font-bold mt-1" style="color: var(--color-brand)">
                       R$ {{ produto.preco | number:'1.2-2' }}
                     </p>
-                  </button>
+                  </div>
                 }
               </div>
 
@@ -432,10 +418,7 @@
                             R$ {{ itemPreco(item) | number:'1.2-2' }}
                           </p>
                         </div>
-                        <button
-                          (click)="removerCartItem(item.id)"
-                          class="ml-3 text-xs text-red-400 hover:text-red-600 shrink-0"
-                        >Remover</button>
+                        <ui-button variant="ghost" size="xs" (click)="removerCartItem(item.id)">Remover</ui-button>
                       </div>
                     }
                   </div>
@@ -455,18 +438,19 @@
                 <h3 class="text-sm font-semibold text-gray-700 mb-3">Seus endereços</h3>
                 <div class="space-y-2">
                   @for (end of enderecosUsuario(); track end.uuid) {
-                    <button
+                    <ui-button
+                      [variant]="enderecoSelecionadoUuid === end.uuid ? 'primary' : 'secondary'"
+                      [fullWidth]="true"
                       (click)="selecionarEndereco(end)"
-                      class="w-full text-left p-4 rounded-2xl border-2 transition-all"
-                      [style.border-color]="enderecoSelecionadoUuid === end.uuid ? 'var(--color-brand)' : ''"
-                      [class]="enderecoSelecionadoUuid === end.uuid ? 'bg-orange-50 border-orange-500' : 'border-gray-100 hover:border-gray-200'"
                     >
-                      <p class="font-semibold text-sm text-gray-900">
-                        {{ end.logradouro }}, {{ end.numero }}
-                        @if (end.complemento) { <span class="font-normal text-gray-500">— {{ end.complemento }}</span> }
-                      </p>
-                      <p class="text-xs text-gray-500 mt-0.5">{{ end.bairro }} · {{ end.cidade }}/{{ end.estado }}</p>
-                    </button>
+                      <div class="text-left w-full">
+                        <p class="font-semibold text-sm">
+                          {{ end.logradouro }}, {{ end.numero }}
+                          @if (end.complemento) { <span class="font-normal opacity-70">— {{ end.complemento }}</span> }
+                        </p>
+                        <p class="text-xs mt-0.5 opacity-70">{{ end.bairro }} · {{ end.cidade }}/{{ end.estado }}</p>
+                      </div>
+                    </ui-button>
                   }
                 </div>
 
@@ -483,18 +467,19 @@
                 <h3 class="text-sm font-semibold text-gray-700 mb-3">Endereços usados anteriormente</h3>
                 <div class="space-y-2">
                   @for (end of enderecosGuestSalvos(); track end.id) {
-                    <button
+                    <ui-button
+                      [variant]="enderecoGuestSelecionadoId === end.id ? 'primary' : 'secondary'"
+                      [fullWidth]="true"
                       (click)="selecionarEnderecoGuest(end)"
-                      class="w-full text-left p-4 rounded-2xl border-2 transition-all"
-                      [style.border-color]="enderecoGuestSelecionadoId === end.id ? 'var(--color-brand)' : ''"
-                      [class]="enderecoGuestSelecionadoId === end.id ? 'bg-orange-50 border-orange-500' : 'border-gray-100 hover:border-gray-200'"
                     >
-                      <p class="font-semibold text-sm text-gray-900">
-                        {{ end.logradouro }}, {{ end.numero }}
-                        @if (end.complemento) { <span class="font-normal text-gray-500">— {{ end.complemento }}</span> }
-                      </p>
-                      <p class="text-xs text-gray-500 mt-0.5">{{ end.bairro }} · {{ end.cidade }}/{{ end.estado }}</p>
-                    </button>
+                      <div class="text-left w-full">
+                        <p class="font-semibold text-sm">
+                          {{ end.logradouro }}, {{ end.numero }}
+                          @if (end.complemento) { <span class="font-normal opacity-70">— {{ end.complemento }}</span> }
+                        </p>
+                        <p class="text-xs mt-0.5 opacity-70">{{ end.bairro }} · {{ end.cidade }}/{{ end.estado }}</p>
+                      </div>
+                    </ui-button>
                   }
                 </div>
 
@@ -526,15 +511,16 @@
               <h3 class="text-sm font-semibold text-gray-700 mb-3">Forma de pagamento</h3>
               <div class="grid grid-cols-3 gap-3">
                 @for (opt of formasPagamento; track opt.valor) {
-                  <button
+                  <ui-button
+                    [variant]="formaPagamento === opt.valor ? 'primary' : 'secondary'"
+                    [fullWidth]="true"
                     (click)="formaPagamento = opt.valor"
-                    class="flex flex-col items-center justify-center py-4 rounded-2xl border-2 text-sm font-semibold transition-all gap-1"
-                    [style.border-color]="formaPagamento === opt.valor ? 'var(--color-brand)' : ''"
-                    [class]="formaPagamento === opt.valor ? 'bg-orange-50 border-orange-500 text-orange-700' : 'border-gray-100 text-gray-600 hover:border-gray-200'"
                   >
-                    <span class="text-2xl">{{ opt.emoji }}</span>
-                    <span>{{ opt.valor }}</span>
-                  </button>
+                    <span class="flex flex-col items-center gap-1">
+                      <span class="text-2xl">{{ opt.emoji }}</span>
+                      <span>{{ opt.valor }}</span>
+                    </span>
+                  </ui-button>
                 }
               </div>
             </section>
@@ -545,23 +531,22 @@
                 <p class="text-xs font-semibold text-orange-700">
                   📋 Para gerar o QR Code PIX precisamos do seu nome e CPF.
                 </p>
-                <div>
-                  <label class="block text-xs font-medium text-gray-700 mb-1.5">Nome completo</label>
-                  <input type="text" [value]="pagadorNome()"
-                         (input)="pagadorNome.set($any($event.target).value)"
-                         class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm placeholder-gray-400 focus:outline-none focus:border-orange-400 transition-colors bg-white"
-                         placeholder="Seu nome completo"/>
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-gray-700 mb-1.5">CPF</label>
-                  <input type="text" [value]="pagadorCpfFormatted()"
-                         (input)="onPagadorCpfInput($event)"
-                         class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm placeholder-gray-400 focus:outline-none focus:border-orange-400 transition-colors bg-white"
-                         placeholder="000.000.000-00" maxlength="14"/>
-                  @if (pagadorCpf().length === 11 && !canAdvance) {
-                    <p class="text-xs text-red-500 mt-1">CPF inválido.</p>
-                  }
-                </div>
+                <ui-input
+                  label="Nome completo"
+                  [ngModel]="pagadorNome()"
+                  (ngModelChange)="pagadorNome.set($event)"
+                  placeholder="Seu nome completo"
+                />
+                <ui-input
+                  mask="cpf"
+                  label="CPF"
+                  [ngModel]="pagadorCpf()"
+                  (ngModelChange)="pagadorCpf.set($event)"
+                  placeholder="000.000.000-00"
+                />
+                @if (pagadorCpf().length === 11 && !canAdvance) {
+                  <p class="text-xs text-red-500 mt-1">CPF inválido.</p>
+                }
               </section>
             }
 
@@ -580,27 +565,21 @@
                       Desconto: -R$ {{ desconto | number:'1.2-2' }}
                     </p>
                   </div>
-                  <button
-                    (click)="removerCupom()"
-                    class="text-xs text-red-500 hover:underline ml-3 shrink-0"
-                  >Remover</button>
+                  <ui-button variant="ghost" size="xs" (click)="removerCupom()">Remover</ui-button>
                 </div>
               } @else {
                 <div class="flex gap-2">
-                  <input
+                  <ui-input
+                    class="flex-1"
                     [(ngModel)]="codigoCupom"
                     placeholder="Código do cupom"
                     (keydown.enter)="validarCupom()"
-                    class="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm placeholder-gray-400 focus:outline-none focus:border-orange-400 transition-colors uppercase"
                   />
-                  <button
-                    (click)="validarCupom()"
+                  <ui-button
                     [disabled]="validandoCupom() || !codigoCupom.trim()"
-                    class="px-4 py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-50 transition-opacity"
-                    style="background: var(--color-brand)"
-                  >
-                    {{ validandoCupom() ? '...' : 'Aplicar' }}
-                  </button>
+                    [loading]="validandoCupom()"
+                    (click)="validarCupom()"
+                  >Aplicar</ui-button>
                 </div>
                 @if (cupomErro()) {
                   <p class="text-xs text-red-500 mt-1.5">{{ cupomErro() }}</p>
@@ -610,24 +589,22 @@
 
             <!-- Contato -->
             <section>
-              <h3 class="text-sm font-semibold text-gray-700 mb-3">Contato</h3>
-              <input
-                type="tel"
-                (input)="onContatoInput($event)"
+              <ui-input
+                mask="phone"
+                label="Contato"
+                [(ngModel)]="contato"
                 placeholder="(21) 9 9999-9999"
-                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm placeholder-gray-400 focus:outline-none focus:border-orange-400 transition-colors"
               />
             </section>
 
             <!-- Observações -->
             <section>
-              <h3 class="text-sm font-semibold text-gray-700 mb-3">Observações</h3>
-              <textarea
+              <ui-textarea
                 [(ngModel)]="observacoes"
-                rows="3"
+                label="Observações"
+                [rows]="3"
                 placeholder="Ex: sem cebola, troco para R$ 50, interfone 202..."
-                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none focus:outline-none focus:border-orange-400 transition-colors"
-              ></textarea>
+              />
             </section>
           </div>
         }
@@ -671,15 +648,11 @@
                           R$ {{ (itemPreco(item) * item.quantidade) | number:'1.2-2' }}
                         </p>
                       </div>
-                      <button
-                        (click)="removerCartItem(item.id)"
-                        class="text-gray-300 hover:text-red-400 transition-colors mt-0.5 shrink-0"
-                        aria-label="Remover item"
-                      >
+                      <ui-button variant="ghost" size="xs" (click)="removerCartItem(item.id)" aria-label="Remover item">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
-                      </button>
+                      </ui-button>
                     </div>
                   }
                 </div>
@@ -744,33 +717,17 @@
     <!-- Footer CTA -->
     <div class="px-5 py-4 border-t border-gray-100 shrink-0">
       @if (!isLastStep) {
-        <button
-          (click)="avancar()"
-          [disabled]="!canAdvance"
-          class="w-full py-3.5 rounded-2xl font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
-          style="background: var(--color-brand)"
-        >
-          Continuar
-        </button>
+        <div class="flex-1">
+          <ui-button [fullWidth]="true" [disabled]="!canAdvance" (click)="avancar()">
+            Continuar
+          </ui-button>
+        </div>
       } @else {
-        <button
-          (click)="confirmarPedido()"
-          [disabled]="cart().length === 0 || submitting()"
-          class="w-full py-3.5 rounded-2xl font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90 relative"
-          style="background: var(--color-brand)"
-        >
-          @if (submitting()) {
-            <span class="flex items-center justify-center gap-2">
-              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-              </svg>
-              Enviando pedido...
-            </span>
-          } @else {
+        <div class="flex-1">
+          <ui-button [fullWidth]="true" [disabled]="cart().length === 0 || submitting()" [loading]="submitting()" (click)="confirmarPedido()">
             Confirmar Pedido · R$ {{ total | number:'1.2-2' }}
-          }
-        </button>
+          </ui-button>
+        </div>
       }
     </div>
 

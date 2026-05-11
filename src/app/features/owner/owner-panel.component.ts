@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { UiButtonComponent, UiInputComponent, UiCheckboxComponent } from '../../shared/components';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, catchError, of, switchMap, tap } from 'rxjs';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -11,7 +12,7 @@ import { Usuario, ClasseUsuario, CategoriaProdutos } from '../../core/models';
 
 @Component({
   selector: 'app-owner-panel',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, UiButtonComponent, UiInputComponent, UiCheckboxComponent],
   templateUrl: './owner-panel.component.html',
 })
 export class OwnerPanelComponent {

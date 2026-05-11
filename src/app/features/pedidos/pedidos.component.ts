@@ -12,13 +12,13 @@ import { LojaService } from '../../core/services/loja.service';
 import { CatalogoService } from '../../core/services/catalogo.service';
 import { CartService } from '../../core/services/cart.service';
 import { Pedido, StatusPedido } from '../../core/models';
-import { STATUS_PEDIDO_CFG, UiEmptyStateComponent, UiStatusBadgeComponent, UiSkeletonComponent, UiSpinnerComponent } from '../../shared/components';
+import { STATUS_PEDIDO_CFG, UiEmptyStateComponent, UiStatusBadgeComponent, UiSkeletonComponent, UiSpinnerComponent, UiButtonComponent } from '../../shared/components';
 
 const STATUS_TERMINAL = new Set<StatusPedido>(['entregue', 'cancelado']);
 
 @Component({
   selector: 'app-pedidos',
-  imports: [RouterLink, DecimalPipe, UiEmptyStateComponent, UiStatusBadgeComponent, UiSkeletonComponent, UiSpinnerComponent],
+  imports: [RouterLink, DecimalPipe, UiEmptyStateComponent, UiStatusBadgeComponent, UiSkeletonComponent, UiSpinnerComponent, UiButtonComponent],
   templateUrl: './pedidos.component.html',
 })
 export class PedidosComponent {

@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { Pedido } from '../../core/models';
 import { MarketingService } from '../../core/services/marketing.service';
-import { UiModalComponent } from '../../shared/components/ui-modal.component';
+import { UiModalComponent, UiButtonComponent } from '../../shared/components';
 import { AvaliacaoLojaFormComponent } from '../loja/avaliacao-loja-form.component';
 import { AvaliacaoProdutoFormComponent } from '../loja/avaliacao-produto-form.component';
 
@@ -10,7 +10,7 @@ type Step = 'loja' | 'produtos' | 'concluido';
 @Component({
   selector: 'app-avaliar-pedido-modal',
   standalone: true,
-  imports: [UiModalComponent, AvaliacaoLojaFormComponent, AvaliacaoProdutoFormComponent],
+  imports: [UiModalComponent, UiButtonComponent, AvaliacaoLojaFormComponent, AvaliacaoProdutoFormComponent],
   template: `
     <ui-modal [title]="modalTitle()" size="md" (close)="fechar.emit()">
       <div class="p-5">
@@ -23,10 +23,9 @@ type Step = 'loja' | 'produtos' | 'concluido';
               [loading]="loadingLoja()"
               (salvar)="onAvaliarLoja($event)"
             />
-            <button (click)="onPularLoja()"
-                    class="mt-3 w-full text-sm text-gray-400 hover:text-gray-600 py-2 transition-colors">
+            <ui-button variant="ghost" [fullWidth]="true" class="mt-3 block" (click)="onPularLoja()">
               Pular avaliação da loja
-            </button>
+            </ui-button>
           }
           @case ('produtos') {
             @if (produtoAtual(); as produto) {
@@ -50,11 +49,7 @@ type Step = 'loja' | 'produtos' | 'concluido';
               <p class="text-sm text-gray-500 mb-6">
                 Sua opinião ajuda outros clientes e melhora nosso serviço.
               </p>
-              <button (click)="fechar.emit()"
-                      class="px-8 py-3 rounded-xl font-semibold text-sm text-white"
-                      style="background:var(--color-brand)">
-                Fechar
-              </button>
+              <ui-button size="lg" (click)="fechar.emit()">Fechar</ui-button>
             </div>
           }
         }

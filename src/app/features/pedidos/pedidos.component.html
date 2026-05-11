@@ -17,27 +17,31 @@
 
   <!-- Filtros -->
   <div class="flex gap-2 overflow-x-auto pb-2 mb-6">
-    <button
+    <div
       (click)="filtro.set('todos')"
-      class="shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+      (keydown.enter)="filtro.set('todos')"
+      role="button" tabindex="0"
+      class="shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer"
       [class.text-white]="filtro() === 'todos'"
       [class.text-gray-600]="filtro() !== 'todos'"
       [class.bg-gray-900]="filtro() === 'todos'"
       [class.bg-white]="filtro() !== 'todos'"
       [class.border]="filtro() !== 'todos'"
       [class.border-gray-200]="filtro() !== 'todos'"
-    >Todos</button>
+    >Todos</div>
     @for (entry of statusEntries; track entry.key) {
-      <button
+      <div
         (click)="filtro.set(entry.key)"
-        class="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+        (keydown.enter)="filtro.set(entry.key)"
+        role="button" tabindex="0"
+        class="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer"
         [class.text-white]="filtro() === entry.key"
         [class.bg-gray-900]="filtro() === entry.key"
         [class.bg-white]="filtro() !== entry.key"
         [class.border]="filtro() !== entry.key"
         [class.border-gray-200]="filtro() !== entry.key"
         [class.text-gray-600]="filtro() !== entry.key"
-      >{{ entry.cfg.icon }} {{ entry.cfg.label }}</button>
+      >{{ entry.cfg.icon }} {{ entry.cfg.label }}</div>
     }
   </div>
 
@@ -85,14 +89,13 @@
               }
               <ui-status-badge [status]="pedido.status"/>
               @if (eLocal(pedido.uuid)) {
-                <button type="button"
-                  (click)="removerLocal(pedido.uuid, $event)"
+                <ui-button variant="ghost" size="xs"
                   title="Remover do histórico"
-                  class="w-6 h-6 rounded-full flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0">
+                  (click)="removerLocal(pedido.uuid, $event)">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
-                </button>
+                </ui-button>
               }
             </div>
           </div>
@@ -113,12 +116,11 @@
               <span class="font-bold text-gray-900">R$ {{ pedido.total | number:'1.2-2' }}</span>
             </div>
             <div class="flex items-center gap-3">
-              <button
-                type="button"
-                (click)="pedirNovamente(pedido, $event)"
+              <ui-button
+                variant="ghost"
+                size="xs"
                 [disabled]="reordenando().has(pedido.uuid)"
-                class="flex items-center gap-1.5 text-xs font-semibold transition-colors disabled:opacity-50"
-                style="color: var(--color-brand)"
+                (click)="pedirNovamente(pedido, $event)"
               >
                 @if (reordenando().has(pedido.uuid)) {
                   <ui-spinner size="xs"/>
@@ -129,7 +131,7 @@
                   </svg>
                   Pedir novamente
                 }
-              </button>
+              </ui-button>
               <div class="flex items-center gap-1 text-xs text-gray-400 font-medium">
                 Ver detalhes
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

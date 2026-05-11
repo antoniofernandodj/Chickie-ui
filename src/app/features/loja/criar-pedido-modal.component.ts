@@ -40,7 +40,7 @@ import { GuestEnderecoService, EnderecoGuestSalvo } from '../../core/services/gu
 import { ConfigPedidoService } from '../../core/services/config-pedido.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { CatalogoService } from '../../core/services/catalogo.service';
-import { EnderecoFormComponent } from '../../shared/components';
+import { EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent } from '../../shared/components';
 
 // ─── Local types ──────────────────────────────────────────────────────────────
 
@@ -60,7 +60,7 @@ type Step = CategoriaStep | FixedStep;
 
 @Component({
   selector: 'app-criar-pedido-modal',
-  imports: [FormsModule, DecimalPipe, EnderecoFormComponent],
+  imports: [FormsModule, DecimalPipe, EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent],
   templateUrl: './criar-pedido-modal.component.html',
 })
 export class CriarPedidoModalComponent implements OnInit, OnDestroy {

@@ -8,19 +8,13 @@
 
     <!-- Tabs -->
     <div class="border-b border-gray-200 mb-6">
-      <nav class="-mb-px flex space-x-8">
-        <button
+      <nav class="-mb-px flex space-x-2">
+        <ui-button
           *ngFor="let tab of tabs"
+          [variant]="aba() === tab.id ? 'primary' : 'ghost'"
+          size="sm"
           (click)="aba.set(tab.id)"
-          [class]="[
-            aba() === tab.id
-              ? 'border-indigo-500 text-indigo-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-            'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
-          ]"
-        >
-          {{ tab.label }}
-        </button>
+        >{{ tab.label }}</ui-button>
       </nav>
     </div>
 
@@ -28,49 +22,14 @@
     <div *ngIf="aba() === 'usuarios'" class="bg-white shadow rounded-lg p-6">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-semibold text-gray-900">Usuários</h2>
-        <button
-          (click)="refreshUsuarios()"
-          class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-        >
-          🔄 Atualizar
-        </button>
+        <ui-button variant="secondary" size="sm" (click)="refreshUsuarios()">🔄 Atualizar</ui-button>
       </div>
 
       <!-- Filtros -->
       <div class="mb-4 flex gap-2">
-        <button
-          (click)="setFiltro(undefined)"
-          [class]="[
-            classeFiltro() === undefined
-              ? 'bg-indigo-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
-            'px-3 py-1.5 rounded text-sm font-medium'
-          ]"
-        >
-          Todos
-        </button>
-        <button
-          (click)="setFiltro('cliente')"
-          [class]="[
-            classeFiltro() === 'cliente'
-              ? 'bg-indigo-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
-            'px-3 py-1.5 rounded text-sm font-medium'
-          ]"
-        >
-          Clientes
-        </button>
-        <button
-          (click)="setFiltro('administrador')"
-          [class]="[
-            classeFiltro() === 'administrador'
-              ? 'bg-indigo-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
-            'px-3 py-1.5 rounded text-sm font-medium'
-          ]"
-        >
-          Administradores
-        </button>
+        <ui-button [variant]="classeFiltro() === undefined ? 'primary' : 'secondary'" size="sm" (click)="setFiltro(undefined)">Todos</ui-button>
+        <ui-button [variant]="classeFiltro() === 'cliente' ? 'primary' : 'secondary'" size="sm" (click)="setFiltro('cliente')">Clientes</ui-button>
+        <ui-button [variant]="classeFiltro() === 'administrador' ? 'primary' : 'secondary'" size="sm" (click)="setFiltro('administrador')">Administradores</ui-button>
       </div>
 
       <!-- Loading -->
@@ -119,26 +78,14 @@
                   {{ usuario.ativo ? 'Ativo' : 'Inativo' }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                <button
-                  (click)="toggleAtivoUsuario(usuario)"
-                  [class]="usuario.ativo ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'"
-                  class="inline-flex items-center"
-                >
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
+                <ui-button [variant]="usuario.ativo ? 'danger' : 'ghost'" size="xs" (click)="toggleAtivoUsuario(usuario)">
                   {{ usuario.ativo ? 'Desativar' : 'Ativar' }}
-                </button>
-                <button
-                  (click)="toggleBloqueioUsuario(usuario)"
-                  class="text-orange-600 hover:text-orange-900 inline-flex items-center"
-                >
+                </ui-button>
+                <ui-button variant="ghost" size="xs" (click)="toggleBloqueioUsuario(usuario)">
                   {{ usuario.ativo ? 'Bloquear' : 'Desbloquear' }}
-                </button>
-                <button
-                  (click)="marcarRemocao(usuario)"
-                  class="text-gray-600 hover:text-gray-900 inline-flex items-center"
-                >
-                  Marcar Remoção
-                </button>
+                </ui-button>
+                <ui-button variant="ghost" size="xs" (click)="marcarRemocao(usuario)">Marcar Remoção</ui-button>
               </td>
             </tr>
           </tbody>
@@ -154,12 +101,7 @@
     <div *ngIf="aba() === 'lojas'" class="bg-white shadow rounded-lg p-6">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-semibold text-gray-900">Lojas</h2>
-        <button
-          (click)="refreshLojas()"
-          class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-        >
-          🔄 Atualizar
-        </button>
+        <ui-button variant="secondary" size="sm" (click)="refreshLojas()">🔄 Atualizar</ui-button>
       </div>
 
       <div class="text-center py-8 text-gray-500">
@@ -178,69 +120,42 @@
 
         <form [formGroup]="catForm" (ngSubmit)="salvarCategoria()" class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Nome -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
-              <input
-                formControlName="nome"
-                type="text"
-                placeholder="Ex: Pizzas"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                [class.border-red-400]="catForm.get('nome')?.invalid && catForm.get('nome')?.touched"
-              />
-              <p *ngIf="catForm.get('nome')?.invalid && catForm.get('nome')?.touched" class="mt-1 text-xs text-red-600">
-                Nome é obrigatório.
-              </p>
-            </div>
-
-            <!-- Descrição -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
-              <input
-                formControlName="descricao"
-                type="text"
-                placeholder="Descrição opcional"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
+            <ui-input
+              formControlName="nome"
+              label="Nome *"
+              placeholder="Ex: Pizzas"
+              [error]="catForm.get('nome')?.invalid && catForm.get('nome')?.touched ? 'Nome é obrigatório.' : null"
+            />
+            <ui-input
+              formControlName="descricao"
+              label="Descrição"
+              placeholder="Descrição opcional"
+            />
           </div>
 
           <!-- Toggles -->
           <div class="flex gap-6">
-            <label class="flex items-center gap-2 cursor-pointer select-none">
-              <input formControlName="pizza_mode" type="checkbox"
-                     (change)="$any($event.target).checked && catForm.get('drink_mode')?.setValue(false)"
-                     class="w-4 h-4 rounded text-indigo-600" />
-              <span class="text-sm text-gray-700">🍕 Pizza mode</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer select-none">
-              <input formControlName="drink_mode" type="checkbox"
-                     (change)="$any($event.target).checked && catForm.get('pizza_mode')?.setValue(false)"
-                     class="w-4 h-4 rounded text-indigo-600" />
-              <span class="text-sm text-gray-700">🥤 Drink mode</span>
-            </label>
+            <ui-checkbox
+              formControlName="pizza_mode"
+              label="🍕 Pizza mode"
+              (change)="$any($event.target).checked && catForm.get('drink_mode')?.setValue(false)"
+            />
+            <ui-checkbox
+              formControlName="drink_mode"
+              label="🥤 Drink mode"
+              (change)="$any($event.target).checked && catForm.get('pizza_mode')?.setValue(false)"
+            />
           </div>
 
-          <!-- Erro -->
           <p *ngIf="catError()" class="text-sm text-red-600">{{ catError() }}</p>
 
-          <!-- Ações -->
           <div class="flex gap-3">
-            <button
-              type="submit"
-              [disabled]="catLoadingSubmit()"
-              class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ catLoadingSubmit() ? 'Salvando...' : (catEditandoUuid() ? 'Atualizar' : 'Criar') }}
-            </button>
-            <button
-              *ngIf="catEditandoUuid()"
-              type="button"
-              (click)="cancelarEdicaoCategoria()"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-            >
+            <ui-button type="submit" [loading]="catLoadingSubmit()" [disabled]="catLoadingSubmit()">
+              {{ catEditandoUuid() ? 'Atualizar' : 'Criar' }}
+            </ui-button>
+            <ui-button *ngIf="catEditandoUuid()" variant="secondary" type="button" (click)="cancelarEdicaoCategoria()">
               Cancelar
-            </button>
+            </ui-button>
           </div>
         </form>
       </div>
@@ -249,12 +164,7 @@
       <div class="bg-white shadow rounded-lg p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-semibold text-gray-900">Categorias Globais</h2>
-          <button
-            (click)="refreshCategorias()"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-          >
-            🔄 Atualizar
-          </button>
+          <ui-button variant="secondary" size="sm" (click)="refreshCategorias()">🔄 Atualizar</ui-button>
         </div>
 
         <!-- Loading -->
@@ -293,19 +203,9 @@
                 <td class="px-4 py-4 whitespace-nowrap">
                   <span class="text-sm text-gray-500">{{ cat.criado_em | date: 'dd/MM/yyyy' }}</span>
                 </td>
-                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                  <button
-                    (click)="iniciarEdicaoCategoria(cat)"
-                    class="text-indigo-600 hover:text-indigo-900"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    (click)="confirmarDeleteCategoria(cat.uuid)"
-                    class="text-red-600 hover:text-red-900"
-                  >
-                    Excluir
-                  </button>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-1">
+                  <ui-button variant="ghost" size="xs" (click)="iniciarEdicaoCategoria(cat)">Editar</ui-button>
+                  <ui-button variant="danger" size="xs" (click)="confirmarDeleteCategoria(cat.uuid)">Excluir</ui-button>
                 </td>
               </tr>
             </tbody>
@@ -331,19 +231,9 @@
           <p class="text-sm text-gray-500 mt-2">
             Tem certeza que deseja excluir esta categoria global? Esta ação não pode ser desfeita.
           </p>
-          <div class="mt-4 space-x-4">
-            <button
-              (click)="cancelarDeleteCategoria()"
-              class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-            >
-              Cancelar
-            </button>
-            <button
-              (click)="deletarCategoria(catDeleteConfirm()!)"
-              class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-            >
-              Excluir
-            </button>
+          <div class="mt-4 flex items-center justify-center gap-3">
+            <ui-button variant="secondary" (click)="cancelarDeleteCategoria()">Cancelar</ui-button>
+            <ui-button variant="danger" (click)="deletarCategoria(catDeleteConfirm()!)">Excluir</ui-button>
           </div>
         </div>
       </div>
@@ -360,13 +250,9 @@
           Ações irreversíveis. Use com extrema cautela.
         </p>
 
-        <button
-          (click)="confirmarWipe()"
-          [disabled]="wipeLoading()"
-          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {{ wipeLoading() ? 'Limpando...' : '🗑️ Limpar Banco de Dados' }}
-        </button>
+        <ui-button variant="danger" [loading]="wipeLoading()" [disabled]="wipeLoading()" (click)="confirmarWipe()">
+          🗑️ Limpar Banco de Dados
+        </ui-button>
       </div>
 
       <!-- Confirmação de Wipe -->
@@ -382,19 +268,9 @@
             <p class="text-sm text-gray-500 mt-2">
               Esta ação irá apagar TODOS os dados do banco de dados. Esta operação é irreversível!
             </p>
-            <div class="mt-4 space-x-4">
-              <button
-                (click)="cancelarWipe()"
-                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-              >
-                Cancelar
-              </button>
-              <button
-                (click)="executarWipe()"
-                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-              >
-                Confirmar Limpeza
-              </button>
+            <div class="mt-4 flex items-center justify-center gap-3">
+              <ui-button variant="secondary" (click)="cancelarWipe()">Cancelar</ui-button>
+              <ui-button variant="danger" (click)="executarWipe()">Confirmar Limpeza</ui-button>
             </div>
           </div>
         </div>
