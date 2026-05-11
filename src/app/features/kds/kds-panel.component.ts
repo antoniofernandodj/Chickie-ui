@@ -82,11 +82,21 @@ export class KdsPanelComponent {
       const c = this.confirmados();
       const e = this.emPreparo();
       const p = this.prontos();
-      
+
       // Sempre que qualquer lista mudar e houver itens, tentamos tocar o som
       if (c.length > 0 || e.length > 0 || p.length > 0) {
         untracked(() => this.notificarSom());
       }
+    });
+
+    // Fecha o modal ao receber qualquer atualização do stream (dados podem ter mudado)
+    effect(() => {
+      this.kdsStream();
+      untracked(() => {
+        if (this.selectedPedido() !== null) {
+          this.selectedPedido.set(null);
+        }
+      });
     });
   }
 
