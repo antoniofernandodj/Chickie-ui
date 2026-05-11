@@ -34,7 +34,9 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
         <p class="text-sm font-medium text-gray-900 truncate">
           {{ produto().nome }}
           @if (produto().destaque) {
-            <span class="ml-1 text-xs">⭐</span>
+            <span class="ml-1 text-xs">
+              ⭐
+            </span>
           }
         </p>
         @if (produto().descricao) {
@@ -42,15 +44,21 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
         }
       </div>
       <div class="text-right shrink-0 ml-2">
-        <p class="text-sm font-semibold text-gray-900">R$ {{ produto().preco | number:'1.2-2' }}</p>
-        <p class="text-xs text-gray-400">{{ produto().tempo_preparo_min }} min</p>
+        <p class="text-sm font-semibold text-gray-900">
+          R$ {{ produto().preco | number:'1.2-2' }}
+        </p>
+        <p class="text-xs text-gray-400">
+          {{ produto().tempo_preparo_min }} min
+        </p>
       </div>
       <div class="shrink-0">
-        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-              [class.bg-green-100]="produto().disponivel"
-              [class.text-green-700]="produto().disponivel"
-              [class.bg-red-100]="!produto().disponivel"
-              [class.text-red-700]="!produto().disponivel">
+        <span
+          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+          [class.bg-green-100]="produto().disponivel"
+          [class.text-green-700]="produto().disponivel"
+          [class.bg-red-100]="!produto().disponivel"
+          [class.text-red-700]="!produto().disponivel"
+        >
           {{ produto().disponivel ? 'Disponível' : 'Indisponível' }}
         </span>
       </div>
