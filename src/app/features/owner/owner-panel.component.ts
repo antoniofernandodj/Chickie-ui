@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, catchError, of, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, of, switchMap, tap } from 'rxjs';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { toast } from 'ngx-sonner';
 import { UsuarioService } from '../../core/services/usuario.service';
@@ -44,7 +44,7 @@ export class OwnerPanelComponent {
         const classe = this.classeFiltro();
         console.debug(`[OBSERVABILITY] OwnerPanelComponent - Loading users. Filter: ${classe ?? 'all'}`);
         return this.usuarioService.listar(classe).pipe(
-          tap((u) => console.debug(`[OBSERVABILITY] OwnerPanelComponent - Users loaded: ${u.length}`)),
+          tap((u: Usuario[]) => console.debug(`[OBSERVABILITY] OwnerPanelComponent - Users loaded: ${u.length}`)),
           catchError((err) => {
             console.error('[OBSERVABILITY] OwnerPanelComponent - Error loading users', err);
             return of([] as Usuario[]);
@@ -55,13 +55,13 @@ export class OwnerPanelComponent {
     { initialValue: [] as Usuario[] },
   );
   readonly usuariosLoading = computed(() => this._usuarios() === undefined);
-  readonly usuarios = computed(() => this._usuarios() ?? []);
+  readonly usuarios = computed<Usuario[]>(() => this._usuarios() ?? []);
 
   readonly usuariosFiltrados = computed(() => {
     const usuarios = this.usuarios();
     const filtro = this.classeFiltro();
     if (!filtro) return usuarios;
-    return usuarios.filter(u => u.classe === filtro);
+    return usuarios.filter((u: Usuario) => u.classe === filtro);
   });
 
   refreshUsuarios() {
