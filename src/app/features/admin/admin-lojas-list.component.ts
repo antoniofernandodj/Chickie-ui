@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -7,13 +7,18 @@ import { BehaviorSubject, catchError, of, switchMap, debounceTime, distinctUntil
 import { toast } from 'ngx-sonner';
 import { AdminService } from '../../core/services/admin.service';
 import { LojaService } from '../../core/services/loja.service';
-import { AuthService } from '../../core/services/auth.service';
 import { Loja } from '../../core/models';
 import { PhoneMaskDirective } from '../../shared/directives/phone-mask.directive';
 import { SlugMaskDirective } from '../../shared/directives/slug-mask.directive';
 
+const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
+const COMPRESS_AFTER_SIZE = 1 * 1024 * 1024; // 1MB
+const COMPRESSED_IMAGE_MIME = 'image/webp';
+const COMPRESSED_IMAGE_QUALITY = 0.82;
+
 @Component({
   selector: 'app-admin-lojas-list',
+  standalone: true,
   imports: [ReactiveFormsModule, DecimalPipe, PhoneMaskDirective, SlugMaskDirective],
   templateUrl: './admin-lojas-list.component.html',
 })
@@ -24,6 +29,10 @@ export class AdminLojasListComponent {
   private fb = inject(FormBuilder);
 
   readonly mostrandoFormulario = signal(false);
+
+  @ViewChild('imagemInput') imagemInput!: ElementRef<HTMLInputElement>;
+  lojaImagem = signal<File | null>(null);
+  lojaImagemPreview = signal<string | null>(null);
 
   // ── Lojas ──────────────────────────────────────────────────────────────────
 
@@ -95,6 +104,66 @@ export class AdminLojasListComponent {
     return this.lojaForm.controls;
   }
 
+  private limparInputImagem() {
+    this.lojaImagem.set(null);
+    this.lojaImagemPreview.set(null);
+    if (this.imagemInput?.nativeElement) {
+      this.imagemInput.nativeElement.value = '';
+    }
+  }
+
+  async onImagemSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    try {
+      const prepared = await this.prepareImagemParaUpload(file);
+      this.lojaImagem.set(prepared);
+      this.lojaImagemPreview.set(await this.fileToDataUrl(prepared));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Falha ao processar a imagem.';
+      toast.error(message);
+      this.limparInputImagem();
+    }
+  }
+
+  private async prepareImagemParaUpload(file: File): Promise<File> {
+    if (file.size > COMPRESS_AFTER_SIZE) {
+      file = await this.comprimirImagem(file);
+    }
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      throw new Error('A imagem deve ter no máximo 20MB.');
+    }
+    return file;
+  }
+
+  private async comprimirImagem(file: File): Promise<File> {
+    const bitmap = await createImageBitmap(file);
+    const maxDimension = 1920;
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width * scale;
+    canvas.height = bitmap.height * scale;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    
+    const blob = await new Promise<Blob>((resolve) => 
+      canvas.toBlob((b) => resolve(b!), COMPRESSED_IMAGE_MIME, COMPRESSED_IMAGE_QUALITY)
+    );
+    
+    return new File([blob], file.name.replace(/\.[^/.]+$/, "") + '.webp', {
+      type: COMPRESSED_IMAGE_MIME
+    });
+  }
+
+  private fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.readAsDataURL(file);
+    });
+  }
+
   criarLoja() {
     if (this.lojaForm.invalid) {
       this.lojaForm.markAllAsTouched();
@@ -122,25 +191,43 @@ export class AdminLojasListComponent {
       max_partes: fv.max_partes ?? 4,
     }).subscribe({
       next: (l) => {
-        this.lojaLoading.set(false);
-        toast.success(`Loja "${l.nome}" criada com sucesso!`);
-        this.lojaForm.reset({
-          taxa_entrega_base: 5,
-          pedido_minimo: 20,
-          tempo_medio: 30,
-          max_partes: 4,
-        });
-        this.slugChecking.set(false);
-        this.slugAvailable.set(null);
-        this.slugMessage.set('');
-        this.mostrandoFormulario.set(false);
-        this.refreshLojas();
+        const imagem = this.lojaImagem();
+        if (imagem) {
+          this.lojaService.uploadBannerLoja(l.uuid, imagem).subscribe({
+            next: () => {
+              this.finalizarCriacaoLoja(l);
+            },
+            error: (err) => {
+              toast.error('Loja criada, mas falhou ao subir imagem.');
+              this.finalizarCriacaoLoja(l);
+            }
+          });
+        } else {
+          this.finalizarCriacaoLoja(l);
+        }
       },
       error: (e) => {
         this.lojaLoading.set(false);
         this.lojaError.set(e?.error?.error ?? 'Erro ao criar loja.');
       },
     });
+  }
+
+  private finalizarCriacaoLoja(l: Loja) {
+    this.lojaLoading.set(false);
+    toast.success(`Loja "${l.nome}" criada com sucesso!`);
+    this.lojaForm.reset({
+      taxa_entrega_base: 5,
+      pedido_minimo: 20,
+      tempo_medio: 30,
+      max_partes: 4,
+    });
+    this.limparInputImagem();
+    this.slugChecking.set(false);
+    this.slugAvailable.set(null);
+    this.slugMessage.set('');
+    this.mostrandoFormulario.set(false);
+    this.refreshLojas();
   }
 
   abrirFormulario() {
@@ -155,6 +242,7 @@ export class AdminLojasListComponent {
       tempo_medio: 30,
       max_partes: 4,
     });
+    this.limparInputImagem();
     this.slugChecking.set(false);
     this.slugAvailable.set(null);
     this.slugMessage.set('');

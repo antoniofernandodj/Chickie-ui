@@ -183,6 +183,10 @@ export class CatalogoService {
     );
   }
 
+  removerImagemProduto(produtoUuid: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.prodBase}/${produtoUuid}/imagem`);
+  }
+
   deletarProduto(uuid: string): Observable<void> {
     return this.http.delete<void>(`${this.prodBase}/${uuid}`);
   }

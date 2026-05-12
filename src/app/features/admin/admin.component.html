@@ -103,6 +103,9 @@
         [lojaUuid]="lojaSelecionada()!.uuid"
         [lojaSlug]="lojaSelecionada()!.slug"/>
     }
+    @if (aba() === 'perfil') {
+      <admin-loja-tab [loja]="lojaSelecionada()!" (updated)="refreshLoja()" />
+    }
   }
 
 </div>

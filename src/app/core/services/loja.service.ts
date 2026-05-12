@@ -44,4 +44,19 @@ export class LojaService {
     console.debug(`[OBSERVABILITY] LojaService - Fetching average rating for loja: ${lojaUuid}`);
     return this.http.get<NotaMediaLojaResponse>(`${this.base}/${lojaUuid}/nota-media`);
   }
+
+  /** Upload de imagem de banner da loja */
+  uploadBannerLoja(lojaUuid: string, file: File): Observable<{ imagem_url: string; message: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ imagem_url: string; message: string }>(
+      `${this.base}/${lojaUuid}/imagem`,
+      formData,
+    );
+  }
+
+  /** Remover imagem de banner da loja */
+  removerBannerLoja(lojaUuid: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/${lojaUuid}/imagem`);
+  }
 }

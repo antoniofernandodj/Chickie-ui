@@ -251,11 +251,20 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
               class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-orange-100 file:text-orange-700 file:text-xs file:font-medium file:cursor-pointer"
             />
 
-            @if (prodImagemPreview()) {
-              <img
-                [src]="prodImagemPreview()"
-                class="mt-2 w-24 h-24 object-cover rounded-xl border border-gray-200"
-              />
+            @if (prodImagemPreview() || (prodEditId() && prodForm.get('imagem_url')?.value)) {
+              <div class="relative mt-2 w-24 h-24">
+                <img
+                  [src]="prodImagemPreview() || prodForm.get('imagem_url')?.value"
+                  class="w-full h-full object-cover rounded-xl border border-gray-200"
+                />
+                <button
+                  type="button"
+                  (click)="removerImagemProduto()"
+                  class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-sm text-[10px]"
+                >
+                  ✕
+                </button>
+              </div>
             }
           </div>
 
@@ -452,6 +461,7 @@ export class AdminCatalogoTabComponent {
     preco: [0, [Validators.required, Validators.min(0)]],
     tempo_preparo_min: [30, [Validators.required, Validators.min(1)]],
     destaque: [false],
+    imagem_url: [''],
   });
 
   prodLoading = signal(false);
@@ -467,6 +477,28 @@ export class AdminCatalogoTabComponent {
     this.prodImagemPreview.set(null);
     if (this.imagemInput?.nativeElement) {
       this.imagemInput.nativeElement.value = '';
+    }
+  }
+
+  removerImagemProduto() {
+    const uuid = this.prodEditId();
+    if (uuid) {
+      if (!confirm('Deseja realmente remover a imagem deste produto?')) return;
+      this.prodLoading.set(true);
+      this.catalogoService.removerImagemProduto(uuid).subscribe({
+        next: () => {
+          this.prodLoading.set(false);
+          toast.success('Imagem removida com sucesso!');
+          this.limparInputImagem();
+          this.refreshCategorias();
+        },
+        error: (e) => {
+          this.prodLoading.set(false);
+          toast.error(e?.error?.error ?? 'Erro ao remover imagem.');
+        }
+      });
+    } else {
+      this.limparInputImagem();
     }
   }
 
@@ -577,6 +609,7 @@ export class AdminCatalogoTabComponent {
       preco: prod.preco,
       tempo_preparo_min: prod.tempo_preparo_min,
       destaque: prod.destaque ?? false,
+      imagem_url: prod.imagem_url ?? '',
     });
     this.prodError.set('');
     this.limparInputImagem();

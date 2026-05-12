@@ -2,7 +2,7 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, switchMap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, BehaviorSubject } from 'rxjs';
 import { LojaService } from '../../core/services/loja.service';
 import { Loja } from '../../core/models';
 import { UiTabBarComponent, UiSpinnerComponent } from '../../shared/components';
@@ -19,6 +19,7 @@ import { AdminEnderecosTabComponent } from './components/admin-enderecos-tab.com
 import { AdminHorariosTabComponent } from './components/admin-horarios-tab.component';
 import { AdminMesasTabComponent } from './components/admin-mesas-tab.component';
 import { AdminNavBtnComponent } from './components/admin-nav-btn.component';
+import { AdminLojaTabComponent } from './components/admin-loja-tab.component';
 
 @Component({
   selector: 'app-admin',
@@ -38,6 +39,7 @@ import { AdminNavBtnComponent } from './components/admin-nav-btn.component';
     AdminHorariosTabComponent,
     AdminMesasTabComponent,
     AdminNavBtnComponent,
+    AdminLojaTabComponent,
   ],
   templateUrl: './admin.component.html',
 })
@@ -59,7 +61,10 @@ export class AdminComponent {
     { id: 'enderecos',     label: '📍 Endereços'      },
     { id: 'horarios',      label: '🕐 Horários'       },
     { id: 'mesas',         label: '🪑 Mesas'          },
+    { id: 'perfil',        label: '🏪 Perfil Loja'    },
   ];
+
+  private readonly refreshTrigger = new BehaviorSubject<void>(undefined);
 
   readonly lojaUuid$ = this.route.paramMap.pipe(
     map((params) => params.get('loja_uuid')),
@@ -67,16 +72,22 @@ export class AdminComponent {
   );
 
   readonly lojaSelecionada = toSignal<Loja | null>(
-    this.lojaUuid$.pipe(
-      switchMap((uuid) =>
-        this.lojaService.buscarPorUuid(uuid).pipe(
-          catchError(() => of(null)),
+    this.refreshTrigger.pipe(
+      switchMap(() => this.lojaUuid$.pipe(
+        switchMap((uuid) =>
+          this.lojaService.buscarPorUuid(uuid).pipe(
+            catchError(() => of(null)),
+          ),
         ),
-      ),
+      )),
     ),
   );
 
   readonly lojaLoading = computed(() => this.lojaSelecionada() === undefined);
+
+  refreshLoja() {
+    this.refreshTrigger.next();
+  }
 
   voltar() {
     this.router.navigate(['/admin']);
