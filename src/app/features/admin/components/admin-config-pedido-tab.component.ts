@@ -119,7 +119,12 @@ export class AdminConfigPedidoTabComponent {
 
   salvarConfigPedido() {
     if (this.configPedidoForm.invalid) { this.configPedidoForm.markAllAsTouched(); return; }
+
     const fv = this.configPedidoForm.getRawValue();
+
+    if (fv.tipo_calculo == "MaisCaro") { fv.tipo_calculo = "mais_caro"; }
+    if (fv.tipo_calculo == "MediaPonderada") { fv.tipo_calculo = "media_ponderada"; }
+
     this.configPedidoLoadingSubmit.set(true);
     this.configPedidoError.set('');
     this.configPedidoService.saveConfigPedido(this.lojaUuid(), {
