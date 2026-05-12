@@ -85,9 +85,16 @@ export class PedidosComponent {
         const locais = this.pedidoLocalStorage.pedidos();
         if (locais.length === 0) return;
         forkJoin(
-          locais.map(p => this.pedidoService.buscarPorCodigo(p.codigo).pipe(catchError(() => of(p))))
+          locais.map(p =>
+            this.pedidoService.buscarPorCodigo(p.codigo).pipe(
+              catchError((err) => {
+                if (err.status === 404) this.pedidoLocalStorage.remover(p.uuid);
+                return of(null);
+              }),
+            )
+          )
         ).subscribe((frescos) => {
-          frescos.forEach(p => this.pedidoLocalStorage.salvar(p));
+          frescos.filter(Boolean).forEach(p => this.pedidoLocalStorage.salvar(p!));
         });
       }
     });
