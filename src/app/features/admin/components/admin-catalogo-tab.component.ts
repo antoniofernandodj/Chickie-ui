@@ -338,6 +338,26 @@ export class AdminCatalogoTabComponent {
   });
   readonly catReordering = signal(false);
 
+  // ── Produto form ──────────────────────────────────────────────────────────
+  prodForm = this.fb.group({
+    categoria_uuid: ['', Validators.required],
+    nome: ['', [Validators.required, Validators.minLength(2)]],
+    descricao: [''],
+    preco: [0, [Validators.required, Validators.min(0)]],
+    tempo_preparo_min: [30, [Validators.required, Validators.min(1)]],
+    destaque: [false],
+    imagem_url: [''],
+  });
+
+  // ── Category form ─────────────────────────────────────────────────────────
+  catForm = this.fb.group({
+    nome: ['', [Validators.required, Validators.minLength(2)]],
+    descricao: [''],
+    ordem: [0, [Validators.min(0)]],
+    pizza_mode: [false],
+    drink_mode: [false],
+  });
+
   private refreshCategorias() { this.refreshCatTrigger.next(); }
 
   onCategoriaDrop(event: CdkDragDrop<CategoriaProdutos[]>) {
@@ -376,14 +396,7 @@ export class AdminCatalogoTabComponent {
     this.categorias().forEach(cat => this.carregarProdutosDaCategoria(cat.uuid));
   }
 
-  // ── Category form ─────────────────────────────────────────────────────────
-  catForm = this.fb.group({
-    nome: ['', [Validators.required, Validators.minLength(2)]],
-    descricao: [''],
-    ordem: [0, [Validators.min(0)]],
-    pizza_mode: [false],
-    drink_mode: [false],
-  });
+
 
   catLoadingSubmit = signal(false);
   catError = signal('');
@@ -452,17 +465,6 @@ export class AdminCatalogoTabComponent {
       error: (e) => toast.error(e?.error?.error ?? 'Erro ao deletar categoria.'),
     });
   }
-
-  // ── Produto form ──────────────────────────────────────────────────────────
-  prodForm = this.fb.group({
-    categoria_uuid: ['', Validators.required],
-    nome: ['', [Validators.required, Validators.minLength(2)]],
-    descricao: [''],
-    preco: [0, [Validators.required, Validators.min(0)]],
-    tempo_preparo_min: [30, [Validators.required, Validators.min(1)]],
-    destaque: [false],
-    imagem_url: [''],
-  });
 
   prodLoading = signal(false);
   prodError = signal('');
@@ -628,7 +630,7 @@ export class AdminCatalogoTabComponent {
       nome: fv.nome!,
       descricao: fv.descricao || null,
       preco: fv.preco!,
-      tempo_preparo_min: fv.tempo_preparo_min ?? 30,
+      tempo_preparo_min: Number(fv.tempo_preparo_min ?? 30),
       destaque: fv.destaque ?? false,
     }).subscribe({
       next: (prod) => {
