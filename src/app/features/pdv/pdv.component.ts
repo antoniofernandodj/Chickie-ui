@@ -41,8 +41,12 @@ export class PdvComponent implements OnInit {
   readonly enviandoPedido = signal(false);
 
   // Novo fluxo de passos
-  readonly pdvStep = signal<'inicio' | 'construcao' | 'finalizacao'>('inicio');
+  readonly pdvStep = signal<'inicio' | 'construcao' | 'identificacao' | 'finalizacao'>('inicio');
   readonly today = new Date();
+
+  // Identificação do pedido PDV
+  readonly numeroMesaPdv = signal('');
+  readonly nomeRequerente = signal('');
 
   // --- Dados da Loja e Catálogo ---
   readonly _routeLojaUuid = toSignal<string | null>(
@@ -199,12 +203,19 @@ export class PdvComponent implements OnInit {
     toast.info('Carrinho limpo');
   }
 
-  avancarParaPagamento() {
+  avancarParaIdentificacao() {
     if (this.itens().length === 0) {
-      console.warn('[OBSERVABILITY] PdvComponent - Attempted to advance to payment with empty cart');
+      console.warn('[OBSERVABILITY] PdvComponent - Attempted to advance with empty cart');
       toast.error('Carrinho vazio');
       return;
     }
+    console.info('[OBSERVABILITY] PdvComponent - Advancing to identification step');
+    this.numeroMesaPdv.set('');
+    this.nomeRequerente.set('');
+    this.pdvStep.set('identificacao');
+  }
+
+  avancarParaPagamento() {
     console.info('[OBSERVABILITY] PdvComponent - Advancing to payment step');
     this.pdvStep.set('finalizacao');
   }
@@ -212,6 +223,11 @@ export class PdvComponent implements OnInit {
   voltarParaConstrucao() {
     console.info('[OBSERVABILITY] PdvComponent - Returning to construction step');
     this.pdvStep.set('construcao');
+  }
+
+  voltarParaIdentificacao() {
+    console.info('[OBSERVABILITY] PdvComponent - Returning to identification step');
+    this.pdvStep.set('identificacao');
   }
 
   confirmarVenda(metodoPagamento: string) {
@@ -224,12 +240,17 @@ export class PdvComponent implements OnInit {
     console.info(`[OBSERVABILITY] PdvComponent - Confirming sale. Method: ${metodoPagamento}, Items: ${this.itens().length}`);
     this.enviandoPedido.set(true);
 
+    const mesa = this.numeroMesaPdv().trim() || null;
+    const requerente = this.nomeRequerente().trim() || null;
+
     const body: CreatePedidoRequest = {
       loja_uuid: loja.uuid,
       taxa_entrega: 0,
       forma_pagamento: metodoPagamento,
-      observacoes: 'Venda PDV',
+      observacoes: null,
       origem: 'pdv',
+      numero_mesa: mesa,
+      nome_requerente: requerente,
       itens: this.itens().map(item => ({
         quantidade: item.quantidade,
         partes: item.partes.map(p => ({
@@ -238,14 +259,6 @@ export class PdvComponent implements OnInit {
           adicionais: p.adicionais.map(a => a.uuid),
         })),
       })),
-      endereco_entrega: {
-        logradouro: 'Retirada no Balcão',
-        numero: '-',
-        bairro: '-',
-        cidade: '-',
-        estado: '-',
-        cep: '-'
-      }
     };
 
     console.log('[PDV] criar pedido — payload:', JSON.stringify(body, null, 2));

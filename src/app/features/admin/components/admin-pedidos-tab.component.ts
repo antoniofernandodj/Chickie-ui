@@ -123,12 +123,18 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                 [appContextMenu]="pedidoMenuItems(pedido)"
               >
                 <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1.5 mb-0.5">
+                  <div class="flex items-center gap-1.5 mb-0.5 flex-wrap">
                     <span
                       class="text-xs font-bold font-mono"
                       style="color: var(--color-brand)"
                       >{{ pedido.codigo || pedido.uuid.slice(0, 8) }}</span
                     >
+                    @if (pedido.numero_mesa) {
+                      <span class="text-xs font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">Mesa {{ pedido.numero_mesa }}</span>
+                    }
+                    @if (pedido.nome_requerente) {
+                      <span class="text-xs font-bold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">{{ pedido.nome_requerente }}</span>
+                    }
                     <span class="text-gray-200 text-xs">·</span>
                     <span class="text-xs font-semibold text-gray-400">{{
                       pedido.criado_em | date: 'dd/MM HH:mm'
@@ -228,6 +234,24 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                       }
                     }
                   </div>
+
+                  <!-- Mesa / Requerente -->
+                  @if (pedido.numero_mesa || pedido.nome_requerente) {
+                    <div class="px-5 py-2.5 border-t border-gray-100 space-y-1">
+                      @if (pedido.numero_mesa) {
+                        <p class="text-xs text-gray-500 flex items-center gap-1">
+                          <span class="font-medium">Mesa:</span>
+                          <span class="font-bold text-blue-700">{{ pedido.numero_mesa }}</span>
+                        </p>
+                      }
+                      @if (pedido.nome_requerente) {
+                        <p class="text-xs text-gray-500 flex items-center gap-1">
+                          <span class="font-medium">Requerente:</span>
+                          <span class="font-bold text-purple-700">{{ pedido.nome_requerente }}</span>
+                        </p>
+                      }
+                    </div>
+                  }
 
                   <!-- Contato + Endereço de entrega -->
                   @if (pedido.contato || pedido.endereco_entrega) {
@@ -525,6 +549,18 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                   <span>R$ {{ p.total | number: '1.2-2' }}</span>
                 </div>
               </section>
+
+              <!-- Mesa / Requerente -->
+              @if (p.numero_mesa || p.nome_requerente) {
+                <section class="text-sm text-gray-600 space-y-1">
+                  @if (p.numero_mesa) {
+                    <p><span class="font-medium text-gray-700">Mesa:</span> <span class="font-bold text-blue-700">{{ p.numero_mesa }}</span></p>
+                  }
+                  @if (p.nome_requerente) {
+                    <p><span class="font-medium text-gray-700">Requerente:</span> <span class="font-bold text-purple-700">{{ p.nome_requerente }}</span></p>
+                  }
+                </section>
+              }
 
               <!-- Pagamento + obs -->
               <section class="text-sm text-gray-600 space-y-1">

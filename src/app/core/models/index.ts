@@ -375,7 +375,8 @@ export interface Pedido {
   contato:           string | null;
   tempo_estimado_min:number | null;
   numero_mesa:       string | null;
-  tipo_pedido:       'delivery' | 'retirada' | 'mesa';
+  nome_requerente:   string | null;
+  tipo_pedido:       'delivery' | 'retirada' | 'mesa' | 'pdv';
   criado_em:         string;
   atualizado_em:     string;
   itens:             ItemPedido[];
@@ -402,6 +403,7 @@ export interface CreatePedidoRequest {
   codigo_cupom?:   string | null;
   origem?:         'app' | 'pdv' | 'mesa';
   numero_mesa?:    string | null;
+  nome_requerente?: string | null;
   itens:           CreatePedidoItemRequest[];
   endereco_entrega?: {
     cep?:         string | null;

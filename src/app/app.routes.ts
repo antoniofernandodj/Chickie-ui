@@ -105,6 +105,13 @@ export const routes: Routes = [
     title: 'PDV — Chiquitos',
   },
   {
+    path: 'telao',
+    canActivate: [funcionarioGuard],
+    loadComponent: () => import('./features/pdv/pdv-telao.component')
+      .then(m => m.PdvTelaoComponent),
+    title: 'Telão PDV — Chiquitos',
+  },
+  {
     path: 'owner',
     canActivate: [ownerGuard],
     loadComponent: () => import('./features/owner/owner-panel.component')
@@ -138,6 +145,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/kds/kds-panel.component')
           .then(m => m.KdsPanelComponent),
         title: 'KDS Admin — Chiquitos',
+      },
+      {
+        path: 'telao',
+        loadComponent: () => import('./features/pdv/pdv-telao.component')
+          .then(m => m.PdvTelaoComponent),
+        title: 'Telão PDV Admin — Chiquitos',
       }
     ],
     title: 'Painel Admin — Chiquitos',

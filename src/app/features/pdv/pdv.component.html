@@ -334,7 +334,7 @@
               [fullWidth]="true"
               size="lg"
               [disabled]="itens().length === 0"
-              (click)="avancarParaPagamento()"
+              (click)="avancarParaIdentificacao()"
             >
               Finalizar Venda
               <svg
@@ -356,7 +356,72 @@
       </div>
     }
 
-    <!-- PASSO 3: FINALIZACAO (Pagamento) -->
+    <!-- PASSO 3: IDENTIFICAÇÃO (Mesa ou Nome) -->
+    @case ('identificacao') {
+      <div
+        class="flex-1 flex flex-col items-center justify-center p-6 bg-gray-50 animate-in slide-in-from-bottom duration-300"
+      >
+        <div class="w-full max-w-lg bg-white rounded-3xl shadow-xl overflow-hidden">
+          <div class="p-8 space-y-6">
+            <div>
+              <ui-button
+                variant="ghost"
+                size="xs"
+                (click)="voltarParaConstrucao()"
+                class="mb-4"
+              >
+                <span class="flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                  </svg>
+                  Voltar
+                </span>
+              </ui-button>
+              <h3 class="text-2xl font-black text-gray-900">Identificar Pedido</h3>
+              <p class="text-gray-500 text-sm mt-1">Opcional: informe a mesa ou o nome do cliente para o telão.</p>
+            </div>
+
+            <!-- Número da Mesa -->
+            <div class="space-y-2">
+              <label class="text-sm font-semibold text-gray-700">Número da Mesa</label>
+              <ui-input
+                [(ngModel)]="numeroMesaPdv"
+                placeholder="Ex: 5"
+                type="number"
+              />
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="flex-1 h-px bg-gray-200"></div>
+              <span class="text-xs text-gray-400 font-medium">ou</span>
+              <div class="flex-1 h-px bg-gray-200"></div>
+            </div>
+
+            <!-- Nome do Requerente -->
+            <div class="space-y-2">
+              <label class="text-sm font-semibold text-gray-700">Nome do Cliente</label>
+              <ui-input
+                [(ngModel)]="nomeRequerente"
+                placeholder="Ex: João Silva"
+              />
+            </div>
+
+            <ui-button
+              [fullWidth]="true"
+              size="lg"
+              (click)="avancarParaPagamento()"
+            >
+              Ir para Pagamento
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </ui-button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- PASSO 4: FINALIZACAO (Pagamento) -->
     @case ('finalizacao') {
       <div
         class="flex-1 flex flex-col items-center justify-center p-6 bg-gray-50 animate-in slide-in-from-bottom duration-300"
@@ -370,7 +435,7 @@
               <ui-button
                 variant="ghost"
                 size="xs"
-                (click)="voltarParaConstrucao()"
+                (click)="voltarParaIdentificacao()"
                 class="mb-8"
               >
                 <span class="flex items-center gap-2">
@@ -407,9 +472,15 @@
               </div>
             </div>
 
-            <div class="text-xs text-gray-500 mt-8">
-              Loja: {{ loja()?.nome }}<br />
-              Data: {{ today | date: 'dd/MM/yyyy HH:mm' }}
+            <div class="text-xs text-gray-500 mt-8 space-y-1">
+              <p>Loja: {{ loja()?.nome }}</p>
+              <p>Data: {{ today | date: 'dd/MM/yyyy HH:mm' }}</p>
+              @if (numeroMesaPdv()) {
+                <p class="text-blue-300 font-semibold">Mesa: {{ numeroMesaPdv() }}</p>
+              }
+              @if (nomeRequerente()) {
+                <p class="text-purple-300 font-semibold">Cliente: {{ nomeRequerente() }}</p>
+              }
             </div>
           </div>
 
