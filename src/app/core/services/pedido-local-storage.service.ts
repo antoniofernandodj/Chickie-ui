@@ -5,6 +5,7 @@ import { catchError, forkJoin, of } from 'rxjs';
 import { Pedido } from '../models';
 import { PedidoNormalizer } from '../utils/pedido.normalizer';
 import { environment } from '../../../environments/environment';
+import { silentContext } from '../interceptors/error.interceptor';
 
 const STORAGE_KEY = 'chickie_pedidos_locais';
 
@@ -23,7 +24,7 @@ export class PedidoLocalStorageService {
     if (locais.length === 0) return;
     forkJoin(
       locais.map(p =>
-        this.http.get<any>(`${this.base}/codigo/${p.codigo}`).pipe(
+        this.http.get<any>(`${this.base}/codigo/${p.codigo}`, { context: silentContext() }).pipe(
           catchError((err) => {
             if (err.status === 404) this.remover(p.uuid);
             return of(null);

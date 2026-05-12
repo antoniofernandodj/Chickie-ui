@@ -1,10 +1,13 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse, HttpContextToken, HttpContext } from '@angular/common/http';
 import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import { AuthService } from '../services/auth.service';
+
+export const SILENT_ERROR = new HttpContextToken<boolean>(() => false);
+export const silentContext = () => new HttpContext().set(SILENT_ERROR, true);
 
 function extractErrorMessage(error: HttpErrorResponse): string | null {
   const body = error.error;
@@ -57,7 +60,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => err);
       }
 
-      if (err.status >= 400) {
+      if (err.status >= 400 && !req.context.get(SILENT_ERROR)) {
         const msg = extractErrorMessage(err);
         if (msg) toast.error(msg);
       }
