@@ -255,6 +255,7 @@
             @for (item of itens(); track item.id) {
               <div
                 class="bg-gray-50 p-4 rounded-2xl border border-gray-100 group animate-in slide-in-from-right duration-300"
+                [appContextMenu]="itemMenuItems(item.id)"
               >
                 <div class="flex justify-between gap-4">
                   <div class="flex-1">

@@ -16,11 +16,13 @@ import { AuthService } from '../../core/services/auth.service';
 import { Produto, CategoriaProdutos, CreatePedidoRequest } from '../../core/models';
 import { PdvItemModalComponent } from './pdv-item-modal.component';
 import { UiButtonComponent, UiInputComponent } from '../../shared/components';
+import { ContextMenuDirective } from '../../shared/directives/context-menu.directive';
+import type { ContextMenuItem } from '../../core/services/context-menu.service';
 
 @Component({
   selector: 'app-pdv',
   standalone: true,
-  imports: [CommonModule, FormsModule, PdvItemModalComponent, UiButtonComponent, UiInputComponent],
+  imports: [CommonModule, FormsModule, PdvItemModalComponent, UiButtonComponent, UiInputComponent, ContextMenuDirective],
   templateUrl: './pdv.component.html',
 })
 export class PdvComponent implements OnInit {
@@ -178,6 +180,17 @@ export class PdvComponent implements OnInit {
   removerDoCarrinho(id: number) {
     console.info(`[OBSERVABILITY] PdvComponent - Removing item from cart. ID: ${id}`);
     this.cartService.removerItem(id);
+  }
+
+  itemMenuItems(id: number): ContextMenuItem[] {
+    return [
+      {
+        icon: '🗑️',
+        label: 'Remover da comanda',
+        variant: 'danger',
+        action: () => this.removerDoCarrinho(id),
+      },
+    ];
   }
 
   limparCarrinho() {

@@ -3,6 +3,8 @@ import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { CategoriaProdutos, Produto } from '../../../core/models';
 import { AdminProductCardComponent } from './admin-product-card.component';
 import { UiButtonComponent } from '../../../shared/components';
+import { ContextMenuDirective } from '../../../shared/directives/context-menu.directive';
+import type { ContextMenuItem } from '../../../core/services/context-menu.service';
 
 @Component({
   selector: 'admin-category-card',
@@ -11,7 +13,8 @@ import { UiButtonComponent } from '../../../shared/components';
     CdkDrag,
     CdkDragHandle,
     AdminProductCardComponent,
-    UiButtonComponent
+    UiButtonComponent,
+    ContextMenuDirective,
   ],
   template: `
     <div
@@ -19,7 +22,10 @@ import { UiButtonComponent } from '../../../shared/components';
       cdkDrag
     >
       <!-- Categoria header -->
-      <div class="bg-gray-50 px-4 py-3 flex items-center justify-between">
+      <div
+        class="bg-gray-50 px-4 py-3 flex items-center justify-between"
+        [appContextMenu]="categoriaMenuItems"
+      >
         <div class="flex items-center gap-2 flex-1 min-w-0">
           <span
             cdkDragHandle
@@ -125,4 +131,19 @@ export class AdminCategoryCardComponent {
   toggleProdutoDisponivel = output<Produto>();
   editarProduto = output<Produto>();
   removerProduto = output<Produto>();
+
+  readonly categoriaMenuItems: ContextMenuItem[] = [
+    {
+      icon: '✏️',
+      label: 'Editar categoria',
+      action: () => this.editar.emit(),
+    },
+    'separator',
+    {
+      icon: '🗑️',
+      label: 'Excluir categoria',
+      variant: 'danger',
+      action: () => this.deletar.emit(),
+    },
+  ];
 }

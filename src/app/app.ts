@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/header/header.component';
 import { CartDrawerComponent } from './shared/components/cart-drawer.component';
+import { UiContextMenuComponent } from './shared/components/ui-context-menu.component';
 import { NgxSonnerToaster } from 'ngx-sonner';
 import { PushNotificationService } from './core/services/push-notification.service';
 import { ToastQueueService } from './core/services/toast-queue.service';
@@ -9,7 +10,7 @@ import { ToastQueueService } from './core/services/toast-queue.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, CartDrawerComponent, NgxSonnerToaster],
+  imports: [RouterOutlet, HeaderComponent, CartDrawerComponent, NgxSonnerToaster, UiContextMenuComponent],
   templateUrl: './app.html',
   styleUrl:    './app.css',
 })

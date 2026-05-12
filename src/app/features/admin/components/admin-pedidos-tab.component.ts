@@ -10,13 +10,15 @@ import { PhonePipe } from '../../../shared/pipes/phone.pipe';
 import { UiTabBarComponent, ChatPanelComponent, STATUS_PEDIDO_CFG, UiButtonComponent, UiCheckboxComponent } from '../../../shared/components';
 import { Pedido, StatusPedido, ItemPedido, PaginatedResponse } from '../../../core/models';
 import type { UiTab } from '../../../shared/components';
+import { ContextMenuDirective } from '../../../shared/directives/context-menu.directive';
+import type { ContextMenuItem } from '../../../core/services/context-menu.service';
 
 const STATUS_CFG = STATUS_PEDIDO_CFG;
 
 @Component({
   selector: 'admin-pedidos-tab',
   standalone: true,
-  imports: [DecimalPipe, DatePipe, PhonePipe, FormsModule, UiTabBarComponent, ChatPanelComponent, UiButtonComponent, UiCheckboxComponent],
+  imports: [DecimalPipe, DatePipe, PhonePipe, FormsModule, UiTabBarComponent, ChatPanelComponent, UiButtonComponent, UiCheckboxComponent, ContextMenuDirective],
   template: `
     <div class="space-y-4">
       <!-- Header + refresh -->
@@ -118,6 +120,7 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                 (click)="toggleExpandPedido(pedido.uuid)"
                 (keydown.enter)="toggleExpandPedido(pedido.uuid)"
                 class="w-full flex items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-orange-50/50 active:bg-orange-50 cursor-pointer"
+                [appContextMenu]="pedidoMenuItems(pedido)"
               >
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-1.5 mb-0.5">
@@ -876,5 +879,31 @@ export class AdminPedidosTabComponent {
       (s, p) => s + p.adicionais.reduce((sa, a) => sa + Number(a.preco), 0), 0,
     );
     return base + extras;
+  }
+
+  pedidoMenuItems(pedido: Pedido): ContextMenuItem[] {
+    const terminal: StatusPedido[] = ['cancelado', 'entregue'];
+    return [
+      {
+        icon: '📋',
+        label: 'Ver detalhes',
+        action: () => this.abrirDetalhesPedido(pedido),
+      },
+      {
+        icon: '📎',
+        label: 'Copiar código',
+        action: () => {
+          const codigo = pedido.codigo || pedido.uuid.slice(0, 8).toUpperCase();
+          navigator.clipboard?.writeText(codigo);
+        },
+      },
+      'separator',
+      {
+        icon: '➡️',
+        label: 'Avançar status',
+        disabled: terminal.includes(pedido.status),
+        action: () => this.avancarPedido(pedido.uuid, this.getIsRetirada(pedido.uuid)),
+      },
+    ];
   }
 }

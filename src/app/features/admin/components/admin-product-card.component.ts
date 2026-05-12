@@ -1,16 +1,27 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { Produto } from '../../../core/models';
 import { AdminToggleAvailableBtnComponent } from './admin-toggle-available-btn.component';
 import { AdminEditBtnComponent } from './admin-edit-btn.component';
 import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
+import { ContextMenuDirective } from '../../../shared/directives/context-menu.directive';
+import type { ContextMenuItem } from '../../../core/services/context-menu.service';
 
 @Component({
   selector: 'admin-product-card',
   standalone: true,
-  imports: [DecimalPipe, AdminToggleAvailableBtnComponent, AdminEditBtnComponent, AdminRemoveBtnComponent],
+  imports: [
+    DecimalPipe,
+    AdminToggleAvailableBtnComponent,
+    AdminEditBtnComponent,
+    AdminRemoveBtnComponent,
+    ContextMenuDirective,
+  ],
   template: `
-    <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group">
+    <div
+      class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group"
+      [appContextMenu]="menuItems()"
+    >
       @if (produto().imagem_url) {
         <img
           [src]="produto().imagem_url"
@@ -77,4 +88,24 @@ export class AdminProductCardComponent {
   toggleDisponivel = output<void>();
   editar = output<void>();
   remover = output<void>();
+
+  readonly menuItems = computed((): ContextMenuItem[] => [
+    {
+      icon: '✏️',
+      label: 'Editar produto',
+      action: () => this.editar.emit(),
+    },
+    {
+      icon: this.produto().disponivel ? '🚫' : '✅',
+      label: this.produto().disponivel ? 'Marcar indisponível' : 'Marcar disponível',
+      action: () => this.toggleDisponivel.emit(),
+    },
+    'separator',
+    {
+      icon: '🗑️',
+      label: 'Remover produto',
+      variant: 'danger',
+      action: () => this.remover.emit(),
+    },
+  ]);
 }
