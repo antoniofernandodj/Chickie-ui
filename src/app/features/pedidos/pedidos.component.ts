@@ -72,31 +72,40 @@ export class PedidosComponent {
             .subscribe((pedidos) => {
               this._apiPedidos.set(pedidos);
               this.loading.set(false);
-              if (!this.wsAtivo()) this.wsAtivo.set(true);
+              if (!this.wsAtivo()) {
+                this.wsAtivo.set(true);
+                this.limparLocaisOrfaos(pedidos);
+              }
             });
         } else {
           this.pedidoService.listar().pipe(catchError(() => of([]))).subscribe((pedidos) => {
             this._apiPedidos.set(pedidos);
             this.loading.set(false);
+            this.limparLocaisOrfaos(pedidos);
           });
         }
       } else {
         this.loading.set(false);
-        const locais = this.pedidoLocalStorage.pedidos();
-        if (locais.length === 0) return;
-        forkJoin(
-          locais.map(p =>
-            this.pedidoService.buscarPorCodigo(p.codigo).pipe(
-              catchError((err) => {
-                if (err.status === 404) this.pedidoLocalStorage.remover(p.uuid);
-                return of(null);
-              }),
-            )
-          )
-        ).subscribe((frescos) => {
-          frescos.filter(Boolean).forEach(p => this.pedidoLocalStorage.salvar(p!));
-        });
+        this.limparLocaisOrfaos([]);
       }
+    });
+  }
+
+  private limparLocaisOrfaos(apiPedidos: Pedido[]): void {
+    const apiUuids = new Set(apiPedidos.map(p => p.uuid));
+    const orfaos = this.pedidoLocalStorage.pedidos().filter(p => !apiUuids.has(p.uuid));
+    if (orfaos.length === 0) return;
+    forkJoin(
+      orfaos.map(p =>
+        this.pedidoService.buscarPorCodigo(p.codigo).pipe(
+          catchError((err) => {
+            if (err.status === 404) this.pedidoLocalStorage.remover(p.uuid);
+            return of(null);
+          }),
+        )
+      )
+    ).subscribe((frescos) => {
+      frescos.filter(Boolean).forEach(p => this.pedidoLocalStorage.salvar(p!));
     });
   }
 
