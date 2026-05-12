@@ -1,16 +1,42 @@
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { catchError, forkJoin, of } from 'rxjs';
 import { Pedido } from '../models';
 import { PedidoNormalizer } from '../utils/pedido.normalizer';
+import { environment } from '../../../environments/environment';
 
 const STORAGE_KEY = 'chickie_pedidos_locais';
 
 @Injectable({ providedIn: 'root' })
 export class PedidoLocalStorageService {
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly http       = inject(HttpClient);
+  private readonly base       = `${environment.apiUrl}/pedidos`;
 
   private readonly _pedidos = signal<Pedido[]>(this.load());
   readonly pedidos = this._pedidos.asReadonly();
+
+  constructor() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const locais = this._pedidos();
+    if (locais.length === 0) return;
+    forkJoin(
+      locais.map(p =>
+        this.http.get<any>(`${this.base}/codigo/${p.codigo}`).pipe(
+          catchError((err) => {
+            if (err.status === 404) this.remover(p.uuid);
+            return of(null);
+          }),
+        )
+      )
+    ).subscribe((frescos) => {
+      frescos
+        .filter(Boolean)
+        .map(raw => PedidoNormalizer.normalizarPedido(raw))
+        .forEach(p => this.salvar(p));
+    });
+  }
 
   private load(): Pedido[] {
     if (!isPlatformBrowser(this.platformId)) return [];

@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, afterNextRender, LOCALE_ID, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { forkJoin, catchError, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { toast } from 'ngx-sonner';
 import { PedidoService } from '../../core/services/pedido.service';
@@ -72,40 +72,17 @@ export class PedidosComponent {
             .subscribe((pedidos) => {
               this._apiPedidos.set(pedidos);
               this.loading.set(false);
-              if (!this.wsAtivo()) {
-                this.wsAtivo.set(true);
-                this.limparLocaisOrfaos(pedidos);
-              }
+              if (!this.wsAtivo()) this.wsAtivo.set(true);
             });
         } else {
           this.pedidoService.listar().pipe(catchError(() => of([]))).subscribe((pedidos) => {
             this._apiPedidos.set(pedidos);
             this.loading.set(false);
-            this.limparLocaisOrfaos(pedidos);
           });
         }
       } else {
         this.loading.set(false);
-        this.limparLocaisOrfaos([]);
       }
-    });
-  }
-
-  private limparLocaisOrfaos(apiPedidos: Pedido[]): void {
-    const apiUuids = new Set(apiPedidos.map(p => p.uuid));
-    const orfaos = this.pedidoLocalStorage.pedidos().filter(p => !apiUuids.has(p.uuid));
-    if (orfaos.length === 0) return;
-    forkJoin(
-      orfaos.map(p =>
-        this.pedidoService.buscarPorCodigo(p.codigo).pipe(
-          catchError((err) => {
-            if (err.status === 404) this.pedidoLocalStorage.remover(p.uuid);
-            return of(null);
-          }),
-        )
-      )
-    ).subscribe((frescos) => {
-      frescos.filter(Boolean).forEach(p => this.pedidoLocalStorage.salvar(p!));
     });
   }
 
