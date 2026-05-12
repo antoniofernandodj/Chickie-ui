@@ -5,7 +5,7 @@ import { filter, map, switchMap, catchError } from 'rxjs/operators';
 import { of, BehaviorSubject } from 'rxjs';
 import { LojaService } from '../../core/services/loja.service';
 import { Loja } from '../../core/models';
-import { UiTabBarComponent, UiSpinnerComponent } from '../../shared/components';
+import { UiTabBarComponent, UiSpinnerComponent, UiButtonComponent } from '../../shared/components';
 import type { UiTab } from '../../shared/components';
 import { AdminPedidosTabComponent } from './components/admin-pedidos-tab.component';
 import { AdminEquipeTabComponent } from './components/admin-equipe-tab.component';
@@ -27,6 +27,7 @@ import { AdminLojaTabComponent } from './components/admin-loja-tab.component';
   imports: [
     UiTabBarComponent,
     UiSpinnerComponent,
+    UiButtonComponent,
     AdminPedidosTabComponent,
     AdminEquipeTabComponent,
     AdminCatalogoTabComponent,

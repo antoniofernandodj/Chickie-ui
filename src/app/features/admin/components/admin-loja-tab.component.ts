@@ -14,7 +14,11 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
 @Component({
   selector: 'admin-loja-tab',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, UiButtonComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    UiButtonComponent
+  ],
   template: `
     <div class="max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <h3 class="text-base font-semibold text-gray-900 mb-5">🏪 Perfil da Loja</h3>
@@ -32,14 +36,7 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
                   alt="Banner da Loja"
                 />
                 <div class="absolute top-2 right-2 flex gap-2">
-                  <button
-                    type="button"
-                    (click)="removerImagem()"
-                    class="w-8 h-8 rounded-lg bg-red-500/90 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
-                    title="Remover imagem"
-                  >
-                    ✕
-                  </button>
+                  <ui-button variant="danger" size="xs" (click)="removerImagem()" title="Remover imagem">✕</ui-button>
                 </div>
               </div>
             } @else {

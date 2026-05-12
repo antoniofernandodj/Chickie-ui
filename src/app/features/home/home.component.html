@@ -20,18 +20,12 @@
       Escolha entre as melhores lojas e receba seu pedido onde estiver.
     </p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-      <div class="w-full max-w-lg flex items-center gap-3 bg-white/10 backdrop-blur rounded-2xl px-4 py-3 border border-white/10 focus-within:border-orange-500/50 transition-colors">
-        <svg class="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
-        </svg>
-        <input
-          [value]="search()"
-          (input)="onSearchInput($any($event.target).value)"
-          placeholder="Buscar lojas, pratos..."
-          class="bg-transparent flex-1 outline-none text-white placeholder-gray-500 text-sm"
-        />
-      </div>
+      <ui-input
+        class="w-full max-w-lg"
+        [ngModel]="search()"
+        (ngModelChange)="onSearchInput($event)"
+        placeholder="Buscar lojas, pratos..."
+      />
       <a routerLink="/pedidos"
          class="shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold transition-all">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,14 +50,14 @@
       @for (pedido of pedidosLocais().slice(0, 3); track pedido.uuid) {
         <a [routerLink]="['/pedidos', pedido.codigo]"
            class="relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-all">
-          <button type="button"
+          <ui-button variant="ghost" size="xs"
             (click)="abrirConfirmacaoRemocao(pedido.uuid, $event)"
             title="Remover do histórico"
-            class="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors">
+            class="absolute top-3 right-3">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
             </svg>
-          </button>
+          </ui-button>
           <div class="flex items-start justify-between gap-3 pr-6">
             <div>
               <p class="text-xs text-gray-400">Pedido local</p>
@@ -127,13 +121,10 @@
         <h2 class="text-2xl font-bold text-gray-900">Lojas disponíveis</h2>
         <p class="text-gray-500 text-sm mt-1">{{ lojas()?.length ?? 0 }} lojas</p>
       </div>
-      <button type="button" (click)="toggleApenasAberta()"
-              [class]="apenasAberta()
-                ? 'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-green-500 text-white shadow-sm transition-all'
-                : 'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-white border border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-600 transition-all'">
+      <ui-button [variant]="apenasAberta() ? 'primary' : 'secondary'" size="sm" (click)="toggleApenasAberta()">
         <span [class]="apenasAberta() ? 'w-2 h-2 bg-white rounded-full animate-pulse' : 'w-2 h-2 bg-gray-400 rounded-full'"></span>
         Só abertas
-      </button>
+      </ui-button>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -201,14 +192,8 @@
       Tem certeza que deseja remover este pedido do histórico do dispositivo?
     </p>
     <div class="flex justify-end gap-3 px-5 py-4">
-      <button type="button" (click)="cancelarRemocao()"
-              class="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-        Cancelar
-      </button>
-      <button type="button" (click)="confirmarRemocao()"
-              class="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors">
-        Remover
-      </button>
+      <ui-button variant="secondary" (click)="cancelarRemocao()">Cancelar</ui-button>
+      <ui-button variant="danger" (click)="confirmarRemocao()">Remover</ui-button>
     </div>
   </ui-modal>
 }

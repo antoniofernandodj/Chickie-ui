@@ -15,24 +15,18 @@
         <div class="text-5xl mb-4">😕</div>
         <h1 class="text-xl font-bold text-gray-800 mb-2">Loja não encontrada</h1>
         <p class="text-gray-500 text-sm mb-6">A loja que você busca não existe ou foi removida.</p>
-        <button (click)="voltar()"
-                class="px-5 py-2.5 rounded-xl font-semibold text-sm text-white"
-                style="background:var(--color-brand)">
-          ← Voltar para Minhas Lojas
-        </button>
+        <ui-button (click)="voltar()">← Voltar para Minhas Lojas</ui-button>
       </div>
     </div>
   } @else {
     <!-- Header com breadcrumb -->
     <div class="mb-6">
-      <button (click)="voltar()"
-              class="inline-flex items-center gap-1.5 text-sm font-bold mb-4 transition-opacity hover:opacity-70"
-              style="color:var(--color-brand)">
+      <ui-button variant="ghost" size="sm" (click)="voltar()" class="mb-4">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
         </svg>
         Minhas Lojas
-      </button>
+      </ui-button>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
           <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-2xl shrink-0 shadow-lg"

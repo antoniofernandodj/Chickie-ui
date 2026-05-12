@@ -7,12 +7,21 @@ import { CatalogoService } from '../../core/services/catalogo.service';
 import { PedidoLocalStorageService } from '../../core/services/pedido-local-storage.service';
 import { catchError, combineLatest, debounceTime, distinctUntilChanged, map, of, switchMap, Subject } from 'rxjs';
 import { CategoriaCobertura } from '../../core/models';
-import { UiEmptyStateComponent, UiModalComponent } from '../../shared/components';
+import { FormsModule } from '@angular/forms';
+import { UiEmptyStateComponent, UiModalComponent, UiButtonComponent, UiInputComponent } from '../../shared/components';
 import { categoriaEmoji } from '../categorias/categoria-detalhe.component';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, DecimalPipe, UiEmptyStateComponent, UiModalComponent],
+  imports: [
+    RouterLink,
+    DecimalPipe,
+    FormsModule,
+    UiEmptyStateComponent,
+    UiModalComponent,
+    UiButtonComponent,
+    UiInputComponent
+  ],
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements OnInit {

@@ -29,16 +29,13 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       @for (loja of favoritas(); track loja.uuid) {
         <div class="relative group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-100">
-          <button
-            (click)="remover(loja.uuid)"
-            class="absolute top-3 right-3 z-10 w-8 h-8 rounded-xl bg-white/80 backdrop-blur flex items-center justify-center
-                   opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"
-            title="Remover dos favoritos"
-          >
-            <svg class="w-4 h-4 text-red-500 fill-red-500" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-          </button>
+          <div class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <ui-button variant="ghost" size="xs" (click)="remover(loja.uuid)" title="Remover dos favoritos">
+              <svg class="w-4 h-4 text-red-500 fill-red-500" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+            </ui-button>
+          </div>
           <a [routerLink]="['/loja', loja.slug]" class="block">
             <div class="relative h-36 bg-gradient-to-br from-orange-50 to-orange-100 overflow-hidden">
               @if (loja.banner_url) {

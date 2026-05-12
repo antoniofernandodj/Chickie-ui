@@ -8,8 +8,8 @@ import { toast } from 'ngx-sonner';
 import { AdminService } from '../../core/services/admin.service';
 import { LojaService } from '../../core/services/loja.service';
 import { Loja } from '../../core/models';
-import { PhoneMaskDirective } from '../../shared/directives/phone-mask.directive';
 import { SlugMaskDirective } from '../../shared/directives/slug-mask.directive';
+import { UiButtonComponent, UiInputComponent, UiTextareaComponent } from '../../shared/components';
 
 const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
 const COMPRESS_AFTER_SIZE = 1 * 1024 * 1024; // 1MB
@@ -19,7 +19,14 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
 @Component({
   selector: 'app-admin-lojas-list',
   standalone: true,
-  imports: [ReactiveFormsModule, DecimalPipe, PhoneMaskDirective, SlugMaskDirective],
+  imports: [
+    ReactiveFormsModule,
+    DecimalPipe,
+    SlugMaskDirective,
+    UiButtonComponent,
+    UiInputComponent,
+    UiTextareaComponent
+  ],
   templateUrl: './admin-lojas-list.component.html',
 })
 export class AdminLojasListComponent {

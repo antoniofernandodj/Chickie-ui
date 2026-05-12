@@ -257,13 +257,10 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
                   [src]="prodImagemPreview() || prodForm.get('imagem_url')?.value"
                   class="w-full h-full object-cover rounded-xl border border-gray-200"
                 />
-                <button
-                  type="button"
+                <ui-button variant="danger" size="xs" type="button"
                   (click)="removerImagemProduto()"
-                  class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-sm text-[10px]"
-                >
-                  ✕
-                </button>
+                  class="absolute -top-2 -right-2"
+                  title="Remover imagem">✕</ui-button>
               </div>
             }
           </div>

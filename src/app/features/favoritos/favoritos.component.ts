@@ -6,11 +6,17 @@ import { switchMap, catchError, of, forkJoin } from 'rxjs';
 import { FavoritosService } from '../../core/services/favoritos.service';
 import { LojaService } from '../../core/services/loja.service';
 import { Loja } from '../../core/models';
-import { UiEmptyStateComponent, UiSkeletonComponent } from '../../shared/components';
+import { UiEmptyStateComponent, UiSkeletonComponent, UiButtonComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-favoritos',
-  imports: [RouterLink, DecimalPipe, UiEmptyStateComponent, UiSkeletonComponent],
+  imports: [
+    RouterLink,
+    DecimalPipe,
+    UiEmptyStateComponent,
+    UiSkeletonComponent,
+    UiButtonComponent
+  ],
   templateUrl: './favoritos.component.html',
 })
 export class FavoritosComponent {
