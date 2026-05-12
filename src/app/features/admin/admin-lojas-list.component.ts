@@ -104,7 +104,7 @@ export class AdminLojasListComponent {
     return this.lojaForm.controls;
   }
 
-  private limparInputImagem() {
+  limparInputImagem() {
     this.lojaImagem.set(null);
     this.lojaImagemPreview.set(null);
     if (this.imagemInput?.nativeElement) {
