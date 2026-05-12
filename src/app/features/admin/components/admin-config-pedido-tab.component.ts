@@ -105,6 +105,10 @@ export class AdminConfigPedidoTabComponent {
     this.configPedidoError.set('');
     this.configPedidoService.getConfigPedido(uuid).subscribe({
       next: (config) => {
+
+        if (config.tipo_calculo == "MaisCaro") { config.tipo_calculo = "mais_caro"; }
+        if (config.tipo_calculo == "MediaPonderada") { config.tipo_calculo = "media_ponderada"; }
+
         this.configPedidoData.set(config);
         this.configPedidoForm.patchValue({ max_partes: Number(config.max_partes), tipo_calculo: config.tipo_calculo });
         this.configPedidoLoading.set(false);
