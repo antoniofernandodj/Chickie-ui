@@ -129,8 +129,11 @@ export class PdvTelaoComponent implements OnDestroy {
 
   private readonly _kds = signal<KdsPayload>({ confirmados: [], em_preparo: [], prontos: [] });
 
-  readonly prontos   = computed(() => this._kds().prontos);
-  readonly emPreparo = computed(() => this._kds().em_preparo);
+  private readonly _filtrar = (lista: Pedido[]) =>
+    lista.filter(p => p.tipo_pedido === 'pdv' || p.tipo_pedido === 'mesa');
+
+  readonly prontos   = computed(() => this._filtrar(this._kds().prontos));
+  readonly emPreparo = computed(() => this._filtrar(this._kds().em_preparo));
 
   readonly label    = (p: Pedido) => labelPedido(p);
   readonly subLabel = (p: Pedido) => subLabelPedido(p);
