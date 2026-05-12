@@ -18,6 +18,8 @@ export class ContextMenuDirective {
 
   @HostListener('contextmenu', ['$event'])
   onContextMenu(e: MouseEvent): void {
+    const items = this.appContextMenu();
+    if (!items.length) return;
     e.preventDefault();
     // On Android the contextmenu event fires after the long-press timer already
     // opened the menu — skip reopening but still suppress the native menu.
@@ -25,12 +27,13 @@ export class ContextMenuDirective {
       this.timerFired = false;
       return;
     }
-    this.svc.open(e.clientX, e.clientY, this.appContextMenu());
+    this.svc.open(e.clientX, e.clientY, items);
   }
 
   @HostListener('pointerdown', ['$event'])
   onPointerDown(e: PointerEvent): void {
     if (e.pointerType === 'mouse') return; // mouse uses the contextmenu event
+    if (!this.appContextMenu().length) return;
     this.timerFired = false;
     this.moved = false;
     this.setPressing(true);

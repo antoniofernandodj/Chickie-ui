@@ -133,12 +133,23 @@
             <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
               @for (prod of produtosFiltrados(); track prod.uuid) {
                 <div
-                  role="button"
-                  tabindex="0"
-                  (click)="adicionarAoCarrinho(prod)"
-                  (keydown.enter)="adicionarAoCarrinho(prod)"
-                  class="group relative bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all text-left flex flex-col h-full active:scale-95 cursor-pointer"
+                  [attr.role]="prod.disponivel ? 'button' : null"
+                  [attr.tabindex]="prod.disponivel ? 0 : null"
+                  (click)="prod.disponivel && adicionarAoCarrinho(prod)"
+                  (keydown.enter)="prod.disponivel && adicionarAoCarrinho(prod)"
+                  class="group relative bg-white p-4 rounded-2xl border border-gray-100 shadow-sm transition-all text-left flex flex-col h-full"
+                  [class.hover:shadow-xl]="prod.disponivel"
+                  [class.hover:border-orange-200]="prod.disponivel"
+                  [class.active:scale-95]="prod.disponivel"
+                  [class.cursor-pointer]="prod.disponivel"
+                  [class.opacity-50]="!prod.disponivel"
+                  [class.cursor-not-allowed]="!prod.disponivel"
                 >
+                  @if (!prod.disponivel) {
+                    <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                      <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full rotate-[-15deg]">Indisponível</span>
+                    </div>
+                  }
                   @if (prod.imagem_url) {
                     <img
                       [src]="prod.imagem_url"

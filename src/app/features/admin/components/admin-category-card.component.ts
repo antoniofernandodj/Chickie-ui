@@ -132,18 +132,21 @@ export class AdminCategoryCardComponent {
   editarProduto = output<Produto>();
   removerProduto = output<Produto>();
 
-  readonly categoriaMenuItems: ContextMenuItem[] = [
-    {
-      icon: '✏️',
-      label: 'Editar categoria',
-      action: () => this.editar.emit(),
-    },
-    'separator',
-    {
-      icon: '🗑️',
-      label: 'Excluir categoria',
-      variant: 'danger',
-      action: () => this.deletar.emit(),
-    },
-  ];
+  get categoriaMenuItems(): ContextMenuItem[] {
+    if (!this.categoria().loja_uuid) return [];
+    return [
+      {
+        icon: '✏️',
+        label: 'Editar categoria',
+        action: () => this.editar.emit(),
+      },
+      'separator',
+      {
+        icon: '🗑️',
+        label: 'Excluir categoria',
+        variant: 'danger',
+        action: () => this.deletar.emit(),
+      },
+    ];
+  }
 }
