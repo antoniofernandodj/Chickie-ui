@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, afterNextRender, LOCALE_ID, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { catchError, of } from 'rxjs';
+import { forkJoin, catchError, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { toast } from 'ngx-sonner';
 import { PedidoService } from '../../core/services/pedido.service';
@@ -11,7 +11,7 @@ import { PedidosLiveService } from '../../core/services/pedidos-live.service';
 import { LojaService } from '../../core/services/loja.service';
 import { CatalogoService } from '../../core/services/catalogo.service';
 import { CartService } from '../../core/services/cart.service';
-import { Pedido, StatusPedido } from '../../core/models';
+import { Pedido, StatusPedido, Loja, Produto, Adicional } from '../../core/models';
 import { STATUS_PEDIDO_CFG, UiEmptyStateComponent, UiStatusBadgeComponent, UiSkeletonComponent, UiSpinnerComponent, UiButtonComponent } from '../../shared/components';
 
 const STATUS_TERMINAL = new Set<StatusPedido>(['entregue', 'cancelado']);
@@ -126,7 +126,7 @@ export class PedidosComponent {
         return of(null);
       }),
       takeUntilDestroyed(this.destroyRef),
-    ).subscribe((data) => {
+    ).subscribe((data: { loja: Loja; produtos: Produto[]; adicionais: Adicional[] } | null) => {
       this.reordenando.update(s => { const n = new Set(s); n.delete(pedido.uuid); return n; });
       if (!data) return;
 
