@@ -106,7 +106,7 @@ export class AdminConfigPedidoTabComponent {
     this.configPedidoService.getConfigPedido(uuid).subscribe({
       next: (config) => {
         this.configPedidoData.set(config);
-        this.configPedidoForm.patchValue({ max_partes: config.max_partes, tipo_calculo: config.tipo_calculo });
+        this.configPedidoForm.patchValue({ max_partes: Number(config.max_partes), tipo_calculo: config.tipo_calculo });
         this.configPedidoLoading.set(false);
       },
       error: () => {
@@ -123,7 +123,7 @@ export class AdminConfigPedidoTabComponent {
     this.configPedidoLoadingSubmit.set(true);
     this.configPedidoError.set('');
     this.configPedidoService.saveConfigPedido(this.lojaUuid(), {
-      max_partes: fv.max_partes!,
+      max_partes: fv.max_partes != null ? Number(fv.max_partes) : null,
       tipo_calculo: fv.tipo_calculo || "mais_caro",
     }).subscribe({
       next: () => {
