@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { catchError, of, switchMap, filter, tap, map } from 'rxjs';
 import { toast } from 'ngx-sonner';
@@ -22,7 +22,7 @@ import type { ContextMenuItem } from '../../core/services/context-menu.service';
 @Component({
   selector: 'app-pdv',
   standalone: true,
-  imports: [CommonModule, FormsModule, PdvItemModalComponent, UiButtonComponent, UiInputComponent, ContextMenuDirective],
+  imports: [CommonModule, FormsModule, RouterLink, PdvItemModalComponent, UiButtonComponent, UiInputComponent, ContextMenuDirective],
   templateUrl: './pdv.component.html',
 })
 export class PdvComponent implements OnInit {
