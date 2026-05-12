@@ -1,85 +1,145 @@
-import { Component, inject, signal, computed, effect, OnDestroy, PLATFORM_ID, untracked } from '@angular/core';
-import { isPlatformBrowser, DatePipe } from '@angular/common';
+import {
+  Component, inject, signal, computed, effect, OnDestroy, PLATFORM_ID, untracked,
+} from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap, catchError, of } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 import { FuncionarioService } from '../../core/services/funcionario.service';
-import { Pedido } from '../../core/models';
-import { PedidoNormalizer } from '../../core/utils/pedido.normalizer';
+import { PedidosLiveService } from '../../core/services/pedidos-live.service';
+import { Pedido, KdsPayload } from '../../core/models';
+
+function labelPedido(p: Pedido): string {
+  if (p.nome_requerente) return p.nome_requerente;
+  if (p.numero_mesa)    return `Mesa ${p.numero_mesa}`;
+  return `#${p.codigo}`;
+}
+
+function subLabelPedido(p: Pedido): string | null {
+  if (p.nome_requerente || p.numero_mesa) return `#${p.codigo}`;
+  return null;
+}
 
 @Component({
   selector: 'app-pdv-telao',
   standalone: true,
-  imports: [DatePipe],
+  imports: [],
   template: `
-    <div class="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-8">
-      <div class="text-center mb-12">
-        <h1 class="text-3xl font-black text-gray-500 tracking-widest uppercase">Seu Pedido</h1>
-      </div>
+    <div class="min-h-screen bg-gray-950 text-white flex flex-col select-none overflow-hidden">
 
-      @if (ultimoPedido(); as p) {
-        <div class="w-full max-w-2xl">
-          <div class="text-center mb-10">
-            @if (p.nome_requerente) {
-              <p class="text-xl font-semibold text-purple-400 uppercase tracking-widest">Cliente</p>
-              <p class="text-8xl font-black text-white mt-2 leading-none break-words">{{ p.nome_requerente }}</p>
-            } @else if (p.numero_mesa) {
-              <p class="text-xl font-semibold text-blue-400 uppercase tracking-widest">Mesa</p>
-              <p class="text-9xl font-black text-white mt-2 leading-none">{{ p.numero_mesa }}</p>
-            } @else {
-              <p class="text-xl font-semibold text-orange-400 uppercase tracking-widest">Pedido</p>
-              <p class="text-7xl font-black text-white mt-2 leading-none">#{{ p.codigo }}</p>
-            }
-          </div>
+      <!-- ── ZONA PRINCIPAL: PRONTOS ────────────────────────────────── -->
+      <div class="flex-1 flex flex-col items-center justify-center p-8 relative">
 
-          <div class="flex items-center justify-center gap-6 mb-8">
-            <span class="text-2xl font-mono text-gray-500">#{{ p.codigo }}</span>
-            <span class="w-1.5 h-1.5 bg-gray-700 rounded-full"></span>
-            <span class="text-2xl text-gray-500">{{ p.criado_em | date: 'HH:mm' }}</span>
-          </div>
+        <!-- Cabeçalho de seção -->
+        <div class="mb-8 text-center">
+          @if (prontos().length > 0) {
+            <p class="text-2xl font-black tracking-widest uppercase text-green-400 animate-pulse">
+              Pronto para Retirada
+            </p>
+          } @else {
+            <p class="text-xl font-semibold tracking-widest uppercase text-gray-700">
+              Aguardando pedidos...
+            </p>
+          }
+        </div>
 
-          <div class="bg-gray-800 rounded-3xl p-8 space-y-4">
-            <h2 class="text-lg font-semibold text-gray-500 uppercase tracking-widest mb-6">Itens</h2>
-            @for (item of p.itens; track item.uuid) {
-              <div class="flex items-baseline gap-4 py-3 border-b border-gray-700 last:border-0">
-                <span class="text-3xl font-black text-orange-400 shrink-0">{{ item.quantidade }}×</span>
-                <span class="text-2xl font-semibold text-white">
-                  @if (item.partes.length === 1) {
-                    {{ item.partes[0].produto_nome }}
-                  } @else {
-                    Pizza ({{ item.partes.length }} sabores)
-                  }
-                </span>
+        <!-- Cards de pedidos prontos -->
+        @if (prontos().length > 0) {
+          <div class="flex flex-wrap justify-center gap-6 w-full max-w-5xl">
+            @for (p of prontos(); track p.uuid) {
+              <div
+                class="relative flex flex-col items-center justify-center rounded-3xl px-10 py-8 min-w-[220px]"
+                style="
+                  background: linear-gradient(135deg, #052e16 0%, #14532d 100%);
+                  box-shadow: 0 0 40px 8px rgba(34,197,94,0.35), 0 0 0 2px rgba(34,197,94,0.5);
+                  animation: pronto-pulse 2s ease-in-out infinite;
+                "
+              >
+                <span class="text-5xl mb-3">✅</span>
+                <p
+                  class="font-black text-green-300 text-center leading-tight"
+                  [style.font-size]="labelFontSize(label(p))"
+                >
+                  {{ label(p) }}
+                </p>
+                @if (subLabel(p)) {
+                  <p class="text-lg font-mono text-green-600 mt-2">{{ subLabel(p) }}</p>
+                }
               </div>
             }
           </div>
+        } @else if (emPreparo().length === 0) {
+          <div class="text-8xl opacity-10 mt-4">🍕</div>
+        }
+      </div>
 
-          <div class="mt-8 text-center">
-            <span class="inline-block px-8 py-4 bg-orange-500 text-white text-xl font-black rounded-full uppercase tracking-wider">
-              Em Preparo
-            </span>
+      <!-- ── FAIXA INFERIOR: EM PREPARO ────────────────────────────── -->
+      <div
+        class="shrink-0 border-t border-gray-800 px-6 py-4"
+        style="background: #0f172a"
+      >
+        <div class="flex items-center gap-4 overflow-hidden">
+          <div class="shrink-0 flex items-center gap-2">
+            <span class="text-lg">🔥</span>
+            <span class="text-xs font-black tracking-widest uppercase text-orange-400">Em Preparo</span>
           </div>
+
+          @if (emPreparo().length > 0) {
+            <div class="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-hide">
+              @for (p of emPreparo(); track p.uuid) {
+                <div
+                  class="shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border border-orange-800 bg-orange-950"
+                >
+                  <span class="text-sm font-bold text-orange-300 whitespace-nowrap">{{ label(p) }}</span>
+                  @if (subLabel(p)) {
+                    <span class="text-xs font-mono text-orange-600">{{ subLabel(p) }}</span>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <span class="text-sm text-gray-700 italic">Nenhum pedido em preparo</span>
+          }
         </div>
-      } @else {
-        <div class="text-center space-y-6">
-          <div class="text-9xl opacity-10">🍕</div>
-          <p class="text-3xl font-medium text-gray-600">Aguardando pedidos...</p>
-        </div>
-      }
+      </div>
+
     </div>
+
+    <!-- Animação CSS inline -->
+    <style>
+      @keyframes pronto-pulse {
+        0%, 100% { box-shadow: 0 0 40px 8px rgba(34,197,94,0.35), 0 0 0 2px rgba(34,197,94,0.5); }
+        50%       { box-shadow: 0 0 60px 16px rgba(34,197,94,0.55), 0 0 0 3px rgba(134,239,172,0.7); }
+      }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
   `,
 })
 export class PdvTelaoComponent implements OnDestroy {
-  private readonly route = inject(ActivatedRoute);
-  private readonly auth = inject(AuthService);
-  private readonly funcionarioService = inject(FuncionarioService);
-  private readonly platformId = inject(PLATFORM_ID);
+  private readonly route            = inject(ActivatedRoute);
+  private readonly auth             = inject(AuthService);
+  private readonly funcionarioSvc   = inject(FuncionarioService);
+  private readonly pedidosLive      = inject(PedidosLiveService);
+  private readonly platformId       = inject(PLATFORM_ID);
 
-  readonly ultimoPedido = signal<Pedido | null>(null);
+  private kdsSubscription: ReturnType<typeof setTimeout> | null = null;
+  private kdsUnsub: (() => void) | null = null;
 
-  private sse: EventSource | null = null;
+  private readonly _kds = signal<KdsPayload>({ confirmados: [], em_preparo: [], prontos: [] });
+
+  readonly prontos   = computed(() => this._kds().prontos);
+  readonly emPreparo = computed(() => this._kds().em_preparo);
+
+  readonly label    = (p: Pedido) => labelPedido(p);
+  readonly subLabel = (p: Pedido) => subLabelPedido(p);
+
+  labelFontSize(text: string): string {
+    if (text.length <= 8)  return 'clamp(2.5rem, 5vw, 4rem)';
+    if (text.length <= 15) return 'clamp(1.8rem, 3.5vw, 2.8rem)';
+    return 'clamp(1.3rem, 2.5vw, 2rem)';
+  }
 
   private readonly _routeLojaUuid = toSignal<string | null>(
     this.route.paramMap.pipe(map(p => p.get('loja_uuid')))
@@ -88,67 +148,39 @@ export class PdvTelaoComponent implements OnDestroy {
   private readonly _funcionario = toSignal(
     this.route.paramMap.pipe(
       switchMap(params => {
-        const routeUuid = params.get('loja_uuid');
-        if (routeUuid || !this.auth.isFuncionario()) return of(null);
-        return this.funcionarioService.getMe().pipe(catchError(() => of(null)));
+        if (params.get('loja_uuid') || !this.auth.isFuncionario()) return of(null);
+        return this.funcionarioSvc.getMe().pipe(catchError(() => of(null)));
       })
     )
   );
 
-  readonly lojaUuid = computed(() => this._routeLojaUuid() || this._funcionario()?.loja_uuid || null);
+  readonly lojaUuid = computed(() =>
+    this._routeLojaUuid() || this._funcionario()?.loja_uuid || null
+  );
 
   constructor() {
     effect(() => {
       const lojaUuid = this.lojaUuid();
-      const token = this.auth.token();
+      const token    = this.auth.token();
       if (!lojaUuid || !token || !isPlatformBrowser(this.platformId)) return;
       untracked(() => this.conectar(lojaUuid, token));
     });
   }
 
   private conectar(lojaUuid: string, token: string) {
-    this.sse?.close();
+    if (this.kdsUnsub) {
+      this.kdsUnsub();
+      this.kdsUnsub = null;
+    }
 
-    const url = `${environment.apiUrl}/pedidos/por-loja/${lojaUuid}/sse?token=${encodeURIComponent(token)}`;
-    this.sse = new EventSource(url);
-
-    const extrairUltimoPdv = (pedidos: any[]) => {
-      const pdvOrdenado = pedidos
-        .filter(p => p.tipo_pedido === 'pdv')
-        .sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime());
-
-      if (pdvOrdenado.length > 0) {
-        this.ultimoPedido.set(PedidoNormalizer.normalizarPedido(pdvOrdenado[0]));
-      }
-    };
-
-    this.sse.addEventListener('listar_itens', (e: MessageEvent) => {
-      try {
-        const parsed = JSON.parse(e.data);
-        extrairUltimoPdv(parsed.itens || []);
-      } catch {}
+    const sub = this.pedidosLive.conectarKds(lojaUuid, token).subscribe({
+      next: (payload) => this._kds.set(payload),
     });
 
-    this.sse.addEventListener('item_adicionado', (e: MessageEvent) => {
-      try {
-        const parsed = JSON.parse(e.data);
-        if (parsed.item?.tipo_pedido === 'pdv') {
-          this.ultimoPedido.set(PedidoNormalizer.normalizarPedido(parsed.item));
-        }
-      } catch {}
-    });
-
-    this.sse.onerror = () => {
-      this.sse?.close();
-      setTimeout(() => {
-        const uuid = this.lojaUuid();
-        const tk = this.auth.token();
-        if (uuid && tk) this.conectar(uuid, tk);
-      }, 3000);
-    };
+    this.kdsUnsub = () => sub.unsubscribe();
   }
 
   ngOnDestroy() {
-    this.sse?.close();
+    this.kdsUnsub?.();
   }
 }
