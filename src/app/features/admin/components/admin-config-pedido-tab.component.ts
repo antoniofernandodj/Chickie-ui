@@ -123,7 +123,7 @@ export class AdminConfigPedidoTabComponent {
     this.configPedidoLoadingSubmit.set(true);
     this.configPedidoError.set('');
     this.configPedidoService.saveConfigPedido(this.lojaUuid(), {
-      max_partes: fv.max_partes != null ? Number(fv.max_partes) : null,
+      max_partes: Number(fv.max_partes || 1),
       tipo_calculo: fv.tipo_calculo || "mais_caro",
     }).subscribe({
       next: () => {
