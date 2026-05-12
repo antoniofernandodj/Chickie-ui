@@ -574,7 +574,7 @@ export class AdminCatalogoTabComponent {
       nome: fv.nome!,
       descricao: fv.descricao || null,
       preco: fv.preco!,
-      tempo_preparo_min: fv.tempo_preparo_min ?? 30,
+      tempo_preparo_min: Number(fv.tempo_preparo_min ?? 30),
       destaque: fv.destaque ?? false,
       disponivel: true,
     }).subscribe({
@@ -648,7 +648,10 @@ export class AdminCatalogoTabComponent {
         if (imgFile) {
           this.catalogoService.uploadImagemProduto(prod.uuid, imgFile).subscribe({
             next: () => limparForm('Produto e imagem atualizados com sucesso!'),
-            error: () => { toast.success('Produto atualizado, mas falha ao enviar imagem.'); this.prodLoading.set(false); },
+            error: () => {
+              toast.success('Produto atualizado, mas falha ao enviar imagem.');
+              this.prodLoading.set(false);
+            },
           });
         } else { limparForm('Produto atualizado com sucesso!') }
       },
