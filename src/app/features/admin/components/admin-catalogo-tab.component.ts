@@ -581,12 +581,13 @@ export class AdminCatalogoTabComponent {
         if (imgFile) {
           this.catalogoService.uploadImagemProduto(prod.uuid, imgFile).subscribe({
             next: () => {
+              this.prodLoading.set(false);
               toast.success('Produto e imagem criados com sucesso!');
               this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
               this.limparInputImagem();
               this.carregarProdutosDaCategoria(fv.categoria_uuid!);
             },
-            error: () => { toast.success('Produto criado, mas falha ao enviar imagem.'); this.prodLoading.set(false); },
+            error: () => { this.prodLoading.set(false); toast.error('Produto criado, mas falha ao enviar imagem.'); },
           });
         } else {
           toast.success('Produto criado com sucesso!');
