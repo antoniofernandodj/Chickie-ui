@@ -625,6 +625,16 @@ export class AdminCatalogoTabComponent {
     this.prodLoading.set(true);
     this.prodError.set('');
     const fv = this.prodForm.value;
+
+    const limparForm = (toastMessage: string) => {
+        this.prodLoading.set(false);
+        this.prodEditId.set(null);
+        this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
+        this.limparInputImagem();
+        this.carregarProdutosDaCategoria(fv.categoria_uuid!);
+        toast.success(toastMessage);
+    }
+
     this.catalogoService.atualizarProduto(uuid, {
       categoria_uuid: fv.categoria_uuid ?? undefined,
       nome: fv.nome!,
@@ -637,24 +647,10 @@ export class AdminCatalogoTabComponent {
         const imgFile = this.prodImagem();
         if (imgFile) {
           this.catalogoService.uploadImagemProduto(prod.uuid, imgFile).subscribe({
-            next: () => {
-              toast.success('Produto e imagem atualizados com sucesso!');
-              this.prodLoading.set(false);
-              this.prodEditId.set(null);
-              this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
-              this.limparInputImagem();
-              this.carregarProdutosDaCategoria(fv.categoria_uuid!);
-            },
+            next: () => limparForm('Produto e imagem atualizados com sucesso!'),
             error: () => { toast.success('Produto atualizado, mas falha ao enviar imagem.'); this.prodLoading.set(false); },
           });
-        } else {
-          toast.success('Produto atualizado com sucesso!');
-          this.prodLoading.set(false);
-          this.prodEditId.set(null);
-          this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
-          this.limparInputImagem();
-          this.carregarProdutosDaCategoria(fv.categoria_uuid!);
-        }
+        } else { limparForm('Produto atualizado com sucesso!') }
       },
       error: (e) => { this.prodLoading.set(false); this.prodError.set(e?.error?.error ?? 'Erro ao atualizar produto.'); },
     });
