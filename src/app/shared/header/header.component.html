@@ -1,20 +1,18 @@
-<header
-  class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm"
->
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
-
       <!-- Logo -->
-      <a routerLink="/" class="flex items-center gap-2 shrink-0">
+      <a
+        routerLink="/"
+        class="flex items-center gap-2 shrink-0"
+      >
         <div
           class="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-lg"
-          style="background:var(--color-brand)"
+          style="background: var(--color-brand)"
         >
           C
         </div>
-        <span class="font-bold text-xl tracking-tight text-gray-900">
-          Chiquitos
-        </span>
+        <span class="font-bold text-xl tracking-tight text-gray-900"> Chiquitos </span>
       </a>
 
       <!-- Nav desktop -->
@@ -24,19 +22,22 @@
           routerLinkActive="text-orange-500 bg-orange-50"
           [routerLinkActiveOptions]="{ exact: true }"
           class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
-        >Início</a>
+          >Início</a
+        >
         <a
           routerLink="/pedidos"
           routerLinkActive="text-orange-500 bg-orange-50"
           class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
-        >Pedidos</a>
+          >Pedidos</a
+        >
 
         @if (auth.isAuthenticated()) {
           <a
             routerLink="/favoritos"
             routerLinkActive="text-orange-500 bg-orange-50"
             class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
-          >Favoritos</a>
+            >Favoritos</a
+          >
         }
       </nav>
 
@@ -46,19 +47,32 @@
           <div class="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
         } @else if (auth.isAuthenticated()) {
           <!-- Menu do usuário -->
-          <div class="relative" data-menu>
+          <div
+            class="relative"
+            data-menu
+          >
             <button
               (click)="menuOpen.set(!menuOpen())"
               class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
             >
               <div
                 class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                style="background:var(--color-brand)"
+                style="background: var(--color-brand)"
               >
                 {{ initial() }}
               </div>
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              <svg
+                class="w-4 h-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
 
@@ -66,74 +80,155 @@
               <div
                 class="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-1 z-50"
               >
-                <a routerLink="/perfil"
-                   (click)="menuOpen.set(false)"
-                   class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                <a
+                  routerLink="/perfil"
+                  (click)="menuOpen.set(false)"
+                  class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
                   </svg>
                   Meu Perfil
                 </a>
-                <a routerLink="/pedidos"
-                   (click)="menuOpen.set(false)"
-                   class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                <a
+                  routerLink="/pedidos"
+                  (click)="menuOpen.set(false)"
+                  class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
                   </svg>
                   Meus Pedidos
                 </a>
                 @if (auth.isAdmin()) {
-                <a routerLink="/admin"
-                   (click)="menuOpen.set(false)"
-                   class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
-                  Admin
-                </a>
+                  <a
+                    routerLink="/admin"
+                    (click)="menuOpen.set(false)"
+                    class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    Admin
+                  </a>
                 }
                 @if (auth.isFuncionario()) {
-                <a routerLink="/kds"
-                   (click)="menuOpen.set(false)"
-                   class="flex items-center gap-3 px-4 py-3 text-sm text-blue-700 hover:bg-blue-50 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                  </svg>
-                  KDS (Cozinha)
-                </a>
-                <a routerLink="/pdv"
-                   (click)="menuOpen.set(false)"
-                   class="flex items-center gap-3 px-4 py-3 text-sm text-green-700 hover:bg-green-50 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                  </svg>
-                  PDV (Vendas)
-                </a>
+                  <a
+                    routerLink="/kds"
+                    (click)="menuOpen.set(false)"
+                    class="flex items-center gap-3 px-4 py-3 text-sm text-blue-700 hover:bg-blue-50 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
+                    </svg>
+                    KDS (Cozinha)
+                  </a>
+                  <a
+                    routerLink="/pdv"
+                    (click)="menuOpen.set(false)"
+                    class="flex items-center gap-3 px-4 py-3 text-sm text-green-700 hover:bg-green-50 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                      />
+                    </svg>
+                    PDV (Vendas)
+                  </a>
                 }
                 @if (auth.isOwner()) {
-                <a routerLink="/owner"
-                   (click)="menuOpen.set(false)"
-                   class="flex items-center gap-3 px-4 py-3 text-sm text-purple-700 hover:bg-purple-50 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                  </svg>
-                  Painel Owner
-                </a>
+                  <a
+                    routerLink="/owner"
+                    (click)="menuOpen.set(false)"
+                    class="flex items-center gap-3 px-4 py-3 text-sm text-purple-700 hover:bg-purple-50 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                      />
+                    </svg>
+                    Painel Owner
+                  </a>
                 }
-                <hr class="my-1 border-gray-100">
+                <hr class="my-1 border-gray-100" />
                 <button
                   (click)="logout()"
                   class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
                   </svg>
                   Sair
                 </button>
@@ -144,12 +239,14 @@
           <a
             routerLink="/auth/login"
             class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-          >Entrar</a>
+            >Entrar</a
+          >
           <a
             routerLink="/auth/signup"
             class="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-            style="background:var(--color-brand)"
-          >Criar conta</a>
+            style="background: var(--color-brand)"
+            >Criar conta</a
+          >
         }
 
         <!-- Cart button -->
@@ -159,15 +256,25 @@
             class="relative p-2 rounded-xl hover:bg-gray-50 transition-colors text-gray-600"
             aria-label="Sacola"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm9 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/>
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm9 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"
+              />
             </svg>
             @if (cart.totalItens() > 0) {
               <span
                 class="absolute -top-1 -right-1 w-4 h-4 rounded-full text-white text-[10px] font-bold flex items-center justify-center"
-                style="background:var(--color-brand)"
-              >{{ cart.totalItens() }}</span>
+                style="background: var(--color-brand)"
+                >{{ cart.totalItens() }}</span
+              >
             }
           </button>
         }
@@ -178,11 +285,26 @@
           (click)="mobileOpen.set(!mobileOpen())"
           aria-label="Menu"
         >
-          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            class="w-5 h-5 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             @if (mobileOpen()) {
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             } @else {
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             }
           </svg>
         </button>
@@ -192,37 +314,81 @@
     <!-- Nav mobile -->
     @if (mobileOpen()) {
       <nav class="md:hidden border-t border-gray-100 py-3 space-y-1">
-        <a routerLink="/" (click)="mobileOpen.set(false)"
-           class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">Início</a>
-        <a routerLink="/pedidos" (click)="mobileOpen.set(false)"
-           class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">Pedidos</a>
+        <a
+          routerLink="/"
+          (click)="mobileOpen.set(false)"
+          class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >Início</a
+        >
+        <a
+          routerLink="/pedidos"
+          (click)="mobileOpen.set(false)"
+          class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >Pedidos</a
+        >
         @if (auth.isAuthenticated()) {
-          <a routerLink="/favoritos" (click)="mobileOpen.set(false)"
-             class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">Favoritos</a>
-          <a routerLink="/perfil" (click)="mobileOpen.set(false)"
-             class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">Perfil</a>
+          <a
+            routerLink="/favoritos"
+            (click)="mobileOpen.set(false)"
+            class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >Favoritos</a
+          >
+          <a
+            routerLink="/perfil"
+            (click)="mobileOpen.set(false)"
+            class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >Perfil</a
+          >
           @if (auth.isAdmin()) {
-            <a routerLink="/admin" (click)="mobileOpen.set(false)"
-               class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">Admin</a>
+            <a
+              routerLink="/admin"
+              (click)="mobileOpen.set(false)"
+              class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >Admin</a
+            >
           }
-           @if (auth.isFuncionario()) {
-             <a routerLink="/kds" (click)="mobileOpen.set(false)"
-                class="block px-4 py-3 rounded-xl text-sm font-medium text-blue-700 hover:bg-blue-50">KDS (Cozinha)</a>
-            <a routerLink="/pdv" (click)="mobileOpen.set(false)"
-               class="block px-4 py-3 rounded-xl text-sm font-medium text-green-700 hover:bg-green-50">PDV (Vendas)</a>
+          @if (auth.isFuncionario()) {
+            <a
+              routerLink="/kds"
+              (click)="mobileOpen.set(false)"
+              class="block px-4 py-3 rounded-xl text-sm font-medium text-blue-700 hover:bg-blue-50"
+              >KDS (Cozinha)</a
+            >
+            <a
+              routerLink="/pdv"
+              (click)="mobileOpen.set(false)"
+              class="block px-4 py-3 rounded-xl text-sm font-medium text-green-700 hover:bg-green-50"
+              >PDV (Vendas)</a
+            >
           }
           @if (auth.isOwner()) {
-            <a routerLink="/owner" (click)="mobileOpen.set(false)"
-               class="block px-4 py-3 rounded-xl text-sm font-medium text-purple-700 hover:bg-purple-50">Painel Owner</a>
+            <a
+              routerLink="/owner"
+              (click)="mobileOpen.set(false)"
+              class="block px-4 py-3 rounded-xl text-sm font-medium text-purple-700 hover:bg-purple-50"
+              >Painel Owner</a
+            >
           }
-          <button (click)="logout()"
-                  class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50">Sair</button>
+          <button
+            (click)="logout()"
+            class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50"
+          >
+            Sair
+          </button>
         } @else {
-          <a routerLink="/auth/login" (click)="mobileOpen.set(false)"
-             class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50">Entrar</a>
-          <a routerLink="/auth/signup" (click)="mobileOpen.set(false)"
-             class="block px-4 py-3 rounded-xl text-sm font-semibold hover:bg-orange-50"
-             style="color:var(--color-brand)">Criar conta</a>
+          <a
+            routerLink="/auth/login"
+            (click)="mobileOpen.set(false)"
+            class="block px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >Entrar</a
+          >
+          <a
+            routerLink="/auth/signup"
+            (click)="mobileOpen.set(false)"
+            class="block px-4 py-3 rounded-xl text-sm font-semibold hover:bg-orange-50"
+            style="color: var(--color-brand)"
+            >Criar conta</a
+          >
         }
       </nav>
     }

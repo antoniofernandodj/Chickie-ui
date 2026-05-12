@@ -16,7 +16,9 @@ const COLORS: Record<Color, string> = {
 @Component({
   selector: 'ui-badge',
   standalone: true,
-  template: `<span [class]="cls()"><ng-content/></span>`,
+  template: `
+    <span [class]="cls()"><ng-content /></span>
+  `,
 })
 export class UiBadgeComponent {
   color = input<Color>('gray');

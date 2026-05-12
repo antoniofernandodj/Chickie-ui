@@ -6,13 +6,25 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [RouterLink],
   template: `
-    <a [routerLink]="link()"
-       class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-colors"
-       [class]="colorCls()">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="iconPath()"/>
+    <a
+      [routerLink]="link()"
+      class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-colors"
+      [class]="colorCls()"
+    >
+      <svg
+        class="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          [attr.d]="iconPath()"
+        />
       </svg>
-      <ng-content/>
+      <ng-content />
     </a>
   `,
 })

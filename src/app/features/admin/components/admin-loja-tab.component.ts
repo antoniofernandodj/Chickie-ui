@@ -29,18 +29,28 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
           <label class="block text-xs font-medium text-gray-700">Banner da Loja</label>
           <div class="flex flex-col gap-3">
             @if (loja().banner_url || lojaImagemPreview()) {
-              <div class="relative w-full h-48 rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-gray-50">
+              <div
+                class="relative w-full h-48 rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-gray-50"
+              >
                 <img
                   [src]="lojaImagemPreview() || loja().banner_url"
                   class="w-full h-full object-cover"
                   alt="Banner da Loja"
                 />
                 <div class="absolute top-2 right-2 flex gap-2">
-                  <ui-button variant="danger" size="xs" (click)="removerImagem()" title="Remover imagem">✕</ui-button>
+                  <ui-button
+                    variant="danger"
+                    size="xs"
+                    (click)="removerImagem()"
+                    title="Remover imagem"
+                    >✕</ui-button
+                  >
                 </div>
               </div>
             } @else {
-              <div class="w-full h-48 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center bg-gray-50 text-gray-400">
+              <div
+                class="w-full h-48 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center bg-gray-50 text-gray-400"
+              >
                 <span class="text-4xl mb-2">🖼️</span>
                 <p class="text-xs">Nenhuma imagem cadastrada</p>
               </div>
@@ -54,16 +64,19 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
               class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-orange-100 file:text-orange-700 file:text-xs file:font-medium file:cursor-pointer"
             />
           </div>
-          <p class="text-[10px] text-gray-400">Recomendado: 1200x400px ou proporção 3:1. Máximo 20MB.</p>
+          <p class="text-[10px] text-gray-400">
+            Recomendado: 1200x400px ou proporção 3:1. Máximo 20MB.
+          </p>
         </div>
 
         @if (lojaImagem()) {
-          <ui-button 
-            [loading]="loading()" 
+          <ui-button
+            [loading]="loading()"
             [disabled]="loading()"
             (click)="subirImagem()"
-            size="sm" 
-            [fullWidth]="true">
+            size="sm"
+            [fullWidth]="true"
+          >
             📤 Salvar Nova Imagem
           </ui-button>
         }

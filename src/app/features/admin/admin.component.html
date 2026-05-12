@@ -1,10 +1,15 @@
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
   <!-- Loading -->
   @if (lojaLoading()) {
     <div class="flex items-center justify-center py-20">
-      <div class="text-center" style="color:var(--color-brand)">
-        <ui-spinner size="xl" class="mx-auto mb-4 block"/>
+      <div
+        class="text-center"
+        style="color: var(--color-brand)"
+      >
+        <ui-spinner
+          size="xl"
+          class="mx-auto mb-4 block"
+        />
         <p class="text-gray-500 text-sm">Carregando painel da loja...</p>
       </div>
     </div>
@@ -21,20 +26,45 @@
   } @else {
     <!-- Header com breadcrumb -->
     <div class="mb-6">
-      <ui-button variant="ghost" size="sm" (click)="voltar()" class="mb-4">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+      <ui-button
+        variant="ghost"
+        size="sm"
+        (click)="voltar()"
+        class="mb-4"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
         Minhas Lojas
       </ui-button>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-2xl shrink-0 shadow-lg"
-               style="background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-dark) 100%)">
+          <div
+            class="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-2xl shrink-0 shadow-lg"
+            style="
+              background: linear-gradient(
+                135deg,
+                var(--color-brand) 0%,
+                var(--color-brand-dark) 100%
+              );
+            "
+          >
             {{ lojaSelecionada()!.nome.charAt(0).toUpperCase() }}
           </div>
           <div>
-            <h1 class="text-2xl font-black text-gray-900 leading-tight">{{ lojaSelecionada()!.nome }}</h1>
+            <h1 class="text-2xl font-black text-gray-900 leading-tight">
+              {{ lojaSelecionada()!.nome }}
+            </h1>
             <p class="text-sm font-semibold text-gray-400">{{ lojaSelecionada()!.slug }}</p>
           </div>
         </div>
@@ -42,64 +72,71 @@
         <div class="flex items-center gap-2">
           <admin-nav-btn
             [link]="['/admin', lojaSelecionada()!.uuid, 'kds']"
-            color="blue">
-              Painel KDS
+            color="blue"
+          >
+            Painel KDS
           </admin-nav-btn>
 
           <admin-nav-btn
             [link]="['/admin', lojaSelecionada()!.uuid, 'pdv']"
-            color="green">
-              Tela PDV
+            color="green"
+          >
+            Tela PDV
           </admin-nav-btn>
-
         </div>
       </div>
     </div>
 
     <!-- Tabs -->
     <div class="mb-6">
-      <ui-tab-bar [tabs]="tabs" [(active)]="aba"/>
+      <ui-tab-bar
+        [tabs]="tabs"
+        [(active)]="aba"
+      />
     </div>
 
     <!-- Tab Content -->
     @if (aba() === 'pedidos') {
-      <admin-pedidos-tab [lojaUuid]="lojaSelecionada()!.uuid"/>
+      <admin-pedidos-tab [lojaUuid]="lojaSelecionada()!.uuid" />
     }
     @if (aba() === 'equipe') {
-      <admin-equipe-tab [lojaUuid]="lojaSelecionada()!.uuid"/>
+      <admin-equipe-tab [lojaUuid]="lojaSelecionada()!.uuid" />
     }
     @if (aba() === 'catalogo') {
-      <admin-catalogo-tab [lojaUuid]="lojaSelecionada()!.uuid"/>
+      <admin-catalogo-tab [lojaUuid]="lojaSelecionada()!.uuid" />
     }
     @if (aba() === 'adicionais') {
-      <admin-adicionais-tab [lojaUuid]="lojaSelecionada()!.uuid"/>
+      <admin-adicionais-tab [lojaUuid]="lojaSelecionada()!.uuid" />
     }
     @if (aba() === 'cupons') {
-      <admin-cupons-tab [lojaUuid]="lojaSelecionada()!.uuid"/>
+      <admin-cupons-tab [lojaUuid]="lojaSelecionada()!.uuid" />
     }
     @if (aba() === 'promocoes') {
-      <admin-promocoes-tab [lojaUuid]="lojaSelecionada()!.uuid"/>
+      <admin-promocoes-tab [lojaUuid]="lojaSelecionada()!.uuid" />
     }
     @if (aba() === 'avaliacoes') {
-      <admin-avaliacoes-tab [lojaUuid]="lojaSelecionada()!.uuid"/>
+      <admin-avaliacoes-tab [lojaUuid]="lojaSelecionada()!.uuid" />
     }
     @if (aba() === 'config-pedido') {
-      <admin-config-pedido-tab [lojaUuid]="lojaSelecionada()!.uuid"/>
+      <admin-config-pedido-tab [lojaUuid]="lojaSelecionada()!.uuid" />
     }
     @if (aba() === 'enderecos') {
-      <admin-enderecos-tab [lojaUuid]="lojaSelecionada()!.uuid"/>
+      <admin-enderecos-tab [lojaUuid]="lojaSelecionada()!.uuid" />
     }
     @if (aba() === 'horarios') {
-      <admin-horarios-tab [lojaUuid]="lojaSelecionada()!.uuid"/>
+      <admin-horarios-tab [lojaUuid]="lojaSelecionada()!.uuid" />
     }
     @if (aba() === 'mesas') {
       <admin-mesas-tab
         [lojaUuid]="lojaSelecionada()!.uuid"
-        [lojaSlug]="lojaSelecionada()!.slug"/>
+        [lojaSlug]="lojaSelecionada()!.slug"
+      />
     }
     @if (aba() === 'perfil') {
-      <admin-loja-tab [loja]="lojaSelecionada()!" (updated)="refreshLoja()" />
+      <admin-loja-tab
+        [loja]="lojaSelecionada()!"
+        (updated)="refreshLoja()"
+      />
     }
   }
-
 </div>

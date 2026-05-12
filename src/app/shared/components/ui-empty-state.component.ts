@@ -10,7 +10,7 @@ import { Component, input } from '@angular/core';
       @if (subtitle()) {
         <p class="text-gray-500 text-sm mb-6">{{ subtitle() }}</p>
       }
-      <ng-content/>
+      <ng-content />
     </div>
   `,
 })

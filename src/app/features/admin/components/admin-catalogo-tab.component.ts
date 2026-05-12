@@ -32,24 +32,18 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
     <div class="grid lg:grid-cols-2 gap-8">
       <!-- Categorias -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h3 class="text-base font-semibold text-gray-900 mb-5">
-          📂 Categorias
-        </h3>
+        <h3 class="text-base font-semibold text-gray-900 mb-5">📂 Categorias</h3>
 
         <form
           [formGroup]="catForm"
           (ngSubmit)="catEditId() ? salvarEdicaoCategoria() : criarCategoria()"
           class="space-y-3 mb-6"
         >
-
           <ui-input
             formControlName="nome"
             label="Nome *"
             size="sm"
-            [error]="
-              fc.nome.invalid && fc.nome.touched ?
-                'Nome obrigatório (mín. 2 caracteres)' : null
-            "
+            [error]="fc.nome.invalid && fc.nome.touched ? 'Nome obrigatório (mín. 2 caracteres)' : null"
           />
 
           <ui-textarea
@@ -60,25 +54,18 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
           />
 
           <div class="flex gap-4">
-
             <ui-checkbox
               formControlName="pizza_mode"
               label="🍕 Modo Pizza"
               size="sm"
-              (change)="
-                $any($event.target).checked &&
-                catForm.get('drink_mode')?.setValue(false)
-              "
+              (change)="$any($event.target).checked && catForm.get('drink_mode')?.setValue(false)"
             />
 
             <ui-checkbox
               formControlName="drink_mode"
               label="🥤 Modo Drink"
               size="sm"
-              (change)="
-                $any($event.target).checked &&
-                catForm.get('pizza_mode')?.setValue(false)
-              "
+              (change)="$any($event.target).checked && catForm.get('pizza_mode')?.setValue(false)"
             />
           </div>
           @if (catError()) {
@@ -95,7 +82,11 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
                 size="sm"
                 [fullWidth]="true"
               >
-                @if (catEditId()) { Atualizar } @else { Criar }
+                @if (catEditId()) {
+                  Atualizar
+                } @else {
+                  Criar
+                }
               </ui-button>
             </div>
             @if (catEditId()) {
@@ -113,18 +104,14 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
 
         <!-- Lista de categorias com produtos -->
         @if (catLoading()) {
-          @for (_ of [1,2,3]; track $index) {
+          @for (_ of [1, 2, 3]; track $index) {
             <div class="bg-gray-50 rounded-xl p-4 mb-2 skeleton h-16"></div>
           }
         } @else if (categorias().length === 0) {
-          <p class="text-xs text-gray-400 text-center py-4">
-              Nenhuma categoria cadastrada.
-          </p>
+          <p class="text-xs text-gray-400 text-center py-4">Nenhuma categoria cadastrada.</p>
         } @else {
           @if (catReordering()) {
-            <p class="text-xs text-gray-400 text-center mb-2">
-                Salvando ordem...
-            </p>
+            <p class="text-xs text-gray-400 text-center mb-2">Salvando ordem...</p>
           }
           <div
             class="space-y-3"
@@ -139,18 +126,10 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
                 (editar)="editarCategoria(cat)"
                 (deletar)="deletarCategoria(cat.uuid, cat.nome)"
                 (toggleProdutoDisponivel)="
-                  toggleDisponibilidadeProduto(
-                    $event.uuid,
-                    $event.nome,
-                    $event.disponivel,
-                    cat.uuid
-                  )"
+                  toggleDisponibilidadeProduto($event.uuid, $event.nome, $event.disponivel, cat.uuid)
+                "
                 (editarProduto)="editarProduto($event)"
-                (removerProduto)="deletarProduto(
-                  $event.uuid,
-                  $event.nome,
-                  cat.uuid
-                )"
+                (removerProduto)="deletarProduto($event.uuid, $event.nome, cat.uuid)"
               />
             }
           </div>
@@ -158,9 +137,7 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
       </div>
 
       <!-- Produto -->
-      <div
-        class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
-      >
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-base font-semibold text-gray-900 mb-5">
           @if (prodEditId()) {
             📝 Editar Produto
@@ -174,28 +151,21 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
           (ngSubmit)="prodEditId() ? salvarEdicaoProduto() : criarProduto()"
           class="space-y-3"
         >
-
           <ui-select
             formControlName="categoria_uuid"
             label="Categoria *"
             size="sm"
             [error]="
-              fp.categoria_uuid.invalid && fp.categoria_uuid.touched ?
-                'Selecione uma categoria' :
-                null
+              fp.categoria_uuid.invalid && fp.categoria_uuid.touched ? 'Selecione uma categoria' : null
             "
           >
-
-            <option value="">
-              Selecione...
-            </option>
+            <option value="">Selecione...</option>
 
             @for (cat of categorias(); track cat.uuid) {
               <option [value]="cat.uuid">{{ cat.nome }}</option>
             }
-
           </ui-select>
-  
+
           <ui-input
             formControlName="nome"
             label="Nome *"
@@ -211,7 +181,6 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
           />
 
           <div class="grid grid-cols-2 gap-3">
-
             <ui-input
               formControlName="preco"
               type="number"
@@ -221,27 +190,24 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
               step="0.01"
               [error]="fp.preco.invalid && fp.preco.touched ? 'Preço obrigatório' : null"
             />
-  
+
             <ui-input
               formControlName="tempo_preparo_min"
               type="number"
               label="Tempo (min) *"
-              size="sm" min="1"
+              size="sm"
+              min="1"
               [error]="
-                fp.tempo_preparo_min.invalid && fp.tempo_preparo_min.touched ?
-                  'Tempo obrigatório' :
-                  null
-                "
+                fp.tempo_preparo_min.invalid && fp.tempo_preparo_min.touched
+                  ? 'Tempo obrigatório'
+                  : null
+              "
             />
-
           </div>
 
           <!-- Upload de imagem -->
           <div>
-            <label
-              class="block text-xs font-medium text-gray-700 mb-1">
-                Imagem
-            </label>
+            <label class="block text-xs font-medium text-gray-700 mb-1"> Imagem </label>
 
             <input
               #imagemInput
@@ -257,10 +223,15 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
                   [src]="prodImagemPreview() || prodForm.get('imagem_url')?.value"
                   class="w-full h-full object-cover rounded-xl border border-gray-200"
                 />
-                <ui-button variant="danger" size="xs" type="button"
+                <ui-button
+                  variant="danger"
+                  size="xs"
+                  type="button"
                   (click)="removerImagemProduto()"
                   class="absolute -top-2 -right-2"
-                  title="Remover imagem">✕</ui-button>
+                  title="Remover imagem"
+                  >✕</ui-button
+                >
               </div>
             }
           </div>
@@ -279,7 +250,6 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
 
           <div class="flex gap-2">
             <div class="flex-1">
-
               <ui-button
                 type="submit"
                 [disabled]="prodLoading() || prodForm.invalid"
@@ -287,10 +257,12 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
                 size="sm"
                 [fullWidth]="true"
               >
-
-                @if (prodEditId()) { Atualizar Produto } @else { Criar Produto }
+                @if (prodEditId()) {
+                  Atualizar Produto
+                } @else {
+                  Criar Produto
+                }
               </ui-button>
-
             </div>
             @if (prodEditId()) {
               <ui-button

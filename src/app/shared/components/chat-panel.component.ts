@@ -22,7 +22,9 @@ import { Subscription } from 'rxjs';
   imports: [CommonModule, FormsModule],
   providers: [DatePipe],
   template: `
-    <div class="flex flex-col h-[500px] border rounded-xl overflow-hidden bg-white shadow-sm border-gray-200">
+    <div
+      class="flex flex-col h-[500px] border rounded-xl overflow-hidden bg-white shadow-sm border-gray-200"
+    >
       <!-- Header -->
       <div class="p-4 border-b bg-gray-50 flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -30,24 +32,37 @@ import { Subscription } from 'rxjs';
           <span class="font-semibold text-gray-700">Chat com a Loja</span>
         </div>
         @if (pedidoUuid()) {
-          <span class="text-[10px] font-mono bg-gray-200 px-1.5 py-0.5 rounded text-gray-600 uppercase tracking-tighter">
+          <span
+            class="text-[10px] font-mono bg-gray-200 px-1.5 py-0.5 rounded text-gray-600 uppercase tracking-tighter"
+          >
             Pedido: {{ pedidoUuid()?.slice(0, 8) }}
           </span>
         }
       </div>
 
       <!-- Messages Area -->
-      <div #scrollContainer class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+      <div
+        #scrollContainer
+        class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50"
+      >
         @for (msg of messages(); track msg.uuid) {
-          <div class="flex flex-col" [class.items-end]="isMine(msg)" [class.items-start]="!isMine(msg)">
-            <div 
+          <div
+            class="flex flex-col"
+            [class.items-end]="isMine(msg)"
+            [class.items-start]="!isMine(msg)"
+          >
+            <div
               class="max-w-[80%] px-4 py-2 rounded-2xl text-sm shadow-sm"
-              [ngClass]="isMine(msg) ? 'bg-orange-500 text-white rounded-tr-none' : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'"
+              [ngClass]="
+                isMine(msg)
+                  ? 'bg-orange-500 text-white rounded-tr-none'
+                  : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
+              "
             >
               {{ msg.texto }}
             </div>
             <span class="text-[10px] text-gray-400 mt-1 px-1">
-              {{ msg.criado_em | date:'HH:mm' }}
+              {{ msg.criado_em | date: 'HH:mm' }}
               @if (isMine(msg) && msg.lida) {
                 <span class="text-blue-400 ml-1">✓✓</span>
               } @else if (isMine(msg)) {
@@ -59,14 +74,19 @@ import { Subscription } from 'rxjs';
           <div class="h-full flex flex-col items-center justify-center text-gray-400 space-y-2">
             <span class="text-3xl">💬</span>
             <p class="text-sm">Nenhuma mensagem ainda.</p>
-            <p class="text-xs text-center px-8">Inicie a conversa para tirar dúvidas sobre seu pedido.</p>
+            <p class="text-xs text-center px-8">
+              Inicie a conversa para tirar dúvidas sobre seu pedido.
+            </p>
           </div>
         }
       </div>
 
       <!-- Input Area -->
       <div class="p-4 border-t bg-white">
-        <form (submit)="enviarMensagem($event)" class="flex gap-2">
+        <form
+          (submit)="enviarMensagem($event)"
+          class="flex gap-2"
+        >
           <input
             type="text"
             [(ngModel)]="novoTexto"
@@ -75,13 +95,24 @@ import { Subscription } from 'rxjs';
             class="flex-1 px-4 py-2 rounded-full border border-gray-200 outline-none focus:border-orange-400 text-sm"
             autocomplete="off"
           />
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             [disabled]="!novoTexto.trim()"
             class="w-10 h-10 flex items-center justify-center bg-orange-500 text-white rounded-full disabled:bg-gray-300 transition-colors shadow-sm"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
+              />
             </svg>
           </button>
         </form>

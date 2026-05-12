@@ -17,14 +17,34 @@ import { EnderecoFormComponent, UiInputComponent, UiButtonComponent } from '../.
       <!-- Criar/Editar Endereço -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h2 class="text-base font-semibold text-gray-900 mb-5">
-          @if (editEnderecoId()) { Editar Endereço } @else { Adicionar Endereço }
+          @if (editEnderecoId()) {
+            Editar Endereço
+          } @else {
+            Adicionar Endereço
+          }
         </h2>
-        <form [formGroup]="enderecoForm" (ngSubmit)="editEnderecoId() ? atualizarEndereco() : criarEndereco()" class="space-y-4">
+        <form
+          [formGroup]="enderecoForm"
+          (ngSubmit)="editEnderecoId() ? atualizarEndereco() : criarEndereco()"
+          class="space-y-4"
+        >
           <app-endereco-form formControlName="endereco" />
 
           <div class="grid grid-cols-2 gap-3">
-            <ui-input formControlName="latitude" type="number" label="Latitude" size="sm" step="any"/>
-            <ui-input formControlName="longitude" type="number" label="Longitude" size="sm" step="any"/>
+            <ui-input
+              formControlName="latitude"
+              type="number"
+              label="Latitude"
+              size="sm"
+              step="any"
+            />
+            <ui-input
+              formControlName="longitude"
+              type="number"
+              label="Longitude"
+              size="sm"
+              step="any"
+            />
           </div>
 
           @if (enderecoError()) {
@@ -33,12 +53,28 @@ import { EnderecoFormComponent, UiInputComponent, UiButtonComponent } from '../.
 
           <div class="flex gap-2">
             <div class="flex-1">
-              <ui-button type="submit" [disabled]="enderecoLoadingSubmit() || enderecoForm.invalid" [loading]="enderecoLoadingSubmit()" size="sm" [fullWidth]="true">
-                @if (editEnderecoId()) { Atualizar Endereço } @else { Criar Endereço }
+              <ui-button
+                type="submit"
+                [disabled]="enderecoLoadingSubmit() || enderecoForm.invalid"
+                [loading]="enderecoLoadingSubmit()"
+                size="sm"
+                [fullWidth]="true"
+              >
+                @if (editEnderecoId()) {
+                  Atualizar Endereço
+                } @else {
+                  Criar Endereço
+                }
               </ui-button>
             </div>
             @if (editEnderecoId()) {
-              <ui-button type="button" variant="secondary" size="sm" (click)="cancelarEdicaoEndereco()">Cancelar</ui-button>
+              <ui-button
+                type="button"
+                variant="secondary"
+                size="sm"
+                (click)="cancelarEdicaoEndereco()"
+                >Cancelar</ui-button
+              >
             }
           </div>
         </form>
@@ -57,18 +93,32 @@ import { EnderecoFormComponent, UiInputComponent, UiButtonComponent } from '../.
               <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
                 <div class="flex items-start justify-between gap-3">
                   <div class="flex-1">
-                    <p class="text-sm font-medium text-gray-900">{{ endereco.logradouro }}, {{ endereco.numero }}</p>
+                    <p class="text-sm font-medium text-gray-900">
+                      {{ endereco.logradouro }}, {{ endereco.numero }}
+                    </p>
                     @if (endereco.complemento) {
                       <p class="text-xs text-gray-600">{{ endereco.complemento }}</p>
                     }
-                    <p class="text-xs text-gray-500 mt-1">{{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.estado }}</p>
+                    <p class="text-xs text-gray-500 mt-1">
+                      {{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.estado }}
+                    </p>
                     @if (endereco.cep) {
                       <p class="text-xs text-gray-500">CEP: {{ endereco.cep }}</p>
                     }
                   </div>
                   <div class="flex gap-2">
-                    <ui-button size="xs" variant="secondary" (click)="abrirEdicaoEndereco(endereco)">Editar</ui-button>
-                    <ui-button size="xs" variant="danger" (click)="deletarEndereco(endereco.uuid)">Deletar</ui-button>
+                    <ui-button
+                      size="xs"
+                      variant="secondary"
+                      (click)="abrirEdicaoEndereco(endereco)"
+                      >Editar</ui-button
+                    >
+                    <ui-button
+                      size="xs"
+                      variant="danger"
+                      (click)="deletarEndereco(endereco.uuid)"
+                      >Deletar</ui-button
+                    >
                   </div>
                 </div>
               </div>

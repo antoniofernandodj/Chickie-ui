@@ -6,7 +6,10 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   standalone: true,
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => UiCheckboxComponent), multi: true }],
   template: `
-    <label class="inline-flex items-center gap-2 cursor-pointer" [class.opacity-50]="isDisabled()">
+    <label
+      class="inline-flex items-center gap-2 cursor-pointer"
+      [class.opacity-50]="isDisabled()"
+    >
       <input
         type="checkbox"
         [checked]="innerValue()"
@@ -18,7 +21,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       @if (label()) {
         <span [class]="labelCls()">{{ label() }}</span>
       }
-      <ng-content/>
+      <ng-content />
     </label>
   `,
 })

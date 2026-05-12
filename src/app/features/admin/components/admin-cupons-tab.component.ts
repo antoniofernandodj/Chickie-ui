@@ -24,29 +24,109 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
       <!-- Formulário de Cupom -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-base font-semibold text-gray-900 mb-5">
-          @if (cupomEditId()) { 📝 Editar Cupom } @else { 🎟️ Criar Cupom de Desconto }
+          @if (cupomEditId()) {
+            📝 Editar Cupom
+          } @else {
+            🎟️ Criar Cupom de Desconto
+          }
         </h3>
 
-        <form [formGroup]="cupomForm" (ngSubmit)="cupomEditId() ? salvarEdicaoCupom() : criarCupom()" class="space-y-3">
-          <ui-input formControlName="codigo" label="Código *" size="sm" placeholder="PROMO10"
-                    [error]="fcup.codigo.invalid && fcup.codigo.touched ? 'Código obrigatório (mín. 3 caracteres)' : null"/>
-          <ui-textarea formControlName="descricao" label="Descrição *" size="sm" [rows]="2" placeholder="Ganhe 10% de desconto"
-                       [error]="fcup.descricao.invalid && fcup.descricao.touched ? 'Descrição é obrigatória' : null"/>
-          <ui-select formControlName="tipo_desconto" label="Tipo de Desconto *" size="sm">
+        <form
+          [formGroup]="cupomForm"
+          (ngSubmit)="cupomEditId() ? salvarEdicaoCupom() : criarCupom()"
+          class="space-y-3"
+        >
+          <ui-input
+            formControlName="codigo"
+            label="Código *"
+            size="sm"
+            placeholder="PROMO10"
+            [error]="
+              fcup.codigo.invalid && fcup.codigo.touched
+                ? 'Código obrigatório (mín. 3 caracteres)'
+                : null
+            "
+          />
+          <ui-textarea
+            formControlName="descricao"
+            label="Descrição *"
+            size="sm"
+            [rows]="2"
+            placeholder="Ganhe 10% de desconto"
+            [error]="
+              fcup.descricao.invalid && fcup.descricao.touched ? 'Descrição é obrigatória' : null
+            "
+          />
+          <ui-select
+            formControlName="tipo_desconto"
+            label="Tipo de Desconto *"
+            size="sm"
+          >
             <option value="percentual">Percentual (%)</option>
             <option value="valor_fixo">Fixo (R$)</option>
             <option value="frete_gratis">Frete Grátis</option>
           </ui-select>
-          <ui-input formControlName="valor_desconto" type="number" size="sm" min="0" step="0.01"
-                    [label]="cupomForm.get('tipo_desconto')?.value === 'percentual' ? 'Valor do Desconto (%) *' : cupomForm.get('tipo_desconto')?.value === 'valor_fixo' ? 'Valor do Desconto (R$) *' : 'Valor do Desconto (R$)'"
-                    [error]="fcup.valor_desconto.invalid && fcup.valor_desconto.touched ? 'Valor obrigatório e deve ser >= 0' : null"/>
-          <ui-input formControlName="valor_minimo" type="number" size="sm" min="0" step="0.01"
-                    [label]="cupomForm.get('tipo_desconto')?.value === 'frete_gratis' ? 'Pedido Mínimo (R$)' : 'Pedido Mínimo (R$) *'"
-                    [error]="fcup.valor_minimo.invalid && fcup.valor_minimo.touched ? 'Pedido mínimo obrigatório e deve ser >= 0' : null"/>
-          <ui-input formControlName="data_validade" type="date" label="Data de Validade *" size="sm"
-                    [error]="fcup.data_validade.invalid && fcup.data_validade.touched ? 'Data de validade é obrigatória' : null"/>
-          <ui-input formControlName="limite_uso" type="number" label="Limite de Uso *" size="sm" min="0" step="1" placeholder="0 = ilimitado"
-                    [error]="fcup.limite_uso.invalid && fcup.limite_uso.touched ? 'Limite obrigatório e deve ser >= 0' : null"/>
+          <ui-input
+            formControlName="valor_desconto"
+            type="number"
+            size="sm"
+            min="0"
+            step="0.01"
+            [label]="
+              cupomForm.get('tipo_desconto')?.value === 'percentual'
+                ? 'Valor do Desconto (%) *'
+                : cupomForm.get('tipo_desconto')?.value === 'valor_fixo'
+                  ? 'Valor do Desconto (R$) *'
+                  : 'Valor do Desconto (R$)'
+            "
+            [error]="
+              fcup.valor_desconto.invalid && fcup.valor_desconto.touched
+                ? 'Valor obrigatório e deve ser >= 0'
+                : null
+            "
+          />
+          <ui-input
+            formControlName="valor_minimo"
+            type="number"
+            size="sm"
+            min="0"
+            step="0.01"
+            [label]="
+              cupomForm.get('tipo_desconto')?.value === 'frete_gratis'
+                ? 'Pedido Mínimo (R$)'
+                : 'Pedido Mínimo (R$) *'
+            "
+            [error]="
+              fcup.valor_minimo.invalid && fcup.valor_minimo.touched
+                ? 'Pedido mínimo obrigatório e deve ser >= 0'
+                : null
+            "
+          />
+          <ui-input
+            formControlName="data_validade"
+            type="date"
+            label="Data de Validade *"
+            size="sm"
+            [error]="
+              fcup.data_validade.invalid && fcup.data_validade.touched
+                ? 'Data de validade é obrigatória'
+                : null
+            "
+          />
+          <ui-input
+            formControlName="limite_uso"
+            type="number"
+            label="Limite de Uso *"
+            size="sm"
+            min="0"
+            step="1"
+            placeholder="0 = ilimitado"
+            [error]="
+              fcup.limite_uso.invalid && fcup.limite_uso.touched
+                ? 'Limite obrigatório e deve ser >= 0'
+                : null
+            "
+          />
 
           @if (cupomError()) {
             <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{{ cupomError() }}</p>
@@ -54,12 +134,28 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
 
           <div class="flex gap-2">
             <div class="flex-1">
-              <ui-button type="submit" [disabled]="cupomLoadingSubmit() || cupomForm.invalid" [loading]="cupomLoadingSubmit()" size="sm" [fullWidth]="true">
-                @if (cupomEditId()) { Atualizar Cupom } @else { Criar Cupom }
+              <ui-button
+                type="submit"
+                [disabled]="cupomLoadingSubmit() || cupomForm.invalid"
+                [loading]="cupomLoadingSubmit()"
+                size="sm"
+                [fullWidth]="true"
+              >
+                @if (cupomEditId()) {
+                  Atualizar Cupom
+                } @else {
+                  Criar Cupom
+                }
               </ui-button>
             </div>
             @if (cupomEditId()) {
-              <ui-button type="button" variant="secondary" size="sm" (click)="cancelarEdicaoCupom()">Cancelar</ui-button>
+              <ui-button
+                type="button"
+                variant="secondary"
+                size="sm"
+                (click)="cancelarEdicaoCupom()"
+                >Cancelar</ui-button
+              >
             }
           </div>
         </form>
@@ -71,7 +167,7 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
 
         @if (cupomLoading()) {
           <div class="space-y-3">
-            @for (_ of [1,2,3]; track $index) {
+            @for (_ of [1, 2, 3]; track $index) {
               <div class="bg-gray-50 rounded-xl p-4 mb-2 skeleton h-20"></div>
             }
           </div>
@@ -85,23 +181,29 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
           } @else {
             <div class="space-y-3">
               @for (cupom of cuponsDaLoja; track cupom.uuid) {
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 hover:border-orange-200 transition-colors"
-                     [class.border-green-200]="cupom.status === 'Ativo'"
-                     [class.border-red-200]="cupom.status === 'Inativo'"
-                     [class.border-gray-300]="cupom.status === 'Expirado'">
+                <div
+                  class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 hover:border-orange-200 transition-colors"
+                  [class.border-green-200]="cupom.status === 'Ativo'"
+                  [class.border-red-200]="cupom.status === 'Inativo'"
+                  [class.border-gray-300]="cupom.status === 'Expirado'"
+                >
                   <div class="flex items-start justify-between gap-3 mb-3">
                     <div class="flex-1">
                       <div class="flex items-center gap-2 mb-1">
-                        <span class="font-mono font-bold text-sm bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
+                        <span
+                          class="font-mono font-bold text-sm bg-orange-100 text-orange-700 px-2 py-0.5 rounded"
+                        >
                           {{ cupom.codigo }}
                         </span>
-                        <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                              [class.bg-green-100]="cupom.status === 'Ativo'"
-                              [class.text-green-700]="cupom.status === 'Ativo'"
-                              [class.bg-red-100]="cupom.status === 'Inativo'"
-                              [class.text-red-700]="cupom.status === 'Inativo'"
-                              [class.bg-gray-100]="cupom.status === 'Expirado'"
-                              [class.text-gray-700]="cupom.status === 'Expirado'">
+                        <span
+                          class="text-xs px-2 py-0.5 rounded-full font-medium"
+                          [class.bg-green-100]="cupom.status === 'Ativo'"
+                          [class.text-green-700]="cupom.status === 'Ativo'"
+                          [class.bg-red-100]="cupom.status === 'Inativo'"
+                          [class.text-red-700]="cupom.status === 'Inativo'"
+                          [class.bg-gray-100]="cupom.status === 'Expirado'"
+                          [class.text-gray-700]="cupom.status === 'Expirado'"
+                        >
                           {{ cupom.status }}
                         </span>
                       </div>
@@ -115,28 +217,40 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
                       @if (cupom.tipo_desconto === 'percentual') {
                         {{ cupom.valor_desconto }}%
                       } @else {
-                        R$ {{ cupom.valor_desconto | number:'1.2-2' }}
+                        R$ {{ cupom.valor_desconto | number: '1.2-2' }}
                       }
                     </div>
                     <div>
-                      <span class="font-medium">Pedido mín.:</span> R$ {{ cupom.valor_minimo | number:'1.2-2' }}
+                      <span class="font-medium">Pedido mín.:</span> R$
+                      {{ cupom.valor_minimo | number: '1.2-2' }}
                     </div>
                     <div>
-                      <span class="font-medium">Validade:</span> {{ cupom.data_validade | date:'dd/MM/yyyy' }}
+                      <span class="font-medium">Validade:</span>
+                      {{ cupom.data_validade | date: 'dd/MM/yyyy' }}
                     </div>
                     <div>
-                      <span class="font-medium">Usos:</span> {{ cupom.uso_atual }} / {{ cupom.limite_uso || '∞' }}
+                      <span class="font-medium">Usos:</span> {{ cupom.uso_atual }} /
+                      {{ cupom.limite_uso || '∞' }}
                     </div>
                   </div>
 
                   <div class="flex gap-1.5">
                     <div class="flex-1">
-                      <ui-button size="xs" [fullWidth]="true" [variant]="cupom.status === 'Ativo' ? 'danger' : 'secondary'" (click)="toggleStatusCupom(cupom)">
-                        @if (cupom.status === 'Ativo') { Desativar } @else { Ativar }
+                      <ui-button
+                        size="xs"
+                        [fullWidth]="true"
+                        [variant]="cupom.status === 'Ativo' ? 'danger' : 'secondary'"
+                        (click)="toggleStatusCupom(cupom)"
+                      >
+                        @if (cupom.status === 'Ativo') {
+                          Desativar
+                        } @else {
+                          Ativar
+                        }
                       </ui-button>
                     </div>
-                    <admin-edit-btn (edit)="editarCupom(cupom)"/>
-                    <admin-remove-btn (remove)="deletarCupom(cupom.uuid, cupom.codigo)"/>
+                    <admin-edit-btn (edit)="editarCupom(cupom)" />
+                    <admin-remove-btn (remove)="deletarCupom(cupom.uuid, cupom.codigo)" />
                   </div>
                 </div>
               }

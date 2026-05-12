@@ -11,14 +11,22 @@ import { UiButtonComponent, UiTextareaComponent } from '../../shared/components'
       <p class="text-sm font-semibold text-gray-900">{{ produto().nome }}</p>
 
       <div class="flex gap-1">
-        @for (star of [1,2,3,4,5]; track star) {
-          <div (click)="nota = star" (keydown.enter)="nota = star"
-               role="button" tabindex="0"
-               class="w-10 h-10 transition-transform hover:scale-110 cursor-pointer">
-            <svg class="w-10 h-10"
-                 [class]="star <= nota ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'"
-                 viewBox="0 0 24 24">
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+        @for (star of [1, 2, 3, 4, 5]; track star) {
+          <div
+            (click)="nota = star"
+            (keydown.enter)="nota = star"
+            role="button"
+            tabindex="0"
+            class="w-10 h-10 transition-transform hover:scale-110 cursor-pointer"
+          >
+            <svg
+              class="w-10 h-10"
+              [class]="star <= nota ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+              />
             </svg>
           </div>
         }
@@ -43,11 +51,16 @@ import { UiButtonComponent, UiTextareaComponent } from '../../shared/components'
       />
 
       <div class="flex justify-end gap-3 pt-2">
-        <ui-button variant="secondary" (click)="pular.emit()">Pular</ui-button>
+        <ui-button
+          variant="secondary"
+          (click)="pular.emit()"
+          >Pular</ui-button
+        >
         <ui-button
           [disabled]="nota === 0 || !descricao.trim() || loading()"
           [loading]="loading()"
-          (click)="onSalvar()">
+          (click)="onSalvar()"
+        >
           Avaliar
         </ui-button>
       </div>

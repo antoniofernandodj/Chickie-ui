@@ -13,7 +13,11 @@ import { Component, input, output } from '@angular/core';
       [class.text-gray-700]="!ativo()"
       (click)="toggle.emit()"
     >
-      @if (ativo()) { Ativo } @else { Inativo }
+      @if (ativo()) {
+        Ativo
+      } @else {
+        Inativo
+      }
     </button>
   `,
 })

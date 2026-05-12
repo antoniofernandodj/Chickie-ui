@@ -12,36 +12,52 @@
     @if (pixPago()) {
       <!-- ── Tela de PIX pago com sucesso ───────────────────────────── -->
       <div class="flex flex-col items-center justify-center px-8 py-12 text-center min-h-[500px]">
-
         <div class="text-6xl mb-3 animate-bounce">✅</div>
         <h2 class="text-2xl font-black text-gray-900 mb-1">Pagamento confirmado!</h2>
         <p class="text-sm text-gray-500 mb-8">Seu pedido foi pago e já está sendo preparado.</p>
 
         <!-- Código em destaque -->
-        <div class="w-full rounded-3xl px-8 py-8 mb-6 shadow-lg"
-             style="background: linear-gradient(135deg, var(--color-brand) 0%, oklch(52% 0.23 25) 100%)">
-          <p class="text-xs font-bold uppercase tracking-[0.25em] mb-3"
-             style="color: oklch(95% 0.05 40)">código do pedido</p>
-          <p class="font-black tracking-[0.3em] text-white font-mono drop-shadow"
-             style="font-size: clamp(2.5rem, 10vw, 3.5rem)">{{ codigoCriado() }}</p>
+        <div
+          class="w-full rounded-3xl px-8 py-8 mb-6 shadow-lg"
+          style="
+            background: linear-gradient(135deg, var(--color-brand) 0%, oklch(52% 0.23 25) 100%);
+          "
+        >
+          <p
+            class="text-xs font-bold uppercase tracking-[0.25em] mb-3"
+            style="color: oklch(95% 0.05 40)"
+          >
+            código do pedido
+          </p>
+          <p
+            class="font-black tracking-[0.3em] text-white font-mono drop-shadow"
+            style="font-size: clamp(2.5rem, 10vw, 3.5rem)"
+          >
+            {{ codigoCriado() }}
+          </p>
         </div>
 
         <!-- Info de armazenamento -->
         @if (!isAuthenticated()) {
-          <div class="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-7 text-left w-full">
+          <div
+            class="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-7 text-left w-full"
+          >
             <span class="text-2xl shrink-0 mt-0.5">📱</span>
             <div>
               <p class="text-sm font-bold text-amber-900 mb-0.5">Salvo neste dispositivo</p>
               <p class="text-xs text-amber-700 leading-relaxed">
-                Guardamos este pedido localmente. Você pode acompanhá-lo a qualquer momento,
-                mesmo sem criar uma conta.
+                Guardamos este pedido localmente. Você pode acompanhá-lo a qualquer momento, mesmo
+                sem criar uma conta.
               </p>
             </div>
           </div>
         }
 
         <div class="flex-1">
-          <ui-button [fullWidth]="true" (click)="irParaDetalhe()">
+          <ui-button
+            [fullWidth]="true"
+            (click)="irParaDetalhe()"
+          >
             Ver acompanhamento do pedido
           </ui-button>
         </div>
@@ -54,17 +70,27 @@
 
         <!-- QR Code -->
         <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-100 mb-5">
-          <img [src]="'data:image/png;base64,' + pix.qr_code_image"
-               alt="QR Code PIX" class="w-52 h-52 rounded-lg"/>
+          <img
+            [src]="'data:image/png;base64,' + pix.qr_code_image"
+            alt="QR Code PIX"
+            class="w-52 h-52 rounded-lg"
+          />
         </div>
 
         <!-- Copia e cola -->
         <div class="w-full bg-gray-50 rounded-2xl p-4 mb-3 text-left">
           <p class="text-xs text-gray-500 mb-1.5 font-medium">Código copia e cola</p>
-          <p class="text-xs font-mono text-gray-700 break-all leading-relaxed">{{ pix.pix_copia_cola }}</p>
+          <p class="text-xs font-mono text-gray-700 break-all leading-relaxed">
+            {{ pix.pix_copia_cola }}
+          </p>
         </div>
 
-        <ui-button [variant]="copiado() ? 'secondary' : 'primary'" [fullWidth]="true" (click)="copiarPix()" class="mb-4">
+        <ui-button
+          [variant]="copiado() ? 'secondary' : 'primary'"
+          [fullWidth]="true"
+          (click)="copiarPix()"
+          class="mb-4"
+        >
           {{ copiado() ? '✅ Copiado!' : 'Copiar código PIX' }}
         </ui-button>
 
@@ -72,7 +98,10 @@
 
         <!-- CTA -->
         <div class="flex-1">
-          <ui-button [fullWidth]="true" (click)="irParaDetalhe()">
+          <ui-button
+            [fullWidth]="true"
+            (click)="irParaDetalhe()"
+          >
             Ver acompanhamento do pedido
           </ui-button>
         </div>
@@ -83,654 +112,867 @@
     } @else if (codigoCriado(); as codigo) {
       <!-- ── Tela de sucesso (usuário deslogado) ──────────────────────── -->
       <div class="flex flex-col items-center justify-center px-8 py-12 text-center min-h-[500px]">
-
         <div class="text-6xl mb-3 animate-bounce">🎉</div>
         <h2 class="text-2xl font-black text-gray-900 mb-1">Pedido enviado!</h2>
         <p class="text-sm text-gray-500 mb-8">Seu pedido chegou até a loja com sucesso.</p>
 
         <!-- Código em destaque -->
-        <div class="w-full rounded-3xl px-8 py-8 mb-6 shadow-lg"
-             style="background: linear-gradient(135deg, var(--color-brand) 0%, oklch(52% 0.23 25) 100%)">
-          <p class="text-xs font-bold uppercase tracking-[0.25em] mb-3"
-             style="color: oklch(95% 0.05 40)">código do pedido</p>
-          <p class="font-black tracking-[0.3em] text-white font-mono drop-shadow"
-             style="font-size: clamp(2.5rem, 10vw, 3.5rem)">{{ codigo }}</p>
+        <div
+          class="w-full rounded-3xl px-8 py-8 mb-6 shadow-lg"
+          style="
+            background: linear-gradient(135deg, var(--color-brand) 0%, oklch(52% 0.23 25) 100%);
+          "
+        >
+          <p
+            class="text-xs font-bold uppercase tracking-[0.25em] mb-3"
+            style="color: oklch(95% 0.05 40)"
+          >
+            código do pedido
+          </p>
+          <p
+            class="font-black tracking-[0.3em] text-white font-mono drop-shadow"
+            style="font-size: clamp(2.5rem, 10vw, 3.5rem)"
+          >
+            {{ codigo }}
+          </p>
         </div>
 
         <!-- Info de armazenamento -->
-        <div class="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-7 text-left w-full">
+        <div
+          class="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-7 text-left w-full"
+        >
           <span class="text-2xl shrink-0 mt-0.5">📱</span>
           <div>
             <p class="text-sm font-bold text-amber-900 mb-0.5">Salvo neste dispositivo</p>
             <p class="text-xs text-amber-700 leading-relaxed">
-              Guardamos este pedido localmente. Você pode acompanhá-lo a qualquer momento,
-              mesmo sem criar uma conta.
+              Guardamos este pedido localmente. Você pode acompanhá-lo a qualquer momento, mesmo sem
+              criar uma conta.
             </p>
           </div>
         </div>
 
         <!-- CTAs -->
         <div class="w-full flex-1 mb-3">
-          <ui-button [fullWidth]="true" (click)="irParaDetalhe()">
+          <ui-button
+            [fullWidth]="true"
+            (click)="irParaDetalhe()"
+          >
             Ver detalhes do pedido
           </ui-button>
         </div>
-        <ui-button variant="ghost" [fullWidth]="true" (click)="irParaPedidos()">
+        <ui-button
+          variant="ghost"
+          [fullWidth]="true"
+          (click)="irParaPedidos()"
+        >
           Ver todos os pedidos deste dispositivo →
         </ui-button>
       </div>
     } @else {
+      <!-- Header -->
+      <div class="px-5 pt-5 pb-4 border-b border-gray-100 shrink-0">
+        <!-- Top row: back/close + step counter + cart badge -->
+        <div class="flex items-center gap-3 mb-3">
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [attr.aria-label]="currentStepIndex() > 0 ? 'Voltar' : 'Fechar'"
+            (click)="currentStepIndex() > 0 ? voltar() : fechar.emit()"
+          >
+            @if (currentStepIndex() > 0) {
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            } @else {
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            }
+          </ui-button>
 
-    <!-- Header -->
-    <div class="px-5 pt-5 pb-4 border-b border-gray-100 shrink-0">
-      <!-- Top row: back/close + step counter + cart badge -->
-      <div class="flex items-center gap-3 mb-3">
-        <ui-button
-          variant="ghost"
-          size="sm"
-          [attr.aria-label]="currentStepIndex() > 0 ? 'Voltar' : 'Fechar'"
-          (click)="currentStepIndex() > 0 ? voltar() : fechar.emit()"
-        >
-          @if (currentStepIndex() > 0) {
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-            </svg>
-          } @else {
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs text-gray-400">{{ stepNumber }}</p>
+            <h2 class="font-bold text-gray-900 leading-tight truncate">{{ stepTitle }}</h2>
+            <p class="text-xs text-gray-500 leading-tight">{{ stepSubtitle }}</p>
+          </div>
+
+          @if (cartItemCount() > 0) {
+            <div
+              class="px-3 py-1.5 rounded-full text-xs font-bold text-white shrink-0"
+              style="background: var(--color-brand)"
+            >
+              🛒 {{ cartItemCount() }}
+            </div>
           }
-        </ui-button>
-
-        <div class="flex-1 min-w-0">
-          <p class="text-xs text-gray-400">{{ stepNumber }}</p>
-          <h2 class="font-bold text-gray-900 leading-tight truncate">{{ stepTitle }}</h2>
-          <p class="text-xs text-gray-500 leading-tight">{{ stepSubtitle }}</p>
         </div>
 
-        @if (cartItemCount() > 0) {
-          <div
-            class="px-3 py-1.5 rounded-full text-xs font-bold text-white shrink-0"
-            style="background: var(--color-brand)"
-          >
-            🛒 {{ cartItemCount() }}
-          </div>
-        }
+        <!-- Progress bar -->
+        <div class="flex gap-1">
+          @for (s of steps; track $index) {
+            <div
+              role="button"
+              tabindex="0"
+              class="h-1.5 flex-1 rounded-full transition-all duration-300 cursor-pointer"
+              [style.background]="
+                $index < currentStepIndex()
+                  ? 'var(--color-brand)'
+                  : $index === currentStepIndex()
+                    ? 'var(--color-brand)'
+                    : '#e5e7eb'
+              "
+              [style.opacity]="
+                $index === currentStepIndex() ? '1' : $index < currentStepIndex() ? '0.5' : '1'
+              "
+              (click)="irParaStep($index)"
+              (keydown.enter)="irParaStep($index)"
+            ></div>
+          }
+        </div>
       </div>
 
-      <!-- Progress bar -->
-      <div class="flex gap-1">
-        @for (s of steps; track $index) {
-          <div role="button" tabindex="0"
-            class="h-1.5 flex-1 rounded-full transition-all duration-300 cursor-pointer"
-            [style.background]="$index < currentStepIndex() ? 'var(--color-brand)' : $index === currentStepIndex() ? 'var(--color-brand)' : '#e5e7eb'"
-            [style.opacity]="$index === currentStepIndex() ? '1' : $index < currentStepIndex() ? '0.5' : '1'"
-            (click)="irParaStep($index)"
-            (keydown.enter)="irParaStep($index)"
-          ></div>
-        }
-      </div>
-    </div>
+      <!-- Scrollable content -->
+      <div class="flex-1 overflow-y-auto">
+        @switch (currentStep.tipo) {
+          <!-- ── Categoria: Não Pizza ─────────────────────────────────── -->
+          @case ('categoria') {
+            @if (!currentCategoriaStep?.categoria?.pizza_mode) {
+              <div class="px-5 py-5 space-y-3">
+                @for (produto of currentCategoriaStep?.produtos; track produto.uuid) {
+                  <div
+                    class="flex items-center gap-4 p-4 bg-white border border-gray-100 rounded-2xl hover:border-gray-200 transition-colors"
+                  >
+                    <!-- Image -->
+                    <div class="w-20 h-20 rounded-xl overflow-hidden bg-gray-50 shrink-0">
+                      @if (produto.imagem_url) {
+                        <img
+                          [src]="produto.imagem_url"
+                          [alt]="produto.nome"
+                          class="w-full h-full object-cover"
+                        />
+                      } @else {
+                        <div
+                          class="w-full h-full flex items-center justify-center text-3xl opacity-30"
+                        >
+                          🍴
+                        </div>
+                      }
+                    </div>
 
-    <!-- Scrollable content -->
-    <div class="flex-1 overflow-y-auto">
-      @switch (currentStep.tipo) {
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                      <h3 class="font-semibold text-gray-900 text-sm leading-tight">
+                        {{ produto.nome }}
+                      </h3>
+                      @if (produto.descricao) {
+                        <p class="text-xs text-gray-500 line-clamp-2 mt-0.5">
+                          {{ produto.descricao }}
+                        </p>
+                      }
+                      <p
+                        class="font-bold text-sm mt-1.5"
+                        style="color: var(--color-brand)"
+                      >
+                        R$ {{ produto.preco | number: '1.2-2' }}
+                      </p>
+                    </div>
 
-        <!-- ── Categoria: Não Pizza ─────────────────────────────────── -->
-        @case ('categoria') {
-          @if (!currentCategoriaStep?.categoria?.pizza_mode) {
-            <div class="px-5 py-5 space-y-3">
-              @for (produto of currentCategoriaStep?.produtos; track produto.uuid) {
-                <div class="flex items-center gap-4 p-4 bg-white border border-gray-100 rounded-2xl hover:border-gray-200 transition-colors">
-                  <!-- Image -->
-                  <div class="w-20 h-20 rounded-xl overflow-hidden bg-gray-50 shrink-0">
-                    @if (produto.imagem_url) {
-                      <img [src]="produto.imagem_url" [alt]="produto.nome" class="w-full h-full object-cover"/>
-                    } @else {
-                      <div class="w-full h-full flex items-center justify-center text-3xl opacity-30">🍴</div>
-                    }
+                    <!-- Quantity -->
+                    <div class="flex items-center gap-2 shrink-0">
+                      @if (getQuantidadeProduto(produto.uuid) > 0) {
+                        <div
+                          role="button"
+                          tabindex="0"
+                          (click)="decrementarProduto(produto)"
+                          (keydown.enter)="decrementarProduto(produto)"
+                          class="w-8 h-8 rounded-full border-2 font-bold text-lg flex items-center justify-center transition-colors hover:bg-orange-50 cursor-pointer"
+                          style="border-color: var(--color-brand); color: var(--color-brand)"
+                        >
+                          −
+                        </div>
+                        <span class="w-6 text-center font-bold text-sm text-gray-900">
+                          {{ getQuantidadeProduto(produto.uuid) }}
+                        </span>
+                      }
+                      <div
+                        role="button"
+                        tabindex="0"
+                        (click)="incrementarProduto(produto)"
+                        (keydown.enter)="incrementarProduto(produto)"
+                        class="w-8 h-8 rounded-full text-white font-bold text-lg flex items-center justify-center transition-opacity hover:opacity-85 cursor-pointer"
+                        style="background: var(--color-brand)"
+                      >
+                        +
+                      </div>
+                    </div>
                   </div>
+                }
 
-                  <!-- Info -->
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold text-gray-900 text-sm leading-tight">{{ produto.nome }}</h3>
-                    @if (produto.descricao) {
-                      <p class="text-xs text-gray-500 line-clamp-2 mt-0.5">{{ produto.descricao }}</p>
-                    }
-                    <p class="font-bold text-sm mt-1.5" style="color: var(--color-brand)">
-                      R$ {{ produto.preco | number:'1.2-2' }}
+                <!-- Items added from this category -->
+                @if (cartItemsForCurrentCategory.length > 0) {
+                  <div class="mt-2 pt-4 border-t border-gray-100">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                      Adicionados
                     </p>
-                  </div>
-
-                  <!-- Quantity -->
-                  <div class="flex items-center gap-2 shrink-0">
-                    @if (getQuantidadeProduto(produto.uuid) > 0) {
-                      <div role="button" tabindex="0"
-                        (click)="decrementarProduto(produto)"
-                        (keydown.enter)="decrementarProduto(produto)"
-                        class="w-8 h-8 rounded-full border-2 font-bold text-lg flex items-center justify-center transition-colors hover:bg-orange-50 cursor-pointer"
-                        style="border-color: var(--color-brand); color: var(--color-brand)"
-                      >−</div>
-                      <span class="w-6 text-center font-bold text-sm text-gray-900">
-                        {{ getQuantidadeProduto(produto.uuid) }}
-                      </span>
-                    }
-                    <div role="button" tabindex="0"
-                      (click)="incrementarProduto(produto)"
-                      (keydown.enter)="incrementarProduto(produto)"
-                      class="w-8 h-8 rounded-full text-white font-bold text-lg flex items-center justify-center transition-opacity hover:opacity-85 cursor-pointer"
-                      style="background: var(--color-brand)"
-                    >+</div>
-                  </div>
-                </div>
-              }
-
-              <!-- Items added from this category -->
-              @if (cartItemsForCurrentCategory.length > 0) {
-                <div class="mt-2 pt-4 border-t border-gray-100">
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Adicionados</p>
-                  <div class="space-y-1.5">
-                    @for (item of cartItemsForCurrentCategory; track item.id) {
-                      <div class="bg-green-50 rounded-xl border border-green-100 overflow-hidden">
-                        <div class="flex items-center justify-between px-3 py-2">
-                          <div class="min-w-0 flex-1">
-                            <span class="text-sm text-gray-700">
-                              {{ item.partes[0].produto.nome }}
-                              <span class="text-gray-400 ml-1">× {{ item.quantidade }}</span>
-                            </span>
-                            @if (item.partes[0].adicionais.length > 0) {
-                              <p class="text-xs text-gray-400 mt-0.5">+ {{ adicionaisLabel(item.partes[0]) }}</p>
-                            }
-                          </div>
-                          <div class="flex items-center gap-2 shrink-0 ml-2">
-                            @if (!currentCategoriaStep?.categoria?.drink_mode && adicionaisDisponiveis().length > 0) {
-                              <ui-button
-                                [variant]="item.partes[0].adicionais.length > 0 ? 'primary' : 'secondary'"
-                                size="xs"
-                                (click)="expandirAdicionaisItem(item.id)"
+                    <div class="space-y-1.5">
+                      @for (item of cartItemsForCurrentCategory; track item.id) {
+                        <div class="bg-green-50 rounded-xl border border-green-100 overflow-hidden">
+                          <div class="flex items-center justify-between px-3 py-2">
+                            <div class="min-w-0 flex-1">
+                              <span class="text-sm text-gray-700">
+                                {{ item.partes[0].produto.nome }}
+                                <span class="text-gray-400 ml-1">× {{ item.quantidade }}</span>
+                              </span>
+                              @if (item.partes[0].adicionais.length > 0) {
+                                <p class="text-xs text-gray-400 mt-0.5">
+                                  + {{ adicionaisLabel(item.partes[0]) }}
+                                </p>
+                              }
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0 ml-2">
+                              @if (
+                                !currentCategoriaStep?.categoria?.drink_mode &&
+                                adicionaisDisponiveis().length > 0
+                              ) {
+                                <ui-button
+                                  [variant]="
+                                    item.partes[0].adicionais.length > 0 ? 'primary' : 'secondary'
+                                  "
+                                  size="xs"
+                                  (click)="expandirAdicionaisItem(item.id)"
+                                >
+                                  @if (item.partes[0].adicionais.length > 0) {
+                                    +{{ item.partes[0].adicionais.length }} extra{{
+                                      item.partes[0].adicionais.length > 1 ? 's' : ''
+                                    }}
+                                  } @else {
+                                    + extras
+                                  }
+                                </ui-button>
+                              }
+                              <span
+                                class="text-sm font-semibold"
+                                style="color: var(--color-brand)"
                               >
-                                @if (item.partes[0].adicionais.length > 0) {
-                                  +{{ item.partes[0].adicionais.length }} extra{{ item.partes[0].adicionais.length > 1 ? 's' : '' }}
+                                R$ {{ itemPreco(item) * item.quantidade | number: '1.2-2' }}
+                              </span>
+                            </div>
+                          </div>
+                          @if (itemExpandidoId() === item.id) {
+                            <div class="border-t border-green-100 px-3 py-2.5 bg-green-50/60">
+                              <div class="flex flex-wrap gap-1.5">
+                                @for (ad of adicionaisDisponiveis(); track ad.uuid) {
+                                  <ui-button
+                                    [variant]="
+                                      isAdicionalSelectedForItem(item.id, ad.uuid)
+                                        ? 'primary'
+                                        : 'secondary'
+                                    "
+                                    size="xs"
+                                    (click)="toggleAdicionalItem(item.id, ad)"
+                                  >
+                                    <span class="flex items-center gap-1">
+                                      {{ ad.nome }}
+                                      <span class="font-semibold"
+                                        >+R${{ ad.preco | number: '1.2-2' }}</span
+                                      >
+                                    </span>
+                                  </ui-button>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- ── Categoria: Pizza Mode ─────────────────────────────────── -->
+            @if (currentCategoriaStep?.categoria?.pizza_mode) {
+              <div class="px-5 py-5">
+                <!-- Pizza Builder (current composition) -->
+                @if (pizzaPartes().length > 0) {
+                  <div class="mb-5 p-4 rounded-2xl border border-orange-200 bg-orange-50">
+                    <div class="flex items-center justify-between mb-3">
+                      <h4 class="text-sm font-bold text-gray-800">
+                        🍕 Pizza montada
+                        <span class="font-normal text-gray-500 ml-1">
+                          ({{ pizzaPartes().length }}/{{ maxPartes() }} sabores)
+                        </span>
+                      </h4>
+                      <span
+                        class="text-sm font-bold"
+                        style="color: var(--color-brand)"
+                      >
+                        R$ {{ pizzaBuilderPreco() | number: '1.2-2' }}
+                      </span>
+                    </div>
+
+                    <!-- Part chips with adicionais -->
+                    <div class="space-y-2 mb-3">
+                      @for (parte of pizzaPartes(); track parte.posicao) {
+                        <div class="bg-white border border-orange-200 rounded-xl overflow-hidden">
+                          <div class="flex items-center gap-1.5 px-3 py-2">
+                            <span
+                              class="w-4 h-4 rounded-full text-white text-xs flex items-center justify-center font-bold shrink-0"
+                              style="background: var(--color-brand)"
+                              >{{ parte.posicao }}</span
+                            >
+                            <span class="flex-1 text-xs font-medium text-gray-700">{{
+                              parte.produto.nome
+                            }}</span>
+                            @if (adicionaisDisponiveis().length > 0) {
+                              <ui-button
+                                [variant]="
+                                  (pizzaAdicionaisPorPosicao()[parte.posicao]?.length ?? 0) > 0
+                                    ? 'primary'
+                                    : 'secondary'
+                                "
+                                size="xs"
+                                (click)="expandirAdicionaisPizzaParte(parte.posicao)"
+                              >
+                                @if (
+                                  (pizzaAdicionaisPorPosicao()[parte.posicao]?.length ?? 0) > 0
+                                ) {
+                                  +{{ pizzaAdicionaisPorPosicao()[parte.posicao].length }} extra{{
+                                    pizzaAdicionaisPorPosicao()[parte.posicao].length > 1 ? 's' : ''
+                                  }}
                                 } @else {
                                   + extras
                                 }
                               </ui-button>
                             }
-                            <span class="text-sm font-semibold" style="color: var(--color-brand)">
-                              R$ {{ (itemPreco(item) * item.quantidade) | number:'1.2-2' }}
-                            </span>
-                          </div>
-                        </div>
-                        @if (itemExpandidoId() === item.id) {
-                          <div class="border-t border-green-100 px-3 py-2.5 bg-green-50/60">
-                            <div class="flex flex-wrap gap-1.5">
-                              @for (ad of adicionaisDisponiveis(); track ad.uuid) {
-                                <ui-button
-                                  [variant]="isAdicionalSelectedForItem(item.id, ad.uuid) ? 'primary' : 'secondary'"
-                                  size="xs"
-                                  (click)="toggleAdicionalItem(item.id, ad)"
-                                >
-                                  <span class="flex items-center gap-1">
-                                    {{ ad.nome }}
-                                    <span class="font-semibold">+R${{ ad.preco | number:'1.2-2' }}</span>
-                                  </span>
-                                </ui-button>
-                              }
-                            </div>
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          }
-
-          <!-- ── Categoria: Pizza Mode ─────────────────────────────────── -->
-          @if (currentCategoriaStep?.categoria?.pizza_mode) {
-            <div class="px-5 py-5">
-
-              <!-- Pizza Builder (current composition) -->
-              @if (pizzaPartes().length > 0) {
-                <div class="mb-5 p-4 rounded-2xl border border-orange-200 bg-orange-50">
-                  <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-sm font-bold text-gray-800">
-                      🍕 Pizza montada
-                      <span class="font-normal text-gray-500 ml-1">
-                        ({{ pizzaPartes().length }}/{{ maxPartes() }} sabores)
-                      </span>
-                    </h4>
-                    <span class="text-sm font-bold" style="color: var(--color-brand)">
-                      R$ {{ pizzaBuilderPreco() | number:'1.2-2' }}
-                    </span>
-                  </div>
-
-                  <!-- Part chips with adicionais -->
-                  <div class="space-y-2 mb-3">
-                    @for (parte of pizzaPartes(); track parte.posicao) {
-                      <div class="bg-white border border-orange-200 rounded-xl overflow-hidden">
-                        <div class="flex items-center gap-1.5 px-3 py-2">
-                          <span
-                            class="w-4 h-4 rounded-full text-white text-xs flex items-center justify-center font-bold shrink-0"
-                            style="background: var(--color-brand)"
-                          >{{ parte.posicao }}</span>
-                          <span class="flex-1 text-xs font-medium text-gray-700">{{ parte.produto.nome }}</span>
-                          @if (adicionaisDisponiveis().length > 0) {
                             <ui-button
-                              [variant]="(pizzaAdicionaisPorPosicao()[parte.posicao]?.length ?? 0) > 0 ? 'primary' : 'secondary'"
+                              variant="ghost"
                               size="xs"
-                              (click)="expandirAdicionaisPizzaParte(parte.posicao)"
+                              (click)="togglePizzaParte(parte.produto)"
+                              >×</ui-button
                             >
-                              @if ((pizzaAdicionaisPorPosicao()[parte.posicao]?.length ?? 0) > 0) {
-                                +{{ pizzaAdicionaisPorPosicao()[parte.posicao].length }} extra{{ pizzaAdicionaisPorPosicao()[parte.posicao].length > 1 ? 's' : '' }}
-                              } @else {
-                                + extras
-                              }
-                            </ui-button>
-                          }
-                          <ui-button variant="ghost" size="xs" (click)="togglePizzaParte(parte.produto)">×</ui-button>
-                        </div>
-                        @if (pizzaParteExpandida() === parte.posicao) {
-                          <div class="border-t border-orange-100 px-3 py-2.5 bg-orange-50/40">
-                            <div class="flex flex-wrap gap-1.5">
-                              @for (ad of adicionaisDisponiveis(); track ad.uuid) {
-                                <ui-button
-                                  [variant]="isAdicionalSelectedForParte(parte.posicao, ad.uuid) ? 'primary' : 'secondary'"
-                                  size="xs"
-                                  (click)="toggleAdicionalPizzaParte(parte.posicao, ad)"
-                                >
-                                  <span class="flex items-center gap-1">
-                                    {{ ad.nome }}
-                                    <span class="font-semibold">+R${{ ad.preco | number:'1.2-2' }}</span>
-                                  </span>
-                                </ui-button>
-                              }
-                            </div>
                           </div>
-                        }
-                      </div>
-                    }
-                  </div>
-
-                  <div class="flex-1">
-                    <ui-button [fullWidth]="true" (click)="adicionarPizza()">
-                      Adicionar pizza ao pedido
-                    </ui-button>
-                  </div>
-                </div>
-              } @else {
-                <div class="mb-4 p-3 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-500 text-center">
-                  Selecione até {{ maxPartes() }} sabores para montar sua pizza
-                </div>
-              }
-
-              <!-- Flavors grid -->
-              <div class="grid grid-cols-2 gap-3">
-                @for (produto of currentCategoriaStep?.produtos; track produto.uuid) {
-                  @let isSelected = isPizzaParteSelected(produto.uuid);
-                  @let isFull = !isSelected && pizzaPartes().length >= maxPartes();
-                  <div role="button" tabindex="0"
-                    (click)="!isFull && togglePizzaParte(produto)"
-                    (keydown.enter)="!isFull && togglePizzaParte(produto)"
-                    class="relative p-3 rounded-2xl border-2 text-left transition-all"
-                    [style.border-color]="isSelected ? 'var(--color-brand)' : ''"
-                    [class]="isSelected ? 'bg-orange-50 border-orange-500 cursor-pointer' : isFull ? 'border-gray-100 bg-gray-50 opacity-40 cursor-not-allowed' : 'border-gray-100 bg-white hover:border-gray-300 cursor-pointer'"
-                  >
-                    <!-- Image -->
-                    <div class="w-full h-24 rounded-xl overflow-hidden mb-2 bg-gray-100">
-                      @if (produto.imagem_url) {
-                        <img [src]="produto.imagem_url" [alt]="produto.nome" class="w-full h-full object-cover"/>
-                      } @else {
-                        <div class="w-full h-full flex items-center justify-center text-3xl opacity-30">🍕</div>
+                          @if (pizzaParteExpandida() === parte.posicao) {
+                            <div class="border-t border-orange-100 px-3 py-2.5 bg-orange-50/40">
+                              <div class="flex flex-wrap gap-1.5">
+                                @for (ad of adicionaisDisponiveis(); track ad.uuid) {
+                                  <ui-button
+                                    [variant]="
+                                      isAdicionalSelectedForParte(parte.posicao, ad.uuid)
+                                        ? 'primary'
+                                        : 'secondary'
+                                    "
+                                    size="xs"
+                                    (click)="toggleAdicionalPizzaParte(parte.posicao, ad)"
+                                  >
+                                    <span class="flex items-center gap-1">
+                                      {{ ad.nome }}
+                                      <span class="font-semibold"
+                                        >+R${{ ad.preco | number: '1.2-2' }}</span
+                                      >
+                                    </span>
+                                  </ui-button>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
                       }
                     </div>
 
-                    <!-- Position badge -->
-                    @if (isSelected) {
-                      <span
-                        class="absolute top-2 right-2 w-5 h-5 rounded-full text-white text-xs flex items-center justify-center font-bold shadow-sm"
-                        style="background: var(--color-brand)"
-                      >{{ getPizzaPartePosicao(produto.uuid) }}</span>
-                    }
+                    <div class="flex-1">
+                      <ui-button
+                        [fullWidth]="true"
+                        (click)="adicionarPizza()"
+                      >
+                        Adicionar pizza ao pedido
+                      </ui-button>
+                    </div>
+                  </div>
+                } @else {
+                  <div
+                    class="mb-4 p-3 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-500 text-center"
+                  >
+                    Selecione até {{ maxPartes() }} sabores para montar sua pizza
+                  </div>
+                }
 
-                    <h4 class="font-semibold text-xs text-gray-900 leading-tight">{{ produto.nome }}</h4>
-                    @if (produto.descricao) {
-                      <p class="text-xs text-gray-400 line-clamp-1 mt-0.5">{{ produto.descricao }}</p>
-                    }
-                    <p class="text-xs font-bold mt-1" style="color: var(--color-brand)">
-                      R$ {{ produto.preco | number:'1.2-2' }}
+                <!-- Flavors grid -->
+                <div class="grid grid-cols-2 gap-3">
+                  @for (produto of currentCategoriaStep?.produtos; track produto.uuid) {
+                    @let isSelected = isPizzaParteSelected(produto.uuid);
+                    @let isFull = !isSelected && pizzaPartes().length >= maxPartes();
+                    <div
+                      role="button"
+                      tabindex="0"
+                      (click)="!isFull && togglePizzaParte(produto)"
+                      (keydown.enter)="!isFull && togglePizzaParte(produto)"
+                      class="relative p-3 rounded-2xl border-2 text-left transition-all"
+                      [style.border-color]="isSelected ? 'var(--color-brand)' : ''"
+                      [class]="
+                        isSelected
+                          ? 'bg-orange-50 border-orange-500 cursor-pointer'
+                          : isFull
+                            ? 'border-gray-100 bg-gray-50 opacity-40 cursor-not-allowed'
+                            : 'border-gray-100 bg-white hover:border-gray-300 cursor-pointer'
+                      "
+                    >
+                      <!-- Image -->
+                      <div class="w-full h-24 rounded-xl overflow-hidden mb-2 bg-gray-100">
+                        @if (produto.imagem_url) {
+                          <img
+                            [src]="produto.imagem_url"
+                            [alt]="produto.nome"
+                            class="w-full h-full object-cover"
+                          />
+                        } @else {
+                          <div
+                            class="w-full h-full flex items-center justify-center text-3xl opacity-30"
+                          >
+                            🍕
+                          </div>
+                        }
+                      </div>
+
+                      <!-- Position badge -->
+                      @if (isSelected) {
+                        <span
+                          class="absolute top-2 right-2 w-5 h-5 rounded-full text-white text-xs flex items-center justify-center font-bold shadow-sm"
+                          style="background: var(--color-brand)"
+                          >{{ getPizzaPartePosicao(produto.uuid) }}</span
+                        >
+                      }
+
+                      <h4 class="font-semibold text-xs text-gray-900 leading-tight">
+                        {{ produto.nome }}
+                      </h4>
+                      @if (produto.descricao) {
+                        <p class="text-xs text-gray-400 line-clamp-1 mt-0.5">
+                          {{ produto.descricao }}
+                        </p>
+                      }
+                      <p
+                        class="text-xs font-bold mt-1"
+                        style="color: var(--color-brand)"
+                      >
+                        R$ {{ produto.preco | number: '1.2-2' }}
+                      </p>
+                    </div>
+                  }
+                </div>
+
+                <!-- Pizzas already added -->
+                @if (cartItemsForCurrentCategory.length > 0) {
+                  <div class="mt-5 pt-4 border-t border-gray-100">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                      Pizzas adicionadas
                     </p>
+                    <div class="space-y-2">
+                      @for (item of cartItemsForCurrentCategory; track item.id) {
+                        <div
+                          class="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-xl"
+                        >
+                          <div class="min-w-0">
+                            <p class="text-sm font-medium text-gray-800 truncate">
+                              {{ itemLabel(item) }}
+                            </p>
+                            <p
+                              class="text-xs font-semibold"
+                              style="color: var(--color-brand)"
+                            >
+                              R$ {{ itemPreco(item) | number: '1.2-2' }}
+                            </p>
+                          </div>
+                          <ui-button
+                            variant="ghost"
+                            size="xs"
+                            (click)="removerCartItem(item.id)"
+                            >Remover</ui-button
+                          >
+                        </div>
+                      }
+                    </div>
                   </div>
                 }
               </div>
+            }
+          }
 
-              <!-- Pizzas already added -->
-              @if (cartItemsForCurrentCategory.length > 0) {
-                <div class="mt-5 pt-4 border-t border-gray-100">
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Pizzas adicionadas</p>
+          <!-- ── Endereço ───────────────────────────────────────────────── -->
+          @case ('endereco') {
+            <div class="px-5 py-5 space-y-5">
+              <!-- Saved addresses -->
+              @if (enderecosUsuario().length > 0) {
+                <section>
+                  <h3 class="text-sm font-semibold text-gray-700 mb-3">Seus endereços</h3>
                   <div class="space-y-2">
-                    @for (item of cartItemsForCurrentCategory; track item.id) {
-                      <div class="flex items-center justify-between p-3 bg-green-50 border border-green-100 rounded-xl">
-                        <div class="min-w-0">
-                          <p class="text-sm font-medium text-gray-800 truncate">{{ itemLabel(item) }}</p>
-                          <p class="text-xs font-semibold" style="color: var(--color-brand)">
-                            R$ {{ itemPreco(item) | number:'1.2-2' }}
+                    @for (end of enderecosUsuario(); track end.uuid) {
+                      <ui-button
+                        [variant]="enderecoSelecionadoUuid === end.uuid ? 'primary' : 'secondary'"
+                        [fullWidth]="true"
+                        (click)="selecionarEndereco(end)"
+                      >
+                        <div class="text-left w-full">
+                          <p class="font-semibold text-sm">
+                            {{ end.logradouro }}, {{ end.numero }}
+                            @if (end.complemento) {
+                              <span class="font-normal opacity-70">— {{ end.complemento }}</span>
+                            }
+                          </p>
+                          <p class="text-xs mt-0.5 opacity-70">
+                            {{ end.bairro }} · {{ end.cidade }}/{{ end.estado }}
                           </p>
                         </div>
-                        <ui-button variant="ghost" size="xs" (click)="removerCartItem(item.id)">Remover</ui-button>
+                      </ui-button>
+                    }
+                  </div>
+
+                  <div class="flex items-center gap-3 mt-5">
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                    <span class="text-xs text-gray-400 shrink-0">ou preencha manualmente</span>
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                  </div>
+                </section>
+              }
+
+              @if (!isAuthenticated() && enderecosGuestSalvos().length > 0) {
+                <section>
+                  <h3 class="text-sm font-semibold text-gray-700 mb-3">
+                    Endereços usados anteriormente
+                  </h3>
+                  <div class="space-y-2">
+                    @for (end of enderecosGuestSalvos(); track end.id) {
+                      <ui-button
+                        [variant]="enderecoGuestSelecionadoId === end.id ? 'primary' : 'secondary'"
+                        [fullWidth]="true"
+                        (click)="selecionarEnderecoGuest(end)"
+                      >
+                        <div class="text-left w-full">
+                          <p class="font-semibold text-sm">
+                            {{ end.logradouro }}, {{ end.numero }}
+                            @if (end.complemento) {
+                              <span class="font-normal opacity-70">— {{ end.complemento }}</span>
+                            }
+                          </p>
+                          <p class="text-xs mt-0.5 opacity-70">
+                            {{ end.bairro }} · {{ end.cidade }}/{{ end.estado }}
+                          </p>
+                        </div>
+                      </ui-button>
+                    }
+                  </div>
+
+                  <div class="flex items-center gap-3 mt-5">
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                    <span class="text-xs text-gray-400 shrink-0">ou preencha manualmente</span>
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                  </div>
+                </section>
+              }
+
+              <!-- Address form -->
+              <section class="space-y-3">
+                <app-endereco-form
+                  [(ngModel)]="enderecoForm"
+                  (ngModelChange)="onEnderecoInputChange()"
+                />
+
+                @if (!enderecoValido && (enderecoForm.logradouro || enderecoForm.numero)) {
+                  <p class="text-xs text-red-500">Preencha os campos obrigatórios (*).</p>
+                }
+              </section>
+            </div>
+          }
+
+          <!-- ── Pagamento ──────────────────────────────────────────────── -->
+          @case ('pagamento') {
+            <div class="px-5 py-5 space-y-6">
+              <!-- Forma de pagamento -->
+              <section>
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Forma de pagamento</h3>
+                <div class="grid grid-cols-3 gap-3">
+                  @for (opt of formasPagamento; track opt.valor) {
+                    <ui-button
+                      [variant]="formaPagamento === opt.valor ? 'primary' : 'secondary'"
+                      [fullWidth]="true"
+                      (click)="formaPagamento = opt.valor"
+                    >
+                      <span class="flex flex-col items-center gap-1">
+                        <span class="text-2xl">{{ opt.emoji }}</span>
+                        <span>{{ opt.valor }}</span>
+                      </span>
+                    </ui-button>
+                  }
+                </div>
+              </section>
+
+              <!-- Dados do pagador — apenas para PIX + usuário não autenticado -->
+              @if (formaPagamento === 'PIX' && !isAuthenticated()) {
+                <section class="bg-orange-50 border border-orange-100 rounded-2xl p-4 space-y-3">
+                  <p class="text-xs font-semibold text-orange-700">
+                    📋 Para gerar o QR Code PIX precisamos do seu nome e CPF.
+                  </p>
+                  <ui-input
+                    label="Nome completo"
+                    [ngModel]="pagadorNome()"
+                    (ngModelChange)="pagadorNome.set($event)"
+                    placeholder="Seu nome completo"
+                  />
+                  <ui-input
+                    mask="cpf"
+                    label="CPF"
+                    [ngModel]="pagadorCpf()"
+                    (ngModelChange)="pagadorCpf.set($event)"
+                    placeholder="000.000.000-00"
+                  />
+                  @if (pagadorCpf().length === 11 && !canAdvance) {
+                    <p class="text-xs text-red-500 mt-1">CPF inválido.</p>
+                  }
+                </section>
+              }
+
+              <!-- Cupom -->
+              <section>
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Cupom de desconto</h3>
+                @if (cupomValidado()) {
+                  <div
+                    class="flex items-start justify-between p-4 bg-green-50 border border-green-200 rounded-2xl"
+                  >
+                    <div>
+                      <div class="flex items-center gap-2 mb-0.5">
+                        <span class="text-green-600">✓</span>
+                        <span class="text-sm font-bold text-green-800">{{
+                          cupomValidado()!.codigo
+                        }}</span>
+                      </div>
+                      <p class="text-xs text-green-700">{{ cupomValidado()!.descricao }}</p>
+                      <p class="text-xs text-green-600 mt-1">
+                        Desconto: -R$ {{ desconto | number: '1.2-2' }}
+                      </p>
+                    </div>
+                    <ui-button
+                      variant="ghost"
+                      size="xs"
+                      (click)="removerCupom()"
+                      >Remover</ui-button
+                    >
+                  </div>
+                } @else {
+                  <div class="flex gap-2">
+                    <ui-input
+                      class="flex-1"
+                      [(ngModel)]="codigoCupom"
+                      placeholder="Código do cupom"
+                      (keydown.enter)="validarCupom()"
+                    />
+                    <ui-button
+                      [disabled]="validandoCupom() || !codigoCupom.trim()"
+                      [loading]="validandoCupom()"
+                      (click)="validarCupom()"
+                      >Aplicar</ui-button
+                    >
+                  </div>
+                  @if (cupomErro()) {
+                    <p class="text-xs text-red-500 mt-1.5">{{ cupomErro() }}</p>
+                  }
+                }
+              </section>
+
+              <!-- Contato -->
+              <section>
+                <ui-input
+                  mask="phone"
+                  label="Contato"
+                  [(ngModel)]="contato"
+                  placeholder="(21) 9 9999-9999"
+                />
+              </section>
+
+              <!-- Observações -->
+              <section>
+                <ui-textarea
+                  [(ngModel)]="observacoes"
+                  label="Observações"
+                  [rows]="3"
+                  placeholder="Ex: sem cebola, troco para R$ 50, interfone 202..."
+                />
+              </section>
+            </div>
+          }
+
+          <!-- ── Resumo ──────────────────────────────────────────────────── -->
+          @case ('resumo') {
+            <div class="px-5 py-5 space-y-5">
+              <!-- Empty cart warning -->
+              @if (cart().length === 0) {
+                <div class="text-center py-12">
+                  <div class="text-5xl mb-3">🛒</div>
+                  <h3 class="text-base font-semibold text-gray-800 mb-1">Carrinho vazio</h3>
+                  <p class="text-sm text-gray-500">Volte e adicione itens antes de confirmar.</p>
+                </div>
+              } @else {
+                <!-- Items list -->
+                <section>
+                  <h3 class="text-sm font-semibold text-gray-700 mb-3">Itens do pedido</h3>
+                  <div class="space-y-2">
+                    @for (item of cart(); track item.id) {
+                      <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium text-gray-800 leading-tight">
+                            {{ itemLabel(item) }}
+                          </p>
+                          @if (item.partes.length === 1 && item.partes[0].adicionais.length > 0) {
+                            <p class="text-xs text-gray-400 mt-0.5">
+                              + {{ adicionaisLabel(item.partes[0]) }}
+                            </p>
+                          }
+                          @if (item.partes.length > 1) {
+                            @for (parte of item.partes; track parte.posicao) {
+                              @if (parte.adicionais.length > 0) {
+                                <p class="text-xs text-gray-400 mt-0.5">
+                                  Parte {{ parte.posicao }}: + {{ adicionaisLabel(parte) }}
+                                </p>
+                              }
+                            }
+                          }
+                          @if (item.quantidade > 1) {
+                            <p class="text-xs text-gray-400 mt-0.5">Qtd: {{ item.quantidade }}</p>
+                          }
+                          <p
+                            class="text-sm font-bold mt-1"
+                            style="color: var(--color-brand)"
+                          >
+                            R$ {{ itemPreco(item) * item.quantidade | number: '1.2-2' }}
+                          </p>
+                        </div>
+                        <ui-button
+                          variant="ghost"
+                          size="xs"
+                          (click)="removerCartItem(item.id)"
+                          aria-label="Remover item"
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </ui-button>
                       </div>
                     }
                   </div>
-                </div>
+                </section>
+
+                <!-- Delivery address -->
+                <section>
+                  <h3 class="text-sm font-semibold text-gray-700 mb-2">Endereço de entrega</h3>
+                  <div class="p-3 bg-gray-50 rounded-xl text-sm text-gray-700 leading-relaxed">
+                    {{ enderecoForm.logradouro }}, {{ enderecoForm.numero }}
+                    @if (enderecoForm.complemento) {
+                      <span class="text-gray-400"> — {{ enderecoForm.complemento }}</span>
+                    }
+                    <br />
+                    {{ enderecoForm.bairro }}, {{ enderecoForm.cidade }}/{{ enderecoForm.estado }}
+                    @if (enderecoForm.cep) {
+                      <span class="text-gray-400"> · {{ enderecoForm.cep }}</span>
+                    }
+                  </div>
+                </section>
+
+                <!-- Payment info -->
+                <section>
+                  <h3 class="text-sm font-semibold text-gray-700 mb-2">Pagamento</h3>
+                  <p class="text-sm text-gray-700">{{ formaPagamento }}</p>
+                  @if (observacoes) {
+                    <p class="text-xs text-gray-500 mt-1 italic">"{{ observacoes }}"</p>
+                  }
+                </section>
+
+                <!-- Totals -->
+                <section class="border-t border-gray-100 pt-4 space-y-2.5">
+                  <div class="flex items-center justify-between text-sm text-gray-600">
+                    <span>Subtotal</span>
+                    <span>R$ {{ subtotal | number: '1.2-2' }}</span>
+                  </div>
+                  <div class="flex items-center justify-between text-sm text-gray-600">
+                    <span>Taxa de entrega</span>
+                    @if (+loja.taxa_entrega === 0) {
+                      <span class="text-green-600 font-semibold">Grátis</span>
+                    } @else {
+                      <span>R$ {{ +loja.taxa_entrega | number: '1.2-2' }}</span>
+                    }
+                  </div>
+                  @if (desconto > 0) {
+                    <div class="flex items-center justify-between text-sm text-green-600">
+                      <span>Desconto ({{ cupomValidado()!.codigo }})</span>
+                      <span>−R$ {{ desconto | number: '1.2-2' }}</span>
+                    </div>
+                  }
+                  <div
+                    class="flex items-center justify-between text-base font-bold text-gray-900 pt-3 border-t border-gray-100"
+                  >
+                    <span>Total</span>
+                    <span>R$ {{ total | number: '1.2-2' }}</span>
+                  </div>
+                </section>
               }
             </div>
           }
         }
+      </div>
 
-        <!-- ── Endereço ───────────────────────────────────────────────── -->
-        @case ('endereco') {
-          <div class="px-5 py-5 space-y-5">
-
-            <!-- Saved addresses -->
-            @if (enderecosUsuario().length > 0) {
-              <section>
-                <h3 class="text-sm font-semibold text-gray-700 mb-3">Seus endereços</h3>
-                <div class="space-y-2">
-                  @for (end of enderecosUsuario(); track end.uuid) {
-                    <ui-button
-                      [variant]="enderecoSelecionadoUuid === end.uuid ? 'primary' : 'secondary'"
-                      [fullWidth]="true"
-                      (click)="selecionarEndereco(end)"
-                    >
-                      <div class="text-left w-full">
-                        <p class="font-semibold text-sm">
-                          {{ end.logradouro }}, {{ end.numero }}
-                          @if (end.complemento) { <span class="font-normal opacity-70">— {{ end.complemento }}</span> }
-                        </p>
-                        <p class="text-xs mt-0.5 opacity-70">{{ end.bairro }} · {{ end.cidade }}/{{ end.estado }}</p>
-                      </div>
-                    </ui-button>
-                  }
-                </div>
-
-                <div class="flex items-center gap-3 mt-5">
-                  <div class="flex-1 h-px bg-gray-200"></div>
-                  <span class="text-xs text-gray-400 shrink-0">ou preencha manualmente</span>
-                  <div class="flex-1 h-px bg-gray-200"></div>
-                </div>
-              </section>
-            }
-
-            @if (!isAuthenticated() && enderecosGuestSalvos().length > 0) {
-              <section>
-                <h3 class="text-sm font-semibold text-gray-700 mb-3">Endereços usados anteriormente</h3>
-                <div class="space-y-2">
-                  @for (end of enderecosGuestSalvos(); track end.id) {
-                    <ui-button
-                      [variant]="enderecoGuestSelecionadoId === end.id ? 'primary' : 'secondary'"
-                      [fullWidth]="true"
-                      (click)="selecionarEnderecoGuest(end)"
-                    >
-                      <div class="text-left w-full">
-                        <p class="font-semibold text-sm">
-                          {{ end.logradouro }}, {{ end.numero }}
-                          @if (end.complemento) { <span class="font-normal opacity-70">— {{ end.complemento }}</span> }
-                        </p>
-                        <p class="text-xs mt-0.5 opacity-70">{{ end.bairro }} · {{ end.cidade }}/{{ end.estado }}</p>
-                      </div>
-                    </ui-button>
-                  }
-                </div>
-
-                <div class="flex items-center gap-3 mt-5">
-                  <div class="flex-1 h-px bg-gray-200"></div>
-                  <span class="text-xs text-gray-400 shrink-0">ou preencha manualmente</span>
-                  <div class="flex-1 h-px bg-gray-200"></div>
-                </div>
-              </section>
-            }
-
-            <!-- Address form -->
-            <section class="space-y-3">
-              <app-endereco-form [(ngModel)]="enderecoForm" (ngModelChange)="onEnderecoInputChange()" />
-
-              @if (!enderecoValido && (enderecoForm.logradouro || enderecoForm.numero)) {
-                <p class="text-xs text-red-500">Preencha os campos obrigatórios (*).</p>
-              }
-            </section>
+      <!-- Footer CTA -->
+      <div class="px-5 py-4 border-t border-gray-100 shrink-0">
+        @if (!isLastStep) {
+          <div class="flex-1">
+            <ui-button
+              [fullWidth]="true"
+              [disabled]="!canAdvance"
+              (click)="avancar()"
+            >
+              Continuar
+            </ui-button>
+          </div>
+        } @else {
+          <div class="flex-1">
+            <ui-button
+              [fullWidth]="true"
+              [disabled]="cart().length === 0 || submitting()"
+              [loading]="submitting()"
+              (click)="confirmarPedido()"
+            >
+              Confirmar Pedido · R$ {{ total | number: '1.2-2' }}
+            </ui-button>
           </div>
         }
-
-        <!-- ── Pagamento ──────────────────────────────────────────────── -->
-        @case ('pagamento') {
-          <div class="px-5 py-5 space-y-6">
-
-            <!-- Forma de pagamento -->
-            <section>
-              <h3 class="text-sm font-semibold text-gray-700 mb-3">Forma de pagamento</h3>
-              <div class="grid grid-cols-3 gap-3">
-                @for (opt of formasPagamento; track opt.valor) {
-                  <ui-button
-                    [variant]="formaPagamento === opt.valor ? 'primary' : 'secondary'"
-                    [fullWidth]="true"
-                    (click)="formaPagamento = opt.valor"
-                  >
-                    <span class="flex flex-col items-center gap-1">
-                      <span class="text-2xl">{{ opt.emoji }}</span>
-                      <span>{{ opt.valor }}</span>
-                    </span>
-                  </ui-button>
-                }
-              </div>
-            </section>
-
-            <!-- Dados do pagador — apenas para PIX + usuário não autenticado -->
-            @if (formaPagamento === 'PIX' && !isAuthenticated()) {
-              <section class="bg-orange-50 border border-orange-100 rounded-2xl p-4 space-y-3">
-                <p class="text-xs font-semibold text-orange-700">
-                  📋 Para gerar o QR Code PIX precisamos do seu nome e CPF.
-                </p>
-                <ui-input
-                  label="Nome completo"
-                  [ngModel]="pagadorNome()"
-                  (ngModelChange)="pagadorNome.set($event)"
-                  placeholder="Seu nome completo"
-                />
-                <ui-input
-                  mask="cpf"
-                  label="CPF"
-                  [ngModel]="pagadorCpf()"
-                  (ngModelChange)="pagadorCpf.set($event)"
-                  placeholder="000.000.000-00"
-                />
-                @if (pagadorCpf().length === 11 && !canAdvance) {
-                  <p class="text-xs text-red-500 mt-1">CPF inválido.</p>
-                }
-              </section>
-            }
-
-            <!-- Cupom -->
-            <section>
-              <h3 class="text-sm font-semibold text-gray-700 mb-3">Cupom de desconto</h3>
-              @if (cupomValidado()) {
-                <div class="flex items-start justify-between p-4 bg-green-50 border border-green-200 rounded-2xl">
-                  <div>
-                    <div class="flex items-center gap-2 mb-0.5">
-                      <span class="text-green-600">✓</span>
-                      <span class="text-sm font-bold text-green-800">{{ cupomValidado()!.codigo }}</span>
-                    </div>
-                    <p class="text-xs text-green-700">{{ cupomValidado()!.descricao }}</p>
-                    <p class="text-xs text-green-600 mt-1">
-                      Desconto: -R$ {{ desconto | number:'1.2-2' }}
-                    </p>
-                  </div>
-                  <ui-button variant="ghost" size="xs" (click)="removerCupom()">Remover</ui-button>
-                </div>
-              } @else {
-                <div class="flex gap-2">
-                  <ui-input
-                    class="flex-1"
-                    [(ngModel)]="codigoCupom"
-                    placeholder="Código do cupom"
-                    (keydown.enter)="validarCupom()"
-                  />
-                  <ui-button
-                    [disabled]="validandoCupom() || !codigoCupom.trim()"
-                    [loading]="validandoCupom()"
-                    (click)="validarCupom()"
-                  >Aplicar</ui-button>
-                </div>
-                @if (cupomErro()) {
-                  <p class="text-xs text-red-500 mt-1.5">{{ cupomErro() }}</p>
-                }
-              }
-            </section>
-
-            <!-- Contato -->
-            <section>
-              <ui-input
-                mask="phone"
-                label="Contato"
-                [(ngModel)]="contato"
-                placeholder="(21) 9 9999-9999"
-              />
-            </section>
-
-            <!-- Observações -->
-            <section>
-              <ui-textarea
-                [(ngModel)]="observacoes"
-                label="Observações"
-                [rows]="3"
-                placeholder="Ex: sem cebola, troco para R$ 50, interfone 202..."
-              />
-            </section>
-          </div>
-        }
-
-        <!-- ── Resumo ──────────────────────────────────────────────────── -->
-        @case ('resumo') {
-          <div class="px-5 py-5 space-y-5">
-
-            <!-- Empty cart warning -->
-            @if (cart().length === 0) {
-              <div class="text-center py-12">
-                <div class="text-5xl mb-3">🛒</div>
-                <h3 class="text-base font-semibold text-gray-800 mb-1">Carrinho vazio</h3>
-                <p class="text-sm text-gray-500">Volte e adicione itens antes de confirmar.</p>
-              </div>
-            } @else {
-              <!-- Items list -->
-              <section>
-                <h3 class="text-sm font-semibold text-gray-700 mb-3">Itens do pedido</h3>
-                <div class="space-y-2">
-                  @for (item of cart(); track item.id) {
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
-                      <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-800 leading-tight">{{ itemLabel(item) }}</p>
-                        @if (item.partes.length === 1 && item.partes[0].adicionais.length > 0) {
-                          <p class="text-xs text-gray-400 mt-0.5">+ {{ adicionaisLabel(item.partes[0]) }}</p>
-                        }
-                        @if (item.partes.length > 1) {
-                          @for (parte of item.partes; track parte.posicao) {
-                            @if (parte.adicionais.length > 0) {
-                              <p class="text-xs text-gray-400 mt-0.5">
-                                Parte {{ parte.posicao }}: + {{ adicionaisLabel(parte) }}
-                              </p>
-                            }
-                          }
-                        }
-                        @if (item.quantidade > 1) {
-                          <p class="text-xs text-gray-400 mt-0.5">Qtd: {{ item.quantidade }}</p>
-                        }
-                        <p class="text-sm font-bold mt-1" style="color: var(--color-brand)">
-                          R$ {{ (itemPreco(item) * item.quantidade) | number:'1.2-2' }}
-                        </p>
-                      </div>
-                      <ui-button variant="ghost" size="xs" (click)="removerCartItem(item.id)" aria-label="Remover item">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                      </ui-button>
-                    </div>
-                  }
-                </div>
-              </section>
-
-              <!-- Delivery address -->
-              <section>
-                <h3 class="text-sm font-semibold text-gray-700 mb-2">Endereço de entrega</h3>
-                <div class="p-3 bg-gray-50 rounded-xl text-sm text-gray-700 leading-relaxed">
-                  {{ enderecoForm.logradouro }}, {{ enderecoForm.numero }}
-                  @if (enderecoForm.complemento) {
-                    <span class="text-gray-400"> — {{ enderecoForm.complemento }}</span>
-                  }
-                  <br/>
-                  {{ enderecoForm.bairro }}, {{ enderecoForm.cidade }}/{{ enderecoForm.estado }}
-                  @if (enderecoForm.cep) {
-                    <span class="text-gray-400"> · {{ enderecoForm.cep }}</span>
-                  }
-                </div>
-              </section>
-
-              <!-- Payment info -->
-              <section>
-                <h3 class="text-sm font-semibold text-gray-700 mb-2">Pagamento</h3>
-                <p class="text-sm text-gray-700">{{ formaPagamento }}</p>
-                @if (observacoes) {
-                  <p class="text-xs text-gray-500 mt-1 italic">"{{ observacoes }}"</p>
-                }
-              </section>
-
-              <!-- Totals -->
-              <section class="border-t border-gray-100 pt-4 space-y-2.5">
-                <div class="flex items-center justify-between text-sm text-gray-600">
-                  <span>Subtotal</span>
-                  <span>R$ {{ subtotal | number:'1.2-2' }}</span>
-                </div>
-                <div class="flex items-center justify-between text-sm text-gray-600">
-                  <span>Taxa de entrega</span>
-                  @if (+loja.taxa_entrega === 0) {
-                    <span class="text-green-600 font-semibold">Grátis</span>
-                  } @else {
-                    <span>R$ {{ +loja.taxa_entrega | number:'1.2-2' }}</span>
-                  }
-                </div>
-                @if (desconto > 0) {
-                  <div class="flex items-center justify-between text-sm text-green-600">
-                    <span>Desconto ({{ cupomValidado()!.codigo }})</span>
-                    <span>−R$ {{ desconto | number:'1.2-2' }}</span>
-                  </div>
-                }
-                <div class="flex items-center justify-between text-base font-bold text-gray-900 pt-3 border-t border-gray-100">
-                  <span>Total</span>
-                  <span>R$ {{ total | number:'1.2-2' }}</span>
-                </div>
-              </section>
-            }
-          </div>
-        }
-      }
-    </div>
-
-    <!-- Footer CTA -->
-    <div class="px-5 py-4 border-t border-gray-100 shrink-0">
-      @if (!isLastStep) {
-        <div class="flex-1">
-          <ui-button [fullWidth]="true" [disabled]="!canAdvance" (click)="avancar()">
-            Continuar
-          </ui-button>
-        </div>
-      } @else {
-        <div class="flex-1">
-          <ui-button [fullWidth]="true" [disabled]="cart().length === 0 || submitting()" [loading]="submitting()" (click)="confirmarPedido()">
-            Confirmar Pedido · R$ {{ total | number:'1.2-2' }}
-          </ui-button>
-        </div>
-      }
-    </div>
-
-    } <!-- end @else (not codigoCriado) -->
+      </div>
+    }
+    <!-- end @else (not codigoCriado) -->
   </div>
 </div>

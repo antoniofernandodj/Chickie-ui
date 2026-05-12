@@ -9,45 +9,84 @@
     <div>
       <div class="text-5xl mb-4">😕</div>
       <h1 class="text-xl font-bold text-gray-800 mb-2">Loja não encontrada</h1>
-      <a routerLink="/" class="text-sm font-medium hover:underline" style="color:var(--color-brand)">← Início</a>
+      <a
+        routerLink="/"
+        class="text-sm font-medium hover:underline"
+        style="color: var(--color-brand)"
+        >← Início</a
+      >
     </div>
   </div>
 } @else {
   <!-- Banner -->
-  <div class="relative h-56 sm:h-72 overflow-hidden bg-gradient-to-br from-orange-100 to-orange-200">
+  <div
+    class="relative h-56 sm:h-72 overflow-hidden bg-gradient-to-br from-orange-100 to-orange-200"
+  >
     @if (loja()!.banner_url) {
-      <img [src]="loja()!.banner_url" [alt]="loja()!.nome" class="w-full h-full object-cover"/>
+      <img
+        [src]="loja()!.banner_url"
+        [alt]="loja()!.nome"
+        class="w-full h-full object-cover"
+      />
     } @else {
       <div class="w-full h-full flex items-center justify-center text-8xl opacity-10">🍽️</div>
     }
-    <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%)"></div>
+    <div
+      class="absolute inset-0"
+      style="background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 55%)"
+    ></div>
     <div class="absolute bottom-0 left-0 right-0 p-6 flex items-end justify-between">
       <div class="flex items-end gap-4">
         @if (loja()!.logo_url) {
-          <div class="w-16 h-16 rounded-2xl bg-white shadow-lg overflow-hidden border-2 border-white shrink-0">
-            <img [src]="loja()!.logo_url" [alt]="loja()!.nome" class="w-full h-full object-cover"/>
+          <div
+            class="w-16 h-16 rounded-2xl bg-white shadow-lg overflow-hidden border-2 border-white shrink-0"
+          >
+            <img
+              [src]="loja()!.logo_url"
+              [alt]="loja()!.nome"
+              class="w-full h-full object-cover"
+            />
           </div>
         }
         <div>
           <h1 class="text-2xl font-bold text-white drop-shadow">{{ loja()!.nome }}</h1>
           @if (loja()!.horario_abertura && loja()!.horario_fechamento) {
-            <p class="text-white/75 text-sm">{{ loja()!.horario_abertura }} – {{ loja()!.horario_fechamento }}</p>
+            <p class="text-white/75 text-sm">
+              {{ loja()!.horario_abertura }} – {{ loja()!.horario_fechamento }}
+            </p>
           }
         </div>
       </div>
       @if (auth.isAuthenticated()) {
-        <div (click)="toggleFav()" (keydown.enter)="toggleFav()"
-             role="button" tabindex="0"
-             class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center
-                    text-white hover:bg-white/40 transition-colors cursor-pointer">
+        <div
+          (click)="toggleFav()"
+          (keydown.enter)="toggleFav()"
+          role="button"
+          tabindex="0"
+          class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center text-white hover:bg-white/40 transition-colors cursor-pointer"
+        >
           @if (favorita()) {
-            <svg class="w-5 h-5 fill-red-400 text-red-400" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            <svg
+              class="w-5 h-5 fill-red-400 text-red-400"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              />
             </svg>
           } @else {
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
             </svg>
           }
         </div>
@@ -57,7 +96,9 @@
 
   <!-- Info chips -->
   <div class="bg-white border-b border-gray-100 shadow-sm sticky top-16 z-30">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap gap-4 text-sm text-gray-600 overflow-x-auto">
+    <div
+      class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap gap-4 text-sm text-gray-600 overflow-x-auto"
+    >
       <span class="flex items-center gap-1.5 shrink-0">
         ⏱ <strong class="text-gray-900">{{ loja()!.tempo_preparo_min }}min</strong>
       </span>
@@ -66,24 +107,43 @@
         @if (loja()!.taxa_entrega === 0) {
           <strong class="text-green-600">Grátis</strong>
         } @else {
-          <strong class="text-gray-900">R$ {{ loja()!.taxa_entrega | number:'1.2-2' }}</strong>
+          <strong class="text-gray-900">R$ {{ loja()!.taxa_entrega | number: '1.2-2' }}</strong>
         }
       </span>
       <span class="flex items-center gap-1.5 shrink-0">
-        💳 Mín. <strong class="text-gray-900">R$ {{ loja()!.valor_minimo_pedido | number:'1.2-2' }}</strong>
+        💳 Mín.
+        <strong class="text-gray-900"
+          >R$ {{ loja()!.valor_minimo_pedido | number: '1.2-2' }}</strong
+        >
       </span>
       @if (loja()!.celular) {
         <span class="flex items-center gap-1.5 shrink-0">📞 {{ loja()!.celular | phone }}</span>
       }
-      <ui-loja-aberta class="ml-auto" [aberta]="lojaAbertaAgora()" variant="chip"/>
+      <ui-loja-aberta
+        class="ml-auto"
+        [aberta]="lojaAbertaAgora()"
+        variant="chip"
+      />
     </div>
   </div>
 
   @if (numeroMesa()) {
     <div class="bg-green-50 border-b border-green-200">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2 text-green-800 text-sm font-medium">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      <div
+        class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2 text-green-800 text-sm font-medium"
+      >
+        <svg
+          class="w-4 h-4 shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          />
         </svg>
         Atendimento na <strong>Mesa {{ numeroMesa() }}</strong> &mdash; sem taxa de entrega
       </div>
@@ -98,7 +158,9 @@
     <!-- Avaliação -->
     @if (auth.isAuthenticated()) {
       <section class="mb-10">
-        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">⭐ Avalie esta Loja</h2>
+        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          ⭐ Avalie esta Loja
+        </h2>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           @if (avaliacaoDoUsuario() && !mostrandoFormulario()) {
             <div>
@@ -106,20 +168,37 @@
                 <div>
                   <h3 class="text-sm font-semibold text-gray-900 mb-2">Sua avaliação:</h3>
                   <div class="flex gap-0.5">
-                    @for (star of [1,2,3,4,5]; track star) {
-                      <svg class="w-5 h-5" [class]="star <= toNumber(avaliacaoDoUsuario()!.nota) ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'" viewBox="0 0 24 24">
-                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                    @for (star of [1, 2, 3, 4, 5]; track star) {
+                      <svg
+                        class="w-5 h-5"
+                        [class]="
+                          star <= toNumber(avaliacaoDoUsuario()!.nota)
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'fill-gray-200 text-gray-200'
+                        "
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+                        />
                       </svg>
                     }
                   </div>
                 </div>
-                <ui-button variant="ghost" size="xs" (click)="abrirFormularioAvaliacao()">Editar</ui-button>
+                <ui-button
+                  variant="ghost"
+                  size="xs"
+                  (click)="abrirFormularioAvaliacao()"
+                  >Editar</ui-button
+                >
               </div>
               @if (avaliacaoDoUsuario()!.comentario) {
-                <p class="text-gray-600 text-sm leading-relaxed">{{ avaliacaoDoUsuario()!.comentario }}</p>
+                <p class="text-gray-600 text-sm leading-relaxed">
+                  {{ avaliacaoDoUsuario()!.comentario }}
+                </p>
               }
               <p class="text-xs text-gray-400 mt-4">
-                Publicada em {{ avaliacaoDoUsuario()!.criado_em | date:'dd/MM/yyyy' }}
+                Publicada em {{ avaliacaoDoUsuario()!.criado_em | date: 'dd/MM/yyyy' }}
               </p>
             </div>
           } @else if (mostrandoFormulario()) {
@@ -127,13 +206,18 @@
               [avaliacaoExistente]="!!avaliacaoDoUsuario()"
               [loading]="avaliacaoLoading()"
               (salvar)="salvarAvaliacao($event.nota, $event.comentario)"
-              (cancelar)="fecharFormularioAvaliacao()">
+              (cancelar)="fecharFormularioAvaliacao()"
+            >
             </app-avaliacao-loja-form>
           } @else {
             <div class="text-center py-6">
               <div class="text-4xl mb-3">⭐</div>
-              <h3 class="text-base font-semibold text-gray-800 mb-2">Você ainda não avaliou esta loja</h3>
-              <p class="text-gray-500 text-sm mb-4">Compartilhe sua experiência com outros clientes!</p>
+              <h3 class="text-base font-semibold text-gray-800 mb-2">
+                Você ainda não avaliou esta loja
+              </h3>
+              <p class="text-gray-500 text-sm mb-4">
+                Compartilhe sua experiência com outros clientes!
+              </p>
               <ui-button (click)="abrirFormularioAvaliacao()">Avaliar Loja</ui-button>
             </div>
           }
@@ -142,13 +226,26 @@
     }
 
     @if (!auth.isAuthenticated()) {
-      <div class="bg-orange-50 border border-orange-100 rounded-2xl p-8 text-center max-w-md mx-auto mb-10">
+      <div
+        class="bg-orange-50 border border-orange-100 rounded-2xl p-8 text-center max-w-md mx-auto mb-10"
+      >
         <div class="text-4xl mb-3">🔒</div>
         <h2 class="text-lg font-semibold text-gray-800 mb-2">Faça login para avaliar a loja</h2>
-        <p class="text-gray-500 text-sm mb-5">Acesse sua conta para compartilhar sua experiência.</p>
+        <p class="text-gray-500 text-sm mb-5">
+          Acesse sua conta para compartilhar sua experiência.
+        </p>
         <div class="flex justify-center gap-3">
-          <a routerLink="/auth/login" class="px-5 py-2.5 rounded-xl font-semibold text-white text-sm" style="background:var(--color-brand)">Entrar</a>
-          <a routerLink="/auth/signup" class="px-5 py-2.5 rounded-xl font-semibold text-sm border border-gray-200 text-gray-700 hover:bg-gray-50">Criar conta</a>
+          <a
+            routerLink="/auth/login"
+            class="px-5 py-2.5 rounded-xl font-semibold text-white text-sm"
+            style="background: var(--color-brand)"
+            >Entrar</a
+          >
+          <a
+            routerLink="/auth/signup"
+            class="px-5 py-2.5 rounded-xl font-semibold text-sm border border-gray-200 text-gray-700 hover:bg-gray-50"
+            >Criar conta</a
+          >
         </div>
       </div>
     }
@@ -156,14 +253,20 @@
     <!-- Horários -->
     @if (horarios().length > 0) {
       <section class="mb-10">
-        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">🕒 Horários de Funcionamento</h2>
+        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          🕒 Horários de Funcionamento
+        </h2>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="divide-y divide-gray-100">
             @for (horario of horarios(); track horario.uuid) {
               <div class="px-6 py-4 flex items-center justify-between">
-                <span class="font-medium text-gray-900 text-sm">{{ formatarDia(horario.dia_semana) }}</span>
+                <span class="font-medium text-gray-900 text-sm">{{
+                  formatarDia(horario.dia_semana)
+                }}</span>
                 @if (horario.ativo) {
-                  <span class="text-gray-600 text-sm">{{ horario.abertura }} – {{ horario.fechamento }}</span>
+                  <span class="text-gray-600 text-sm"
+                    >{{ horario.abertura }} – {{ horario.fechamento }}</span
+                  >
                 } @else {
                   <span class="text-gray-400 text-sm">Fechado</span>
                 }
@@ -188,7 +291,11 @@
         }
       </div>
     } @else if (produtos().length === 0) {
-      <ui-empty-state emoji="🍽️" title="Cardápio vazio" subtitle="Esta loja ainda não adicionou produtos."/>
+      <ui-empty-state
+        emoji="🍽️"
+        title="Cardápio vazio"
+        subtitle="Esta loja ainda não adicionou produtos."
+      />
     } @else {
       <!-- Destaques -->
       @if (destaques().length > 0) {
@@ -196,15 +303,23 @@
           <h2 class="text-lg font-bold text-gray-900 mb-4">⭐ Destaques</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @for (p of destaques(); track p.uuid) {
-              <div (click)="selecionarProduto(p)"
-                   class="bg-white rounded-2xl shadow-sm border-2 border-orange-100 overflow-hidden cursor-pointer
-                          hover:shadow-md hover:-translate-y-0.5 transition-all group">
+              <div
+                (click)="selecionarProduto(p)"
+                class="bg-white rounded-2xl shadow-sm border-2 border-orange-100 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all group"
+              >
                 <div class="relative h-40 overflow-hidden">
                   @if (p.imagem_url) {
-                    <img [src]="p.imagem_url" [alt]="p.nome"
-                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                    <img
+                      [src]="p.imagem_url"
+                      [alt]="p.nome"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                   } @else {
-                    <div class="w-full h-full bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center text-4xl opacity-50">🍴</div>
+                    <div
+                      class="w-full h-full bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center text-4xl opacity-50"
+                    >
+                      🍴
+                    </div>
                   }
                 </div>
                 <div class="p-4">
@@ -213,7 +328,11 @@
                     <p class="text-xs text-gray-500 line-clamp-2 mb-3">{{ p.descricao }}</p>
                   }
                   <div class="flex items-center justify-between">
-                    <span class="font-bold text-base" style="color:var(--color-brand)">R$ {{ p.preco | number:'1.2-2' }}</span>
+                    <span
+                      class="font-bold text-base"
+                      style="color: var(--color-brand)"
+                      >R$ {{ p.preco | number: '1.2-2' }}</span
+                    >
                     <span class="text-xs text-gray-400">{{ p.tempo_preparo_min }}min</span>
                   </div>
                 </div>
@@ -230,32 +349,53 @@
             <h2 class="text-lg font-bold text-gray-900 mb-4">
               {{ group.categoria.nome }}
               @if (group.categoria.descricao) {
-                <span class="text-sm font-normal text-gray-500 ml-2">— {{ group.categoria.descricao }}</span>
+                <span class="text-sm font-normal text-gray-500 ml-2"
+                  >— {{ group.categoria.descricao }}</span
+                >
               }
             </h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               @for (p of group.produtos; track p.uuid) {
-                <div (click)="selecionarProduto(p)"
-                     class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer
-                            hover:shadow-md hover:-translate-y-0.5 transition-all group">
-                  <div class="relative h-36 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                <div
+                  (click)="selecionarProduto(p)"
+                  class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all group"
+                >
+                  <div
+                    class="relative h-36 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100"
+                  >
                     @if (p.imagem_url) {
-                      <img [src]="p.imagem_url" [alt]="p.nome"
-                           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                      <img
+                        [src]="p.imagem_url"
+                        [alt]="p.nome"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                     } @else {
-                      <div class="w-full h-full flex items-center justify-center text-3xl opacity-30">🍴</div>
+                      <div
+                        class="w-full h-full flex items-center justify-center text-3xl opacity-30"
+                      >
+                        🍴
+                      </div>
                     }
                     @if (p.destaque) {
-                      <span class="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full">★</span>
+                      <span
+                        class="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full"
+                        >★</span
+                      >
                     }
                   </div>
                   <div class="p-4">
-                    <h3 class="font-semibold text-gray-900 text-sm leading-tight mb-1">{{ p.nome }}</h3>
+                    <h3 class="font-semibold text-gray-900 text-sm leading-tight mb-1">
+                      {{ p.nome }}
+                    </h3>
                     @if (p.descricao) {
                       <p class="text-xs text-gray-500 line-clamp-2 mb-3">{{ p.descricao }}</p>
                     }
                     <div class="flex items-center justify-between">
-                      <span class="font-bold" style="color:var(--color-brand)">R$ {{ p.preco | number:'1.2-2' }}</span>
+                      <span
+                        class="font-bold"
+                        style="color: var(--color-brand)"
+                        >R$ {{ p.preco | number: '1.2-2' }}</span
+                      >
                       <span class="text-xs text-gray-400">{{ p.tempo_preparo_min }}min</span>
                     </div>
                   </div>
@@ -269,27 +409,44 @@
           <h2 class="text-lg font-bold text-gray-900 mb-4">Cardápio</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @for (p of disponiveis(); track p.uuid) {
-              <div (click)="selecionarProduto(p)"
-                   class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer
-                          hover:shadow-md hover:-translate-y-0.5 transition-all group">
-                <div class="relative h-36 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+              <div
+                (click)="selecionarProduto(p)"
+                class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all group"
+              >
+                <div
+                  class="relative h-36 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100"
+                >
                   @if (p.imagem_url) {
-                    <img [src]="p.imagem_url" [alt]="p.nome"
-                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                    <img
+                      [src]="p.imagem_url"
+                      [alt]="p.nome"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                   } @else {
-                    <div class="w-full h-full flex items-center justify-center text-3xl opacity-30">🍴</div>
+                    <div class="w-full h-full flex items-center justify-center text-3xl opacity-30">
+                      🍴
+                    </div>
                   }
                   @if (p.destaque) {
-                    <span class="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full">★</span>
+                    <span
+                      class="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full"
+                      >★</span
+                    >
                   }
                 </div>
                 <div class="p-4">
-                  <h3 class="font-semibold text-gray-900 text-sm leading-tight mb-1">{{ p.nome }}</h3>
+                  <h3 class="font-semibold text-gray-900 text-sm leading-tight mb-1">
+                    {{ p.nome }}
+                  </h3>
                   @if (p.descricao) {
                     <p class="text-xs text-gray-500 line-clamp-2 mb-3">{{ p.descricao }}</p>
                   }
                   <div class="flex items-center justify-between">
-                    <span class="font-bold" style="color:var(--color-brand)">R$ {{ p.preco | number:'1.2-2' }}</span>
+                    <span
+                      class="font-bold"
+                      style="color: var(--color-brand)"
+                      >R$ {{ p.preco | number: '1.2-2' }}</span
+                    >
                     <span class="text-xs text-gray-400">{{ p.tempo_preparo_min }}min</span>
                   </div>
                 </div>
@@ -304,7 +461,9 @@
   <!-- FAB -->
   @if (!produtosLoading() && produtos().length > 0) {
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm">
-      <ui-button [fullWidth]="true" size="lg"
+      <ui-button
+        [fullWidth]="true"
+        size="lg"
         [disabled]="!lojaAbertaAgora()"
         (click)="abrirModalPedido()"
         class="shadow-xl rounded-2xl"

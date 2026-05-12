@@ -18,7 +18,14 @@ export { CFG as STATUS_PEDIDO_CFG };
   selector: 'ui-status-badge',
   standalone: true,
   template: `
-    <span [class]="'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ' + cfg().bg + ' ' + cfg().color">
+    <span
+      [class]="
+        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ' +
+        cfg().bg +
+        ' ' +
+        cfg().color
+      "
+    >
       {{ cfg().icon }} {{ cfg().label }}
     </span>
   `,

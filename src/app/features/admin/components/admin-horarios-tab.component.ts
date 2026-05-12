@@ -23,33 +23,25 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
     <div class="grid lg:grid-cols-2 gap-8">
       <!-- Criar Horário -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-base font-semibold text-gray-900 mb-5">
-          Adicionar Horário
-        </h2>
+        <h2 class="text-base font-semibold text-gray-900 mb-5">Adicionar Horário</h2>
         <form
           [formGroup]="horarioForm"
           (ngSubmit)="criarHorario()"
           class="space-y-4"
         >
           <div>
-            <label
-              class="block text-xs font-medium text-gray-700 mb-1.5">
-              Dia da Semana *
-            </label>
+            <label class="block text-xs font-medium text-gray-700 mb-1.5"> Dia da Semana * </label>
             @if (diasSemanaDisponiveis().length === 0) {
               <div
-                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-500 text-center">
+                class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-500 text-center"
+              >
                 Todos os 7 dias já estão cadastrados. Libere um dia para cadastrar outro.
               </div>
             } @else {
               <ui-select
                 formControlName="dia_semana"
                 size="sm"
-                [error]="
-                  hh.dia_semana.invalid && hh.dia_semana.touched ?
-                    'Dia é obrigatório' :
-                    null
-                "
+                [error]="hh.dia_semana.invalid && hh.dia_semana.touched ? 'Dia é obrigatório' : null"
               >
                 @for (dia of diasSemanaDisponiveis(); track dia.valor) {
                   <option [value]="dia.valor">{{ dia.nome }}</option>
@@ -64,9 +56,7 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
               label="Abertura *"
               size="sm"
               [error]="
-                hh.abertura.invalid && hh.abertura.touched ?
-                  'Hora de abertura é obrigatória' :
-                  null
+                hh.abertura.invalid && hh.abertura.touched ? 'Hora de abertura é obrigatória' : null
               "
             />
             <ui-input
@@ -75,9 +65,9 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
               label="Fechamento *"
               size="sm"
               [error]="
-                hh.fechamento.invalid && hh.fechamento.touched ?
-                  'Hora de fechamento é obrigatória' :
-                  null
+                hh.fechamento.invalid && hh.fechamento.touched
+                  ? 'Hora de fechamento é obrigatória'
+                  : null
               "
             />
           </div>
@@ -102,17 +92,11 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
 
       <!-- Lista de Horários -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-base font-semibold text-gray-900 mb-5">
-          Horários de Funcionamento
-        </h2>
+        <h2 class="text-base font-semibold text-gray-900 mb-5">Horários de Funcionamento</h2>
         @if (horarioLoading()) {
-          <p class="text-sm text-gray-500 py-8 text-center">
-            Carregando...
-          </p>
+          <p class="text-sm text-gray-500 py-8 text-center">Carregando...</p>
         } @else if (horarios().length === 0) {
-          <p class="text-sm text-gray-500 py-8 text-center">
-            Nenhum horário cadastrado.
-          </p>
+          <p class="text-sm text-gray-500 py-8 text-center">Nenhum horário cadastrado.</p>
         } @else {
           <div class="space-y-3">
             @for (horario of horarios(); track horario.uuid) {
@@ -120,12 +104,7 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
                 [horario]="horario"
                 [diaNome]="diasSemana[horario.dia_semana]?.nome ?? ''"
                 (toggleAtivo)="toggleDiaAtivo(horario)"
-                (deletar)="
-                  deletarDia(
-                    horario.dia_semana,
-                    diasSemana[horario.dia_semana]?.nome ?? ''
-                  )
-                "
+                (deletar)="deletarDia(horario.dia_semana, diasSemana[horario.dia_semana]?.nome ?? '')"
               />
             }
           </div>

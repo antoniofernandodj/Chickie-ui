@@ -1,25 +1,41 @@
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
   <!-- Back -->
-  <a routerLink="/pedidos"
-     class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6 transition-colors">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+  <a
+    routerLink="/pedidos"
+    class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6 transition-colors"
+  >
+    <svg
+      class="w-4 h-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M15 19l-7-7 7-7"
+      />
     </svg>
     Voltar para pedidos
   </a>
 
   @if (loading()) {
     <div class="space-y-4">
-      <ui-skeleton cls="h-6 w-1/2 rounded"/>
-      <ui-skeleton cls="h-32 rounded-2xl"/>
-      <ui-skeleton cls="h-48 rounded-2xl"/>
+      <ui-skeleton cls="h-6 w-1/2 rounded" />
+      <ui-skeleton cls="h-32 rounded-2xl" />
+      <ui-skeleton cls="h-48 rounded-2xl" />
     </div>
   } @else if (!pedido()) {
     <div class="text-center py-20">
       <div class="text-5xl mb-4">😕</div>
       <h1 class="text-xl font-bold text-gray-800 mb-2">Pedido não encontrado</h1>
-      <a routerLink="/pedidos" class="text-sm font-medium" style="color:var(--color-brand)">← Ver pedidos</a>
+      <a
+        routerLink="/pedidos"
+        class="text-sm font-medium"
+        style="color: var(--color-brand)"
+        >← Ver pedidos</a
+      >
     </div>
   } @else {
     <div class="flex items-start justify-between mb-6">
@@ -30,12 +46,16 @@
             Pedido #{{ pedido()!.codigo || pedido()!.uuid.slice(-8).toUpperCase() }}
           </h1>
           @if (isCancelled()) {
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+            <span
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700"
+            >
               ❌ Cancelado
             </span>
           }
           @if (pedido()!.pago) {
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+            <span
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700"
+            >
               ✅ Pago via PIX
             </span>
           }
@@ -46,9 +66,21 @@
     <!-- Banner de cancelamento -->
     @if (isCancelled()) {
       <div class="bg-red-50 border border-red-100 rounded-2xl p-6 mb-6 text-center">
-        <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3">
-          <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        <div
+          class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3"
+        >
+          <svg
+            class="w-7 h-7 text-red-500"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </div>
         <p class="text-base font-bold text-red-700 mb-1">Pedido cancelado</p>
@@ -65,27 +97,48 @@
           <div class="space-y-4">
             @for (step of steps; track step.status) {
               <div class="flex items-center gap-4 relative z-10">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 transition-all"
-                     [class.shadow-md]="isActive(step.status)"
-                     [class.bg-white]="!isActive(step.status) && !isDone(step.status)"
-                     [class.border-2]="!isActive(step.status) && !isDone(step.status)"
-                     [class.border-gray-200]="!isActive(step.status) && !isDone(step.status)"
-                     [style.background]="isActive(step.status) ? 'var(--color-brand)' : isDone(step.status) ? 'oklch(96% 0.04 40)' : ''">
+                <div
+                  class="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 transition-all"
+                  [class.shadow-md]="isActive(step.status)"
+                  [class.bg-white]="!isActive(step.status) && !isDone(step.status)"
+                  [class.border-2]="!isActive(step.status) && !isDone(step.status)"
+                  [class.border-gray-200]="!isActive(step.status) && !isDone(step.status)"
+                  [style.background]="
+                    isActive(step.status)
+                      ? 'var(--color-brand)'
+                      : isDone(step.status)
+                        ? 'oklch(96% 0.04 40)'
+                        : ''
+                  "
+                >
                   @if (isActive(step.status)) {
                     <span class="text-white">{{ step.icon }}</span>
                   } @else if (isDone(step.status)) {
-                    <svg class="w-4 h-4" style="color:var(--color-brand)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    <svg
+                      class="w-4 h-4"
+                      style="color: var(--color-brand)"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   } @else {
                     <span class="text-gray-300 text-sm">{{ step.icon }}</span>
                   }
                 </div>
                 <div>
-                  <p class="text-sm font-medium"
-                     [class.text-gray-900]="isActive(step.status) || isDone(step.status)"
-                     [class.text-gray-400]="!isActive(step.status) && !isDone(step.status)"
-                     [style.color]="isActive(step.status) ? 'var(--color-brand)' : ''">
+                  <p
+                    class="text-sm font-medium"
+                    [class.text-gray-900]="isActive(step.status) || isDone(step.status)"
+                    [class.text-gray-400]="!isActive(step.status) && !isDone(step.status)"
+                    [style.color]="isActive(step.status) ? 'var(--color-brand)' : ''"
+                  >
                     {{ step.label }}
                   </p>
                   @if (isActive(step.status)) {
@@ -103,7 +156,12 @@
     @if (isAuthenticated()) {
       <div class="mb-6">
         @if (!chatAberto()) {
-          <ui-button variant="secondary" [fullWidth]="true" size="lg" (click)="chatAberto.set(true)">
+          <ui-button
+            variant="secondary"
+            [fullWidth]="true"
+            size="lg"
+            (click)="chatAberto.set(true)"
+          >
             <span class="flex items-center justify-center gap-3">
               <span class="text-xl">💬</span>
               Precisa de ajuda? Chat com a loja
@@ -111,9 +169,24 @@
           </ui-button>
         } @else {
           <div class="relative">
-            <ui-button variant="ghost" size="xs" (click)="chatAberto.set(false)" class="absolute -top-3 -right-3 z-10">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <ui-button
+              variant="ghost"
+              size="xs"
+              (click)="chatAberto.set(false)"
+              class="absolute -top-3 -right-3 z-10"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </ui-button>
             <app-chat-panel
@@ -130,8 +203,18 @@
     @if (pedido()!.pago) {
       <div class="bg-green-50 border border-green-100 rounded-2xl p-5 mb-6 flex items-center gap-4">
         <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          <svg
+            class="w-5 h-5 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
         <div>
@@ -172,19 +255,28 @@
           }
 
           <div class="flex-1">
-            <ui-button [fullWidth]="true" [disabled]="pagando()" [loading]="pagando()" (click)="pagar()">
+            <ui-button
+              [fullWidth]="true"
+              [disabled]="pagando()"
+              [loading]="pagando()"
+              (click)="pagar()"
+            >
               Gerar QR Code PIX
             </ui-button>
           </div>
         } @else {
           <!-- QR Code exibido após criação da cobrança -->
           <h2 class="text-sm font-semibold text-gray-700 mb-1">Escaneie o QR Code</h2>
-          <p class="text-xs text-gray-400 mb-4">Abra o app do seu banco e escaneie o código abaixo.</p>
+          <p class="text-xs text-gray-400 mb-4">
+            Abra o app do seu banco e escaneie o código abaixo.
+          </p>
 
           <div class="flex justify-center mb-4">
-            <img [src]="'data:image/png;base64,' + pagamento()!.qr_code_image"
-                 alt="QR Code PIX"
-                 class="w-52 h-52 rounded-xl border border-gray-100"/>
+            <img
+              [src]="'data:image/png;base64,' + pagamento()!.qr_code_image"
+              alt="QR Code PIX"
+              class="w-52 h-52 rounded-xl border border-gray-100"
+            />
           </div>
 
           <p class="text-xs text-gray-500 text-center mb-2">Ou use o código copia e cola:</p>
@@ -195,7 +287,11 @@
             </p>
           </div>
 
-          <ui-button [variant]="copiado() ? 'secondary' : 'primary'" [fullWidth]="true" (click)="copiarPix()">
+          <ui-button
+            [variant]="copiado() ? 'secondary' : 'primary'"
+            [fullWidth]="true"
+            (click)="copiarPix()"
+          >
             {{ copiado() ? '✅ Copiado!' : 'Copiar código PIX' }}
           </ui-button>
 
@@ -216,22 +312,30 @@
               <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium text-gray-900">
                   {{ item.quantidade }}x
-                  @if (item.partes.length > 0) { {{ item.partes[0].produto_nome }} }
-                  @if (item.partes.length > 1) { + {{ item.partes.length - 1 }} sabor(es) }
+                  @if (item.partes.length > 0) {
+                    {{ item.partes[0].produto_nome }}
+                  }
+                  @if (item.partes.length > 1) {
+                    + {{ item.partes.length - 1 }} sabor(es)
+                  }
                 </span>
                 @if (item.partes.length > 0) {
                   <span class="text-sm font-semibold text-gray-800">
-                    R$ {{ totalItem(item) | number:'1.2-2' }}
+                    R$ {{ totalItem(item) | number: '1.2-2' }}
                   </span>
                 }
               </div>
               @for (parte of item.partes; track parte.uuid) {
                 <p class="text-xs text-gray-500 ml-3">
                   — {{ parte.produto_nome }}
-                  <span class="text-gray-400">(R$ {{ parte.preco_unitario | number:'1.2-2' }})</span>
+                  <span class="text-gray-400"
+                    >(R$ {{ parte.preco_unitario | number: '1.2-2' }})</span
+                  >
                 </p>
                 @for (ad of parte.adicionais; track ad.uuid) {
-                  <p class="text-xs text-gray-400 ml-6">+ {{ ad.nome }} (R$ {{ ad.preco | number:'1.2-2' }})</p>
+                  <p class="text-xs text-gray-400 ml-6">
+                    + {{ ad.nome }} (R$ {{ ad.preco | number: '1.2-2' }})
+                  </p>
                 }
               }
               @if (item.observacoes) {
@@ -249,16 +353,19 @@
         @if (!avaliacaoInline()) {
           <div class="text-center py-4">
             <p class="text-sm text-gray-600 mb-4">Seu pedido foi entregue! Que tal avaliar?</p>
-            <ui-button (click)="abrirAvaliacaoInline()">
-              ⭐ Avaliar pedido
-            </ui-button>
+            <ui-button (click)="abrirAvaliacaoInline()"> ⭐ Avaliar pedido </ui-button>
           </div>
         } @else {
           @switch (inlineStep()) {
             @case ('loja') {
               <div class="mb-4 flex items-center justify-between">
                 <h2 class="text-sm font-semibold text-gray-700">Avalie a loja</h2>
-                <ui-button variant="ghost" size="xs" (click)="onInlinePularLoja()">Pular</ui-button>
+                <ui-button
+                  variant="ghost"
+                  size="xs"
+                  (click)="onInlinePularLoja()"
+                  >Pular</ui-button
+                >
               </div>
               <p class="text-sm text-gray-500 mb-5">Como foi a experiência com a loja?</p>
               <app-avaliacao-loja-form
@@ -288,7 +395,9 @@
               <div class="text-center py-4">
                 <div class="text-4xl mb-3">⭐</div>
                 <h3 class="text-base font-bold text-gray-900 mb-1">Obrigado pela avaliação!</h3>
-                <p class="text-sm text-gray-500">Sua opinião ajuda outros clientes e melhora nosso serviço.</p>
+                <p class="text-sm text-gray-500">
+                  Sua opinião ajuda outros clientes e melhora nosso serviço.
+                </p>
               </div>
             }
           }
@@ -302,16 +411,19 @@
         @if (!avaliacaoInline()) {
           <div class="text-center py-4">
             <p class="text-sm text-gray-600 mb-4">Seu pedido foi entregue! Que tal avaliar?</p>
-            <ui-button (click)="abrirAvaliacaoInline()">
-              ⭐ Avaliar pedido
-            </ui-button>
+            <ui-button (click)="abrirAvaliacaoInline()"> ⭐ Avaliar pedido </ui-button>
           </div>
         } @else {
           @switch (inlineStep()) {
             @case ('loja') {
               <div class="mb-4 flex items-center justify-between">
                 <h2 class="text-sm font-semibold text-gray-700">Avalie a loja</h2>
-                <ui-button variant="ghost" size="xs" (click)="onInlinePularLoja()">Pular</ui-button>
+                <ui-button
+                  variant="ghost"
+                  size="xs"
+                  (click)="onInlinePularLoja()"
+                  >Pular</ui-button
+                >
               </div>
               <p class="text-sm text-gray-500 mb-5">Como foi a experiência com a loja?</p>
               <app-avaliacao-loja-form
@@ -341,7 +453,9 @@
               <div class="text-center py-4">
                 <div class="text-4xl mb-3">⭐</div>
                 <h3 class="text-base font-bold text-gray-900 mb-1">Obrigado pela avaliação!</h3>
-                <p class="text-sm text-gray-500">Sua opinião ajuda outros clientes e melhora nosso serviço.</p>
+                <p class="text-sm text-gray-500">
+                  Sua opinião ajuda outros clientes e melhora nosso serviço.
+                </p>
               </div>
             }
           }
@@ -360,7 +474,7 @@
     <!-- Resumo financeiro -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <h2 class="text-sm font-semibold text-gray-700 mb-4">Resumo</h2>
-        <div class="space-y-2 text-sm">
+      <div class="space-y-2 text-sm">
         <div class="flex justify-between text-gray-600">
           <span>Código</span>
           <span class="font-mono font-semibold text-gray-900">
@@ -369,28 +483,32 @@
         </div>
         <div class="flex justify-between text-gray-600">
           <span>Subtotal</span>
-          <span>R$ {{ pedido()!.subtotal | number:'1.2-2' }}</span>
+          <span>R$ {{ pedido()!.subtotal | number: '1.2-2' }}</span>
         </div>
         <div class="flex justify-between text-gray-600">
           <span>Taxa de entrega</span>
           @if (pedido()!.taxa_entrega === 0) {
             <span class="text-green-600 font-medium">Grátis</span>
           } @else {
-            <span>R$ {{ pedido()!.taxa_entrega | number:'1.2-2' }}</span>
+            <span>R$ {{ pedido()!.taxa_entrega | number: '1.2-2' }}</span>
           }
         </div>
         @if (pedido()!.desconto > 0) {
           <div class="flex justify-between text-green-600">
             <span>Desconto</span>
-            <span>- R$ {{ pedido()!.desconto | number:'1.2-2' }}</span>
+            <span>- R$ {{ pedido()!.desconto | number: '1.2-2' }}</span>
           </div>
         }
-        <div class="flex justify-between font-bold text-base text-gray-900 pt-3 border-t border-gray-100 mt-3">
+        <div
+          class="flex justify-between font-bold text-base text-gray-900 pt-3 border-t border-gray-100 mt-3"
+        >
           <span>Total</span>
           <div class="flex items-center gap-2">
-            <span>R$ {{ pedido()!.total | number:'1.2-2' }}</span>
+            <span>R$ {{ pedido()!.total | number: '1.2-2' }}</span>
             @if (pedido()!.pago) {
-              <span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Pago</span>
+              <span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full"
+                >Pago</span
+              >
             }
           </div>
         </div>

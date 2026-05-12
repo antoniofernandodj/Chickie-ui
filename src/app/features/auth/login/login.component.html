@@ -1,15 +1,24 @@
-<div class="min-h-[calc(100dvh-4rem)] flex items-center justify-center px-4 py-12"
-     style="background: var(--color-surface)">
+<div
+  class="min-h-[calc(100dvh-4rem)] flex items-center justify-center px-4 py-12"
+  style="background: var(--color-surface)"
+>
   <div class="w-full max-w-md">
     <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-
       <div class="text-center mb-8">
-        <ui-avatar initial="C" size="lg" class="mx-auto mb-4 block"/>
+        <ui-avatar
+          initial="C"
+          size="lg"
+          class="mx-auto mb-4 block"
+        />
         <h1 class="text-2xl font-bold text-gray-900">Bem-vindo de volta!</h1>
         <p class="text-gray-500 text-sm mt-1">Entre na sua conta Chiquitos</p>
       </div>
 
-      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5">
+      <form
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+        class="space-y-5"
+      >
         <ui-input
           formControlName="identifier"
           label="E-mail, username ou celular"
@@ -23,24 +32,38 @@
             [error]="senhaError()"
           />
           <div class="text-right mt-1.5">
-            <a routerLink="/auth/esqueci-senha" class="text-xs font-medium hover:underline" style="color:var(--color-brand)">
+            <a
+              routerLink="/auth/esqueci-senha"
+              class="text-xs font-medium hover:underline"
+              style="color: var(--color-brand)"
+            >
               Esqueci minha senha
             </a>
           </div>
         </div>
 
         @if (error()) {
-          <ui-error-banner [message]="error()"/>
+          <ui-error-banner [message]="error()" />
         }
 
-        <ui-button type="submit" [loading]="loading()" [disabled]="loading() || form.invalid" [fullWidth]="true" size="lg">
+        <ui-button
+          type="submit"
+          [loading]="loading()"
+          [disabled]="loading() || form.invalid"
+          [fullWidth]="true"
+          size="lg"
+        >
           Entrar
         </ui-button>
       </form>
 
       <p class="text-center text-sm text-gray-500 mt-6">
         Não tem conta?
-        <a routerLink="/auth/signup" class="font-semibold hover:underline" style="color:var(--color-brand)">
+        <a
+          routerLink="/auth/signup"
+          class="font-semibold hover:underline"
+          style="color: var(--color-brand)"
+        >
           Criar conta
         </a>
       </p>

@@ -12,16 +12,21 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
   template: `
     <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors group">
       @if (produto().imagem_url) {
-        <img [src]="produto().imagem_url" class="w-10 h-10 rounded-lg object-cover shrink-0"/>
+        <img
+          [src]="produto().imagem_url"
+          class="w-10 h-10 rounded-lg object-cover shrink-0"
+        />
       } @else {
-        <div class="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 shrink-0">
+        <div
+          class="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 shrink-0"
+        >
           <svg
             class="w-5 h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path 
+            <path
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
@@ -34,9 +39,7 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
         <p class="text-sm font-medium text-gray-900 truncate">
           {{ produto().nome }}
           @if (produto().destaque) {
-            <span class="ml-1 text-xs">
-              ⭐
-            </span>
+            <span class="ml-1 text-xs"> ⭐ </span>
           }
         </p>
         @if (produto().descricao) {
@@ -44,12 +47,8 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
         }
       </div>
       <div class="text-right shrink-0 ml-2">
-        <p class="text-sm font-semibold text-gray-900">
-          R$ {{ produto().preco | number:'1.2-2' }}
-        </p>
-        <p class="text-xs text-gray-400">
-          {{ produto().tempo_preparo_min }} min
-        </p>
+        <p class="text-sm font-semibold text-gray-900">R$ {{ produto().preco | number: '1.2-2' }}</p>
+        <p class="text-xs text-gray-400">{{ produto().tempo_preparo_min }} min</p>
       </div>
       <div class="shrink-0">
         <span
@@ -67,8 +66,8 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
           [available]="produto().disponivel"
           (toggle)="toggleDisponivel.emit()"
         />
-        <admin-edit-btn (edit)="editar.emit()"/>
-        <admin-remove-btn (remove)="remover.emit()"/>
+        <admin-edit-btn (edit)="editar.emit()" />
+        <admin-remove-btn (remove)="remover.emit()" />
       </div>
     </div>
   `,

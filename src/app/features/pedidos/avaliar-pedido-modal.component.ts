@@ -12,7 +12,11 @@ type Step = 'loja' | 'produtos' | 'concluido';
   standalone: true,
   imports: [UiModalComponent, UiButtonComponent, AvaliacaoLojaFormComponent, AvaliacaoProdutoFormComponent],
   template: `
-    <ui-modal [title]="modalTitle()" size="md" (close)="fechar.emit()">
+    <ui-modal
+      [title]="modalTitle()"
+      size="md"
+      (close)="fechar.emit()"
+    >
       <div class="p-5">
         @switch (step()) {
           @case ('loja') {
@@ -23,7 +27,12 @@ type Step = 'loja' | 'produtos' | 'concluido';
               [loading]="loadingLoja()"
               (salvar)="onAvaliarLoja($event)"
             />
-            <ui-button variant="ghost" [fullWidth]="true" class="mt-3 block" (click)="onPularLoja()">
+            <ui-button
+              variant="ghost"
+              [fullWidth]="true"
+              class="mt-3 block"
+              (click)="onPularLoja()"
+            >
               Pular avaliação da loja
             </ui-button>
           }
@@ -49,7 +58,11 @@ type Step = 'loja' | 'produtos' | 'concluido';
               <p class="text-sm text-gray-500 mb-6">
                 Sua opinião ajuda outros clientes e melhora nosso serviço.
               </p>
-              <ui-button size="lg" (click)="fechar.emit()">Fechar</ui-button>
+              <ui-button
+                size="lg"
+                (click)="fechar.emit()"
+                >Fechar</ui-button
+              >
             </div>
           }
         }

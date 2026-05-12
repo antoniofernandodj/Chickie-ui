@@ -1,5 +1,4 @@
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
@@ -11,16 +10,31 @@
 
   <!-- Formulário de Cadastro (modal overlay) -->
   @if (mostrandoFormulario()) {
-    <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-start justify-center pt-16 px-4"
-         (click)="fecharFormulario()">
-      <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[80vh] overflow-y-auto"
-           (click)="$event.stopPropagation()">
-        <div class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+    <div
+      class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-start justify-center pt-16 px-4"
+      (click)="fecharFormulario()"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[80vh] overflow-y-auto"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10"
+        >
           <h2 class="text-base font-semibold text-gray-900">Cadastrar Nova Loja</h2>
-          <ui-button variant="ghost" size="xs" (click)="fecharFormulario()">✕</ui-button>
+          <ui-button
+            variant="ghost"
+            size="xs"
+            (click)="fecharFormulario()"
+            >✕</ui-button
+          >
         </div>
 
-        <form [formGroup]="lojaForm" (ngSubmit)="criarLoja()" class="p-6 space-y-4">
+        <form
+          [formGroup]="lojaForm"
+          (ngSubmit)="criarLoja()"
+          class="p-6 space-y-4"
+        >
           <div class="grid sm:grid-cols-2 gap-4">
             <ui-input
               type="text"
@@ -28,7 +42,11 @@
               formControlName="nome"
               placeholder="Pizzaria do João"
               [state]="fl.nome.invalid && fl.nome.touched ? 'error' : 'default'"
-              [error]="fl.nome.invalid && fl.nome.touched ? 'Nome é obrigatório (mín. 3 caracteres).' : null"
+              [error]="
+                fl.nome.invalid && fl.nome.touched
+                  ? 'Nome é obrigatório (mín. 3 caracteres).'
+                  : null
+              "
             />
             <div>
               <ui-input
@@ -86,25 +104,53 @@
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-orange-100 file:text-orange-700 file:text-xs file:font-medium file:cursor-pointer"
               />
               @if (lojaImagemPreview()) {
-                <div class="relative w-full h-32 rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-gray-50">
+                <div
+                  class="relative w-full h-32 rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-gray-50"
+                >
                   <img
                     [src]="lojaImagemPreview()"
                     class="w-full h-full object-cover"
                     alt="Preview"
                   />
                   <div class="absolute top-2 right-2">
-                    <ui-button variant="danger" size="xs" type="button" (click)="limparInputImagem()" title="Remover imagem">✕</ui-button>
+                    <ui-button
+                      variant="danger"
+                      size="xs"
+                      type="button"
+                      (click)="limparInputImagem()"
+                      title="Remover imagem"
+                      >✕</ui-button
+                    >
                   </div>
                 </div>
               }
             </div>
-            <p class="text-[10px] text-gray-400">Recomendado: 1200x400px ou proporção 3:1. Máximo 20MB.</p>
+            <p class="text-[10px] text-gray-400">
+              Recomendado: 1200x400px ou proporção 3:1. Máximo 20MB.
+            </p>
           </div>
 
           <div class="grid sm:grid-cols-3 gap-4">
-            <ui-input type="number" label="Taxa Entrega (R$)" formControlName="taxa_entrega_base" [min]="0" [step]="0.01" />
-            <ui-input type="number" label="Pedido Mínimo (R$)" formControlName="pedido_minimo" [min]="0" [step]="0.01" />
-            <ui-input type="number" label="Tempo Médio (min)" formControlName="tempo_medio" [min]="1" />
+            <ui-input
+              type="number"
+              label="Taxa Entrega (R$)"
+              formControlName="taxa_entrega_base"
+              [min]="0"
+              [step]="0.01"
+            />
+            <ui-input
+              type="number"
+              label="Pedido Mínimo (R$)"
+              formControlName="pedido_minimo"
+              [min]="0"
+              [step]="0.01"
+            />
+            <ui-input
+              type="number"
+              label="Tempo Médio (min)"
+              formControlName="tempo_medio"
+              [min]="1"
+            />
           </div>
 
           @if (lojaError()) {
@@ -112,8 +158,17 @@
           }
 
           <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-            <ui-button type="button" variant="secondary" (click)="fecharFormulario()">Cancelar</ui-button>
-            <ui-button type="submit" [loading]="lojaLoading()" [disabled]="lojaLoading() || lojaForm.invalid">
+            <ui-button
+              type="button"
+              variant="secondary"
+              (click)="fecharFormulario()"
+              >Cancelar</ui-button
+            >
+            <ui-button
+              type="submit"
+              [loading]="lojaLoading()"
+              [disabled]="lojaLoading() || lojaForm.invalid"
+            >
               Criar Loja
             </ui-button>
           </div>
@@ -126,7 +181,7 @@
   @if (lojasLoading()) {
     <div class="flex justify-center">
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-3xl">
-        @for (_ of [1,2,3]; track $index) {
+        @for (_ of [1, 2, 3]; track $index) {
           <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="h-32 bg-gray-200 animate-pulse"></div>
             <div class="p-4 space-y-3">
@@ -150,31 +205,45 @@
     </div>
   } @else if (minhasLojas().length === 0) {
     <div class="text-center py-20">
-      <div class="w-20 h-20 mx-auto mb-5 rounded-2xl bg-orange-50 flex items-center justify-center text-4xl">🏪</div>
+      <div
+        class="w-20 h-20 mx-auto mb-5 rounded-2xl bg-orange-50 flex items-center justify-center text-4xl"
+      >
+        🏪
+      </div>
       <h2 class="text-lg font-semibold text-gray-800 mb-2">Nenhuma loja cadastrada</h2>
-      <p class="text-gray-500 text-sm max-w-sm mx-auto">Clique em "Nova Loja" para começar a gerenciar suas lojas.</p>
+      <p class="text-gray-500 text-sm max-w-sm mx-auto">
+        Clique em "Nova Loja" para começar a gerenciar suas lojas.
+      </p>
     </div>
   } @else {
     <div class="flex justify-center">
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-3xl">
         @for (loja of minhasLojas(); track loja.uuid) {
-          <div (click)="navegarParaPainel(loja)"
-               class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer
-                      hover:shadow-lg hover:-translate-y-1 transition-all group">
+          <div
+            (click)="navegarParaPainel(loja)"
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all group"
+          >
             <!-- Banner -->
-            <div class="h-32 relative overflow-hidden"
-                 [style.background]="'linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%)'">
+            <div
+              class="h-32 relative overflow-hidden"
+              [style.background]="'linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%)'"
+            >
               @if (loja.banner_url) {
-                <img [src]="loja.banner_url" [alt]="loja.nome"
-                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                <img
+                  [src]="loja.banner_url"
+                  [alt]="loja.nome"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
               } @else {
                 <div class="absolute inset-0 flex items-center justify-center">
                   <span class="text-5xl opacity-20">🍽️</span>
                 </div>
               }
               <!-- Status badge -->
-              <span class="absolute top-3 right-3 text-xs px-2.5 py-0.5 rounded-full font-semibold backdrop-blur-sm"
-                    [class]="loja.ativa ? 'bg-green-500/90 text-white' : 'bg-gray-500/90 text-white'">
+              <span
+                class="absolute top-3 right-3 text-xs px-2.5 py-0.5 rounded-full font-semibold backdrop-blur-sm"
+                [class]="loja.ativa ? 'bg-green-500/90 text-white' : 'bg-gray-500/90 text-white'"
+              >
                 {{ loja.ativa ? 'Ativa' : 'Inativa' }}
               </span>
             </div>
@@ -183,33 +252,51 @@
             <div class="p-4">
               <div class="flex items-start gap-3">
                 @if (loja.logo_url) {
-                  <div class="w-12 h-12 rounded-xl bg-white shadow-sm overflow-hidden border border-gray-100 shrink-0 flex items-center justify-center">
-                    <img [src]="loja.logo_url" [alt]="loja.nome" class="w-full h-full object-cover"/>
+                  <div
+                    class="w-12 h-12 rounded-xl bg-white shadow-sm overflow-hidden border border-gray-100 shrink-0 flex items-center justify-center"
+                  >
+                    <img
+                      [src]="loja.logo_url"
+                      [alt]="loja.nome"
+                      class="w-full h-full object-cover"
+                    />
                   </div>
                 } @else {
-                  <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-lg font-bold text-white shrink-0 shadow-sm">
+                  <div
+                    class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-lg font-bold text-white shrink-0 shadow-sm"
+                  >
                     {{ loja.nome.charAt(0).toUpperCase() }}
                   </div>
                 }
                 <div class="min-w-0 flex-1 pt-1">
-                  <h3 class="font-bold text-gray-900 text-sm truncate leading-tight">{{ loja.nome }}</h3>
+                  <h3 class="font-bold text-gray-900 text-sm truncate leading-tight">
+                    {{ loja.nome }}
+                  </h3>
                   <p class="text-xs text-gray-400 truncate mt-0.5 font-mono">{{ loja.slug }}</p>
                 </div>
               </div>
 
               @if (loja.descricao) {
-                <p class="text-xs text-gray-500 line-clamp-2 mt-3 leading-relaxed">{{ loja.descricao }}</p>
+                <p class="text-xs text-gray-500 line-clamp-2 mt-3 leading-relaxed">
+                  {{ loja.descricao }}
+                </p>
               }
 
-              <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-gray-500 mt-3 pt-3 border-t border-gray-100">
+              <div
+                class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-gray-500 mt-3 pt-3 border-t border-gray-100"
+              >
                 @if (loja.taxa_entrega !== null && loja.taxa_entrega !== undefined) {
-                  <span class="flex items-center gap-1">🛵 R$ {{ loja.taxa_entrega | number:'1.2-2' }}</span>
+                  <span class="flex items-center gap-1"
+                    >🛵 R$ {{ loja.taxa_entrega | number: '1.2-2' }}</span
+                  >
                 }
                 @if (loja.tempo_preparo_min) {
                   <span class="flex items-center gap-1">⏱ {{ loja.tempo_preparo_min }}min</span>
                 }
                 @if (loja.valor_minimo_pedido) {
-                  <span class="flex items-center gap-1">💳 Mín. R$ {{ loja.valor_minimo_pedido | number:'1.2-2' }}</span>
+                  <span class="flex items-center gap-1"
+                    >💳 Mín. R$ {{ loja.valor_minimo_pedido | number: '1.2-2' }}</span
+                  >
                 }
               </div>
             </div>

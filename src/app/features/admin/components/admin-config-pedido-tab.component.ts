@@ -21,20 +21,47 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
 
       @if (configPedidoLoading()) {
         <div class="flex items-center justify-center py-12">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2" style="border-color:var(--color-brand)"></div>
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2"
+            style="border-color: var(--color-brand)"
+          ></div>
         </div>
       } @else {
-        <form [formGroup]="configPedidoForm" (ngSubmit)="salvarConfigPedido()" class="space-y-5">
-          <ui-input formControlName="max_partes" type="number" label="Máximo de Partes por Item *" size="sm" min="1" max="8" step="1"
-                    hint="Quantidade máxima de partes/porções que um item pode ter."
-                    [error]="fcp.max_partes.invalid && fcp.max_partes.touched ? 'Valor deve ser entre 1 e 8' : null"/>
-          <ui-select formControlName="tipo_calculo" label="Tipo de Cálculo para Partes *" size="sm"
-                     hint="Como calcular o preço quando o cliente pede partes de itens diferentes."
-                     [error]="fcp.tipo_calculo.invalid && fcp.tipo_calculo.touched ? 'Selecione um tipo' : null">
+        <form
+          [formGroup]="configPedidoForm"
+          (ngSubmit)="salvarConfigPedido()"
+          class="space-y-5"
+        >
+          <ui-input
+            formControlName="max_partes"
+            type="number"
+            label="Máximo de Partes por Item *"
+            size="sm"
+            min="1"
+            max="8"
+            step="1"
+            hint="Quantidade máxima de partes/porções que um item pode ter."
+            [error]="
+              fcp.max_partes.invalid && fcp.max_partes.touched ? 'Valor deve ser entre 1 e 8' : null
+            "
+          />
+          <ui-select
+            formControlName="tipo_calculo"
+            label="Tipo de Cálculo para Partes *"
+            size="sm"
+            hint="Como calcular o preço quando o cliente pede partes de itens diferentes."
+            [error]="fcp.tipo_calculo.invalid && fcp.tipo_calculo.touched ? 'Selecione um tipo' : null"
+          >
             <option value="mais_caro">Preço do item mais caro</option>
             <option value="media_ponderada">Média ponderada dos preços</option>
           </ui-select>
-          <ui-button type="submit" [disabled]="configPedidoLoadingSubmit()" [loading]="configPedidoLoadingSubmit()" size="sm" [fullWidth]="true">
+          <ui-button
+            type="submit"
+            [disabled]="configPedidoLoadingSubmit()"
+            [loading]="configPedidoLoadingSubmit()"
+            size="sm"
+            [fullWidth]="true"
+          >
             💾 Salvar Configuração
           </ui-button>
         </form>

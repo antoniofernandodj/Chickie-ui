@@ -1,15 +1,36 @@
 <div class="min-h-screen bg-gray-50">
-
   <!-- Category hero -->
-  <section class="relative overflow-hidden py-14"
-           style="background: linear-gradient(135deg, oklch(20% 0.01 270) 0%, oklch(28% 0.05 280) 100%)">
-    <div class="absolute inset-0 opacity-10 pointer-events-none"
-         style="background-image: radial-gradient(circle at 20% 50%, var(--color-brand) 0%, transparent 50%)"></div>
+  <section
+    class="relative overflow-hidden py-14"
+    style="background: linear-gradient(135deg, oklch(20% 0.01 270) 0%, oklch(28% 0.05 280) 100%)"
+  >
+    <div
+      class="absolute inset-0 opacity-10 pointer-events-none"
+      style="
+        background-image: radial-gradient(
+          circle at 20% 50%,
+          var(--color-brand) 0%,
+          transparent 50%
+        );
+      "
+    ></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <a routerLink="/"
-         class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white mb-8 transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      <a
+        routerLink="/"
+        class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white mb-8 transition-colors"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
         Voltar para início
       </a>
@@ -36,7 +57,6 @@
 
   <!-- Content -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
     @if (loading()) {
       <div class="space-y-12">
         @for (_ of [1, 2]; track $index) {
@@ -62,15 +82,18 @@
           </div>
         }
       </div>
-
     } @else if (hasError()) {
-      <ui-empty-state emoji="😕" title="Não foi possível carregar"
-                      subtitle="Verifique sua conexão e tente novamente."/>
-
+      <ui-empty-state
+        emoji="😕"
+        title="Não foi possível carregar"
+        subtitle="Verifique sua conexão e tente novamente."
+      />
     } @else if (!data()!.lojas.length) {
-      <ui-empty-state emoji="🍽️" title="Nenhum produto disponível"
-                      subtitle="Nenhuma loja possui produtos nesta categoria no momento."/>
-
+      <ui-empty-state
+        emoji="🍽️"
+        title="Nenhum produto disponível"
+        subtitle="Nenhuma loja possui produtos nesta categoria no momento."
+      />
     } @else {
       <p class="text-sm text-gray-500 mb-8">
         {{ data()!.lojas.length }}
@@ -79,35 +102,60 @@
 
       <div class="space-y-12">
         @for (item of data()!.lojas; track item.loja.uuid) {
-
           <!-- Store header -->
           <div>
             <div class="flex items-center justify-between mb-6">
-              <a [routerLink]="['/loja', item.loja.slug]" class="flex items-center gap-3 group">
-                <div class="w-12 h-12 rounded-xl bg-white shadow border border-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+              <a
+                [routerLink]="['/loja', item.loja.slug]"
+                class="flex items-center gap-3 group"
+              >
+                <div
+                  class="w-12 h-12 rounded-xl bg-white shadow border border-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0"
+                >
                   @if (item.loja.logo_url) {
-                    <img [src]="item.loja.logo_url" [alt]="item.loja.nome" class="w-full h-full object-cover"/>
+                    <img
+                      [src]="item.loja.logo_url"
+                      [alt]="item.loja.nome"
+                      class="w-full h-full object-cover"
+                    />
                   } @else {
                     <span class="text-xl">🏪</span>
                   }
                 </div>
                 <div>
-                  <h2 class="font-bold text-gray-900 group-hover:text-orange-600 transition-colors flex items-center gap-2 flex-wrap">
+                  <h2
+                    class="font-bold text-gray-900 group-hover:text-orange-600 transition-colors flex items-center gap-2 flex-wrap"
+                  >
                     {{ item.loja.nome }}
-                    <ui-loja-aberta [aberta]="item.abertaAgora"/>
+                    <ui-loja-aberta [aberta]="item.abertaAgora" />
                   </h2>
                   <p class="text-xs text-gray-500 mt-0.5">
                     ⏱ {{ item.loja.tempo_preparo_min }}min &nbsp;·&nbsp;
-                    @if (item.loja.taxa_entrega === 0) { 🛵 Grátis }
-                    @else { 🛵 R$&nbsp;{{ item.loja.taxa_entrega | number:'1.2-2' }} }
+                    @if (item.loja.taxa_entrega === 0) {
+                      🛵 Grátis
+                    } @else {
+                      🛵 R$&nbsp;{{ item.loja.taxa_entrega | number: '1.2-2' }}
+                    }
                   </p>
                 </div>
               </a>
-              <a [routerLink]="['/loja', item.loja.slug]"
-                 class="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-xl border border-gray-200 hover:border-orange-400 hover:text-orange-600 text-gray-600 transition-colors">
+              <a
+                [routerLink]="['/loja', item.loja.slug]"
+                class="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-xl border border-gray-200 hover:border-orange-400 hover:text-orange-600 text-gray-600 transition-colors"
+              >
                 Ver loja
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </a>
             </div>
@@ -115,38 +163,52 @@
             <!-- Products grid -->
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               @for (produto of item.produtos; track produto.uuid) {
-                <a [routerLink]="['/loja', item.loja.slug]"
-                   class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:-translate-y-0.5">
-                  <div class="relative h-32 overflow-hidden bg-gradient-to-br from-orange-50 to-orange-100">
+                <a
+                  [routerLink]="['/loja', item.loja.slug]"
+                  class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:-translate-y-0.5"
+                >
+                  <div
+                    class="relative h-32 overflow-hidden bg-gradient-to-br from-orange-50 to-orange-100"
+                  >
                     @if (produto.imagem_url) {
-                      <img [src]="produto.imagem_url" [alt]="produto.nome"
-                           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                      <img
+                        [src]="produto.imagem_url"
+                        [alt]="produto.nome"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                     } @else {
                       <div class="w-full h-full flex items-center justify-center">
                         <span class="text-4xl opacity-30">🍽️</span>
                       </div>
                     }
                     @if (produto.destaque) {
-                      <span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-full text-xs font-semibold text-white"
-                            style="background: var(--color-brand)">Destaque</span>
+                      <span
+                        class="absolute top-2 left-2 px-1.5 py-0.5 rounded-full text-xs font-semibold text-white"
+                        style="background: var(--color-brand)"
+                        >Destaque</span
+                      >
                     }
                   </div>
                   <div class="p-3">
-                    <p class="font-semibold text-gray-900 text-sm leading-tight line-clamp-2 mb-1 group-hover:text-orange-600 transition-colors">
+                    <p
+                      class="font-semibold text-gray-900 text-sm leading-tight line-clamp-2 mb-1 group-hover:text-orange-600 transition-colors"
+                    >
                       {{ produto.nome }}
                     </p>
                     @if (produto.descricao) {
                       <p class="text-xs text-gray-400 line-clamp-1 mb-2">{{ produto.descricao }}</p>
                     }
-                    <p class="text-sm font-bold" style="color: var(--color-brand)">
-                      R$&nbsp;{{ produto.preco | number:'1.2-2' }}
+                    <p
+                      class="text-sm font-bold"
+                      style="color: var(--color-brand)"
+                    >
+                      R$&nbsp;{{ produto.preco | number: '1.2-2' }}
                     </p>
                   </div>
                 </a>
               }
             </div>
           </div>
-
         }
       </div>
     }

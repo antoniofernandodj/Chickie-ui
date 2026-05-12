@@ -25,7 +25,6 @@ import { UiButtonComponent, UiInputComponent } from '../../../shared/components'
   ],
   template: `
     <div class="space-y-6">
-
       <!-- Config card -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 max-w-sm">
         <h3 class="text-base font-semibold text-gray-900 mb-1">Configuração de Mesas</h3>
@@ -35,7 +34,10 @@ import { UiButtonComponent, UiInputComponent } from '../../../shared/components'
 
         @if (loading()) {
           <div class="flex items-center justify-center py-8">
-            <div class="animate-spin rounded-full h-7 w-7 border-b-2" style="border-color:var(--color-brand)"></div>
+            <div
+              class="animate-spin rounded-full h-7 w-7 border-b-2"
+              style="border-color: var(--color-brand)"
+            ></div>
           </div>
         } @else {
           <div class="flex gap-3 items-end">
@@ -52,7 +54,8 @@ import { UiButtonComponent, UiInputComponent } from '../../../shared/components'
               size="sm"
               [loading]="saving()"
               [disabled]="saving()"
-              (click)="salvar()">
+              (click)="salvar()"
+            >
               Salvar
             </ui-button>
           </div>
@@ -66,18 +69,35 @@ import { UiButtonComponent, UiInputComponent } from '../../../shared/components'
             <h3 class="text-base font-semibold text-gray-900">
               QR Codes — {{ mesas().length }} {{ mesas().length === 1 ? 'mesa' : 'mesas' }}
             </h3>
-            <ui-button variant="secondary" size="sm" (click)="imprimirTodos()">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+            <ui-button
+              variant="secondary"
+              size="sm"
+              (click)="imprimirTodos()"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                />
               </svg>
               Imprimir todos
             </ui-button>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div
+            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
+          >
             @for (mesa of mesas(); track mesa) {
-              <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col items-center gap-3">
+              <div
+                class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col items-center gap-3"
+              >
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Mesa</p>
                 <p class="text-2xl font-black text-gray-900 leading-none">{{ mesa }}</p>
                 <canvas
@@ -85,12 +105,27 @@ import { UiButtonComponent, UiInputComponent } from '../../../shared/components'
                   [attr.data-mesa]="mesa"
                   class="rounded-lg"
                   width="160"
-                  height="160">
+                  height="160"
+                >
                 </canvas>
-                <ui-button variant="secondary" size="xs" [fullWidth]="true" (click)="baixar(mesa)">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                <ui-button
+                  variant="secondary"
+                  size="xs"
+                  [fullWidth]="true"
+                  (click)="baixar(mesa)"
+                >
+                  <svg
+                    class="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
                   </svg>
                   Baixar PNG
                 </ui-button>
@@ -105,7 +140,6 @@ import { UiButtonComponent, UiInputComponent } from '../../../shared/components'
           <p class="text-xs mt-1">Defina a quantidade acima e salve para gerar os QR Codes.</p>
         </div>
       }
-
     </div>
   `,
 })

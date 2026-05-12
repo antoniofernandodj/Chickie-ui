@@ -34,18 +34,14 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
     <div class="grid lg:grid-cols-2 gap-8">
       <!-- Lista de adicionais -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h3 class="text-base font-semibold text-gray-900 mb-5">
-          🧀 Adicionais Cadastrados
-        </h3>
+        <h3 class="text-base font-semibold text-gray-900 mb-5">🧀 Adicionais Cadastrados</h3>
 
         @if (adcLoading()) {
-          @for (_ of [1,2,3]; track $index) {
+          @for (_ of [1, 2, 3]; track $index) {
             <div class="bg-gray-50 rounded-xl p-4 mb-2 skeleton h-16"></div>
           }
         } @else if (adicionais().length === 0) {
-          <p class="text-xs text-gray-400 text-center py-4">
-            Nenhum adicional cadastrado.
-          </p>
+          <p class="text-xs text-gray-400 text-center py-4">Nenhum adicional cadastrado.</p>
         } @else {
           <div class="space-y-2">
             @for (adc of adicionais(); track adc.uuid) {
@@ -63,39 +59,31 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
                     </p>
                   }
                   <p class="text-xs text-gray-400 mt-1">
-                    Criado em {{ adc.criado_em | date:'dd/MM/yyyy' }}
+                    Criado em {{ adc.criado_em | date: 'dd/MM/yyyy' }}
                   </p>
                 </div>
                 <div class="flex items-center gap-3 shrink-0 ml-3">
                   <div class="text-right">
                     <p class="text-sm font-semibold text-gray-900">
-                      R$ {{ adc.preco | number:'1.2-2' }}
+                      R$ {{ adc.preco | number: '1.2-2' }}
                     </p>
                     <span
                       class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
                       [class.bg-green-100]="adc.disponivel"
                       [class.text-green-700]="adc.disponivel"
                       [class.bg-red-100]="!adc.disponivel"
-                      [class.text-red-700]="!adc.disponivel">
-                        {{ adc.disponivel ? 'Disponível' : 'Indisponível' }}
+                      [class.text-red-700]="!adc.disponivel"
+                    >
+                      {{ adc.disponivel ? 'Disponível' : 'Indisponível' }}
                     </span>
                   </div>
                   <div class="flex gap-1">
                     <admin-toggle-available-btn
                       [available]="adc.disponivel"
-                      (toggle)="
-                        toggleDisponibilidadeAdicional(
-                          adc.uuid,
-                          adc.nome,
-                          adc.disponivel
-                        )
-                    "/>
-                    <admin-edit-btn
-                      (edit)="editarAdicional(adc)"
+                      (toggle)="toggleDisponibilidadeAdicional(adc.uuid, adc.nome, adc.disponivel)"
                     />
-                    <admin-remove-btn
-                      (remove)="deletarAdicional(adc.uuid, adc.nome)"
-                    />
+                    <admin-edit-btn (edit)="editarAdicional(adc)" />
+                    <admin-remove-btn (remove)="deletarAdicional(adc.uuid, adc.nome)" />
                   </div>
                 </div>
               </div>
@@ -107,7 +95,11 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
       <!-- Criar/Editar Adicional -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-base font-semibold text-gray-900 mb-5">
-          @if (adcEditId()) { 📝 Editar Adicional } @else { 🧀 Criar Adicional }
+          @if (adcEditId()) {
+            📝 Editar Adicional
+          } @else {
+            🧀 Criar Adicional
+          }
         </h3>
 
         <form
@@ -115,7 +107,6 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
           (ngSubmit)="adcEditId() ? salvarEdicaoAdicional() : criarAdicional()"
           class="space-y-3"
         >
-
           <ui-input
             formControlName="nome"
             label="Nome *"
@@ -153,7 +144,11 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
                 size="sm"
                 [fullWidth]="true"
               >
-                @if (adcEditId()) { Atualizar Adicional } @else { Criar Adicional }
+                @if (adcEditId()) {
+                  Atualizar Adicional
+                } @else {
+                  Criar Adicional
+                }
               </ui-button>
             </div>
             @if (adcEditId()) {
@@ -161,8 +156,9 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
                 type="button"
                 variant="secondary"
                 size="sm"
-                (click)="cancelarEdicaoAdicional()">
-                  Cancelar
+                (click)="cancelarEdicaoAdicional()"
+              >
+                Cancelar
               </ui-button>
             }
           </div>

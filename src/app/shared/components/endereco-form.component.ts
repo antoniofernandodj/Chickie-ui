@@ -21,29 +21,67 @@ import { UiSpinnerComponent } from './ui-spinner.component';
     }
   ],
   template: `
-    <form [formGroup]="form" class="grid grid-cols-2 gap-3">
+    <form
+      [formGroup]="form"
+      class="grid grid-cols-2 gap-3"
+    >
       <div class="col-span-2 relative">
-        <ui-input formControlName="cep" label="CEP" placeholder="00000-000" [size]="size()" />
+        <ui-input
+          formControlName="cep"
+          label="CEP"
+          placeholder="00000-000"
+          [size]="size()"
+        />
         @if (loading()) {
           <div class="absolute right-3 bottom-3.5">
-             <ui-spinner size="sm" />
+            <ui-spinner size="sm" />
           </div>
         }
       </div>
       <div class="col-span-2">
-        <ui-input formControlName="logradouro" label="Logradouro *" placeholder="Rua das Flores"
-                  [size]="size()" [error]="fieldError('logradouro')"/>
+        <ui-input
+          formControlName="logradouro"
+          label="Logradouro *"
+          placeholder="Rua das Flores"
+          [size]="size()"
+          [error]="fieldError('logradouro')"
+        />
       </div>
-      <ui-input formControlName="numero"      label="Número *"      placeholder="123"
-                [size]="size()" [error]="fieldError('numero')"/>
-      <ui-input formControlName="complemento" label="Complemento"   placeholder="Apto 101" [size]="size()"/>
-      <ui-input formControlName="bairro"      label="Bairro *"      placeholder="Centro"
-                [size]="size()" [error]="fieldError('bairro')"/>
-      <ui-input formControlName="cidade"      label="Cidade *"      placeholder="São Paulo"
-                [size]="size()" [error]="fieldError('cidade')"/>
+      <ui-input
+        formControlName="numero"
+        label="Número *"
+        placeholder="123"
+        [size]="size()"
+        [error]="fieldError('numero')"
+      />
+      <ui-input
+        formControlName="complemento"
+        label="Complemento"
+        placeholder="Apto 101"
+        [size]="size()"
+      />
+      <ui-input
+        formControlName="bairro"
+        label="Bairro *"
+        placeholder="Centro"
+        [size]="size()"
+        [error]="fieldError('bairro')"
+      />
+      <ui-input
+        formControlName="cidade"
+        label="Cidade *"
+        placeholder="São Paulo"
+        [size]="size()"
+        [error]="fieldError('cidade')"
+      />
       <div class="col-span-2">
-        <ui-input formControlName="estado" label="Estado *" placeholder="SP" [size]="size()"
-                  [error]="fieldError('estado')"/>
+        <ui-input
+          formControlName="estado"
+          label="Estado *"
+          placeholder="SP"
+          [size]="size()"
+          [error]="fieldError('estado')"
+        />
       </div>
     </form>
   `,

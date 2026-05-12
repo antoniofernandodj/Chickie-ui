@@ -33,11 +33,11 @@ const VARIANTS: Record<Variant, string> = {
     >
       @if (loading()) {
         <span class="flex items-center justify-center gap-2">
-          <ui-spinner size="sm"/>
-          <ng-content/>
+          <ui-spinner size="sm" />
+          <ng-content />
         </span>
       } @else {
-        <ng-content/>
+        <ng-content />
       }
     </button>
   `,

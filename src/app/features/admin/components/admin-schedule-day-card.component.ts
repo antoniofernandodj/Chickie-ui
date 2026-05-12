@@ -11,25 +11,17 @@ import { AdminScheduleDeleteBtnComponent } from './admin-schedule-delete-btn.com
     AdminScheduleDeleteBtnComponent
   ],
   template: `
-    <div
-      class="p-4 bg-gray-50 rounded-xl border border-gray-100">
-      <div
-        class="flex items-center justify-between gap-3">
-        <div
-          class="flex-1">
-          <p
-            class="text-sm font-medium text-gray-900">
-              {{ diaNome() }}
+    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex-1">
+          <p class="text-sm font-medium text-gray-900">
+            {{ diaNome() }}
             @if (!horario().ativo) {
-              <span
-                class="ml-2 text-xs text-gray-500">
-                  (Inativo)
-              </span>
+              <span class="ml-2 text-xs text-gray-500"> (Inativo) </span>
             }
           </p>
-          <p
-            class="text-xs text-gray-600 mt-1">
-              {{ horario().abertura }} - {{ horario().fechamento }}
+          <p class="text-xs text-gray-600 mt-1">
+            {{ horario().abertura }} - {{ horario().fechamento }}
           </p>
         </div>
         <div class="flex gap-2">
@@ -37,7 +29,7 @@ import { AdminScheduleDeleteBtnComponent } from './admin-schedule-delete-btn.com
             [ativo]="horario().ativo"
             (toggle)="toggleAtivo.emit()"
           />
-          <admin-schedule-delete-btn (delete)="deletar.emit()"/>
+          <admin-schedule-delete-btn (delete)="deletar.emit()" />
         </div>
       </div>
     </div>

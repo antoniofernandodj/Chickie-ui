@@ -1,24 +1,40 @@
 <div class="min-h-screen bg-gray-50 flex flex-col md:flex-row">
-  
   @switch (pdvStep()) {
-    
     <!-- PASSO 1: INICIO -->
     @case ('inicio') {
-      <div class="flex-1 flex flex-col items-center justify-center p-6 bg-white animate-in fade-in duration-500">
+      <div
+        class="flex-1 flex flex-col items-center justify-center p-6 bg-white animate-in fade-in duration-500"
+      >
         <div class="w-full max-w-lg text-center space-y-8">
           <div class="space-y-4">
-            <div class="w-32 h-32 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto text-6xl shadow-inner animate-bounce">
+            <div
+              class="w-32 h-32 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto text-6xl shadow-inner animate-bounce"
+            >
               🍕
             </div>
             <h1 class="text-4xl font-black text-gray-900 tracking-tight">PDV Chickie</h1>
             <p class="text-xl text-gray-500">Pronto para um novo atendimento?</p>
           </div>
 
-          <ui-button [fullWidth]="true" size="lg" (click)="iniciarPedido()"
-            class="!rounded-3xl !py-6 !text-2xl !font-black shadow-2xl shadow-orange-200">
+          <ui-button
+            [fullWidth]="true"
+            size="lg"
+            (click)="iniciarPedido()"
+            class="!rounded-3xl !py-6 !text-2xl !font-black shadow-2xl shadow-orange-200"
+          >
             Iniciar Novo Pedido
-            <svg class="w-8 h-8 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/>
+            <svg
+              class="w-8 h-8 ml-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </ui-button>
 
@@ -35,14 +51,29 @@
     <!-- PASSO 2: CONSTRUCAO -->
     @case ('construcao') {
       <!-- LADO ESQUERDO: CATÁLOGO -->
-      <div class="flex-1 flex flex-col h-screen overflow-hidden animate-in slide-in-from-left duration-300">
-        
+      <div
+        class="flex-1 flex flex-col h-screen overflow-hidden animate-in slide-in-from-left duration-300"
+      >
         <!-- Header de Busca e Categorias -->
         <div class="bg-white p-4 border-b border-gray-200 shadow-sm space-y-4">
           <div class="flex items-center gap-4">
-            <ui-button variant="ghost" size="xs" (click)="pdvStep.set('inicio')">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            <ui-button
+              variant="ghost"
+              size="xs"
+              (click)="pdvStep.set('inicio')"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
               </svg>
             </ui-button>
             <div class="flex-1">
@@ -60,13 +91,15 @@
               [variant]="!categoriaSelecionada() ? 'primary' : 'ghost'"
               size="sm"
               (click)="selecionarCategoria(null)"
-            >Tudo</ui-button>
+              >Tudo</ui-button
+            >
             @for (cat of categorias(); track cat.uuid) {
               <ui-button
                 [variant]="categoriaSelecionada() === cat.uuid ? 'primary' : 'ghost'"
                 size="sm"
                 (click)="selecionarCategoria(cat.uuid)"
-              >{{ cat.nome }}</ui-button>
+                >{{ cat.nome }}</ui-button
+              >
             }
           </div>
         </div>
@@ -75,40 +108,84 @@
         <div class="flex-1 overflow-y-auto p-4 md:p-6">
           @if (loading()) {
             <div class="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              @for (i of [1,2,3,4,5,6,7,8]; track i) {
+              @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
                 <div class="aspect-square bg-gray-200 animate-pulse rounded-2xl"></div>
               }
             </div>
           } @else if (produtosFiltrados().length === 0) {
             <div class="flex flex-col items-center justify-center h-64 text-gray-400">
-              <svg class="w-16 h-16 mb-2 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+              <svg
+                class="w-16 h-16 mb-2 opacity-20"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                />
               </svg>
               <p>Nenhum produto encontrado</p>
             </div>
           } @else {
             <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
               @for (prod of produtosFiltrados(); track prod.uuid) {
-                <div role="button" tabindex="0"
+                <div
+                  role="button"
+                  tabindex="0"
                   (click)="adicionarAoCarrinho(prod)"
                   (keydown.enter)="adicionarAoCarrinho(prod)"
                   class="group relative bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all text-left flex flex-col h-full active:scale-95 cursor-pointer"
                 >
                   @if (prod.imagem_url) {
-                    <img [src]="prod.imagem_url" class="w-full h-24 object-cover rounded-xl mb-3" alt="">
+                    <img
+                      [src]="prod.imagem_url"
+                      class="w-full h-24 object-cover rounded-xl mb-3"
+                      alt=""
+                    />
                   } @else {
-                    <div class="w-full h-24 bg-gray-50 rounded-xl mb-3 flex items-center justify-center text-gray-300">
-                      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    <div
+                      class="w-full h-24 bg-gray-50 rounded-xl mb-3 flex items-center justify-center text-gray-300"
+                    >
+                      <svg
+                        class="w-8 h-8"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                       </svg>
                     </div>
                   }
-                  <div class="font-bold text-gray-900 leading-tight mb-1 line-clamp-2">{{ prod.nome }}</div>
+                  <div class="font-bold text-gray-900 leading-tight mb-1 line-clamp-2">
+                    {{ prod.nome }}
+                  </div>
                   <div class="mt-auto pt-2 flex items-center justify-between">
-                    <span class="text-orange-600 font-black">R$ {{ prod.preco | number:'1.2-2' }}</span>
-                    <div class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    <span class="text-orange-600 font-black"
+                      >R$ {{ prod.preco | number: '1.2-2' }}</span
+                    >
+                    <div
+                      class="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 4v16m8-8H4"
+                        />
                       </svg>
                     </div>
                   </div>
@@ -120,15 +197,33 @@
       </div>
 
       <!-- LADO DIREITO: COMANDA / CARRINHO -->
-      <div class="w-full md:w-[400px] lg:w-[450px] bg-white border-l border-gray-200 flex flex-col h-screen shadow-2xl z-10 animate-in slide-in-from-right duration-300">
-        <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0">
+      <div
+        class="w-full md:w-[400px] lg:w-[450px] bg-white border-l border-gray-200 flex flex-col h-screen shadow-2xl z-10 animate-in slide-in-from-right duration-300"
+      >
+        <div
+          class="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0"
+        >
           <div>
             <h2 class="text-xl font-black text-gray-900">Comanda Atual</h2>
             <p class="text-sm text-gray-500">Mesa: Balcão / PDV</p>
           </div>
-          <ui-button variant="ghost" size="xs" (click)="limparCarrinho()">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          <ui-button
+            variant="ghost"
+            size="xs"
+            (click)="limparCarrinho()"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
             </svg>
           </ui-button>
         </div>
@@ -136,17 +231,31 @@
         <!-- Lista de Itens -->
         <div class="flex-1 overflow-y-auto p-4 space-y-3">
           @if (itens().length === 0) {
-            <div class="h-full flex flex-col items-center justify-center text-gray-400 opacity-50 space-y-4">
+            <div
+              class="h-full flex flex-col items-center justify-center text-gray-400 opacity-50 space-y-4"
+            >
               <div class="w-24 h-24 rounded-full bg-gray-50 flex items-center justify-center">
-                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                <svg
+                  class="w-12 h-12"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                  />
                 </svg>
               </div>
               <p class="font-medium">O carrinho está vazio</p>
             </div>
           } @else {
             @for (item of itens(); track item.id) {
-              <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 group animate-in slide-in-from-right duration-300">
+              <div
+                class="bg-gray-50 p-4 rounded-2xl border border-gray-100 group animate-in slide-in-from-right duration-300"
+              >
                 <div class="flex justify-between gap-4">
                   <div class="flex-1">
                     <div class="font-bold text-gray-900">
@@ -155,7 +264,9 @@
                     @for (parte of item.partes; track parte.posicao) {
                       @if (parte.adicionais.length > 0) {
                         <div class="text-[10px] text-gray-500 mt-1">
-                          @if (item.partes.length > 1) { <span class="font-bold">Parte {{ parte.posicao }}:</span> }
+                          @if (item.partes.length > 1) {
+                            <span class="font-bold">Parte {{ parte.posicao }}:</span>
+                          }
                           + {{ parte.adicionais.map(a => a.nome).join(', ') }}
                         </div>
                       }
@@ -167,12 +278,27 @@
                 </div>
                 <div class="mt-3 flex items-center justify-between">
                   <span class="text-sm font-black text-orange-600">
-                    R$ {{ (item.partes.reduce((s, p) => s + +p.produto.preco, 0) / item.partes.length) | number:'1.2-2' }}
+                    R$
+                    {{ (item.partes.reduce((s, p) => s + +p.produto.preco, 0) / item.partes.length) | number:'1.2-2' }}
                   </span>
                   <div class="flex items-center gap-1">
-                    <ui-button variant="ghost" size="xs" (click)="removerDoCarrinho(item.id)">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    <ui-button
+                      variant="ghost"
+                      size="xs"
+                      (click)="removerDoCarrinho(item.id)"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
                       </svg>
                     </ui-button>
                   </div>
@@ -186,14 +312,31 @@
         <div class="p-6 bg-white border-t border-gray-100 space-y-4">
           <div class="flex items-center justify-between text-lg">
             <span class="text-gray-500 font-medium">Total</span>
-            <span class="text-2xl font-black text-gray-900">R$ {{ subtotal() | number:'1.2-2' }}</span>
+            <span class="text-2xl font-black text-gray-900"
+              >R$ {{ subtotal() | number: '1.2-2' }}</span
+            >
           </div>
 
           <div class="flex-1">
-            <ui-button [fullWidth]="true" size="lg" [disabled]="itens().length === 0" (click)="avancarParaPagamento()">
+            <ui-button
+              [fullWidth]="true"
+              size="lg"
+              [disabled]="itens().length === 0"
+              (click)="avancarParaPagamento()"
+            >
               Finalizar Venda
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
               </svg>
             </ui-button>
           </div>
@@ -203,38 +346,58 @@
 
     <!-- PASSO 3: FINALIZACAO (Pagamento) -->
     @case ('finalizacao') {
-      <div class="flex-1 flex flex-col items-center justify-center p-6 bg-gray-50 animate-in slide-in-from-bottom duration-300">
-        <div class="w-full max-w-2xl bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row">
-          
+      <div
+        class="flex-1 flex flex-col items-center justify-center p-6 bg-gray-50 animate-in slide-in-from-bottom duration-300"
+      >
+        <div
+          class="w-full max-w-2xl bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row"
+        >
           <!-- Resumo Lateral -->
           <div class="w-full md:w-80 bg-gray-900 text-white p-8 flex flex-col justify-between">
             <div>
-              <ui-button variant="ghost" size="xs" (click)="voltarParaConstrucao()" class="mb-8">
+              <ui-button
+                variant="ghost"
+                size="xs"
+                (click)="voltarParaConstrucao()"
+                class="mb-8"
+              >
                 <span class="flex items-center gap-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                    />
                   </svg>
                   Voltar
                 </span>
               </ui-button>
               <h3 class="text-2xl font-black mb-1">Pagamento</h3>
-              <p class="text-gray-400 text-sm">Confirme o valor e selecione a forma de pagamento.</p>
-              
+              <p class="text-gray-400 text-sm">
+                Confirme o valor e selecione a forma de pagamento.
+              </p>
+
               <div class="mt-8 space-y-4">
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-500">Subtotal</span>
-                  <span>R$ {{ subtotal() | number:'1.2-2' }}</span>
+                  <span>R$ {{ subtotal() | number: '1.2-2' }}</span>
                 </div>
                 <div class="flex justify-between text-xl font-black pt-4 border-t border-gray-800">
                   <span>Total</span>
-                  <span class="text-orange-500">R$ {{ subtotal() | number:'1.2-2' }}</span>
+                  <span class="text-orange-500">R$ {{ subtotal() | number: '1.2-2' }}</span>
                 </div>
               </div>
             </div>
 
             <div class="text-xs text-gray-500 mt-8">
-              Loja: {{ loja()?.nome }}<br>
-              Data: {{ today | date:'dd/MM/yyyy HH:mm' }}
+              Loja: {{ loja()?.nome }}<br />
+              Data: {{ today | date: 'dd/MM/yyyy HH:mm' }}
             </div>
           </div>
 
@@ -243,55 +406,116 @@
             <h4 class="font-bold text-gray-900 mb-6">Como o cliente pagou?</h4>
 
             <div class="grid gap-3">
-              <ui-button variant="secondary" [fullWidth]="true" size="lg" (click)="confirmarVenda('Dinheiro')">
+              <ui-button
+                variant="secondary"
+                [fullWidth]="true"
+                size="lg"
+                (click)="confirmarVenda('Dinheiro')"
+              >
                 <div class="flex items-center justify-between w-full">
                   <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center text-3xl shadow-sm">💵</div>
+                    <div
+                      class="w-14 h-14 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center text-3xl shadow-sm"
+                    >
+                      💵
+                    </div>
                     <div class="text-left">
                       <span class="block text-xl font-black text-gray-800">Dinheiro</span>
                       <span class="text-xs text-gray-500">Pagamento em espécie</span>
                     </div>
                   </div>
-                  <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  <svg
+                    class="w-6 h-6 text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </div>
               </ui-button>
 
-              <ui-button variant="secondary" [fullWidth]="true" size="lg" (click)="confirmarVenda('Cartão')">
+              <ui-button
+                variant="secondary"
+                [fullWidth]="true"
+                size="lg"
+                (click)="confirmarVenda('Cartão')"
+              >
                 <div class="flex items-center justify-between w-full">
                   <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-3xl shadow-sm">💳</div>
+                    <div
+                      class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-3xl shadow-sm"
+                    >
+                      💳
+                    </div>
                     <div class="text-left">
                       <span class="block text-xl font-black text-gray-800">Cartão</span>
                       <span class="text-xs text-gray-500">Débito ou Crédito na maquininha</span>
                     </div>
                   </div>
-                  <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  <svg
+                    class="w-6 h-6 text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </div>
               </ui-button>
 
-              <ui-button variant="secondary" [fullWidth]="true" size="lg" (click)="confirmarVenda('PIX')">
+              <ui-button
+                variant="secondary"
+                [fullWidth]="true"
+                size="lg"
+                (click)="confirmarVenda('PIX')"
+              >
                 <div class="flex items-center justify-between w-full">
                   <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center text-3xl shadow-sm">📱</div>
+                    <div
+                      class="w-14 h-14 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center text-3xl shadow-sm"
+                    >
+                      📱
+                    </div>
                     <div class="text-left">
                       <span class="block text-xl font-black text-gray-800">PIX</span>
                       <span class="text-xs text-gray-500">Transferência instantânea</span>
                     </div>
                   </div>
-                  <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  <svg
+                    class="w-6 h-6 text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </div>
               </ui-button>
             </div>
 
             @if (enviandoPedido()) {
-              <div class="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-20">
-                <div class="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <div
+                class="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-20"
+              >
+                <div
+                  class="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4"
+                ></div>
                 <p class="font-black text-gray-900">Processando Venda...</p>
               </div>
             }
@@ -312,5 +536,4 @@
       (adicionarItem)="onItemCustomizado($event)"
     />
   }
-
 </div>

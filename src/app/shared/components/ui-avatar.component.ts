@@ -6,7 +6,10 @@ const SIZES = { sm: 'w-8 h-8 text-sm', md: 'w-10 h-10 text-base', lg: 'w-16 h-16
   selector: 'ui-avatar',
   standalone: true,
   template: `
-    <div [class]="cls()" style="background:var(--color-brand)">
+    <div
+      [class]="cls()"
+      style="background: var(--color-brand)"
+    >
       {{ initial() }}
     </div>
   `,

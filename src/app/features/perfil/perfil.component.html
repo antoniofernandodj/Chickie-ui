@@ -1,13 +1,20 @@
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <h1 class="text-2xl font-bold text-gray-900 mb-8">Meu Perfil</h1>
 
-  <ui-tab-bar [tabs]="tabs" [(active)]="abaAtiva" class="mb-8 block"/>
+  <ui-tab-bar
+    [tabs]="tabs"
+    [(active)]="abaAtiva"
+    class="mb-8 block"
+  />
 
   <!-- Aba: Conta -->
   @if (abaAtiva() === 'conta') {
     <ui-card padding="lg">
       <div class="flex items-center gap-4 mb-6">
-        <ui-avatar [initial]="initial()" size="lg"/>
+        <ui-avatar
+          [initial]="initial()"
+          size="lg"
+        />
         <div>
           <p class="font-semibold text-gray-900 text-lg">{{ nomeExibido() }}</p>
           <p class="text-sm text-gray-500">Conta Chiquitos</p>
@@ -19,7 +26,12 @@
           <span class="font-medium text-green-600">Ativa</span>
         </div>
       </div>
-      <ui-button variant="danger" [fullWidth]="true" class="mt-6 block" (click)="logout()">
+      <ui-button
+        variant="danger"
+        [fullWidth]="true"
+        class="mt-6 block"
+        (click)="logout()"
+      >
         Sair da conta
       </ui-button>
     </ui-card>
@@ -28,24 +40,40 @@
   <!-- Aba: Endereços -->
   @if (abaAtiva() === 'enderecos') {
     <div class="space-y-4">
-
       @if (showForm()) {
         <ui-card padding="lg">
           <h2 class="text-base font-semibold text-gray-900 mb-5">
             {{ editando() ? 'Editar endereço' : 'Novo endereço' }}
           </h2>
-          <form [formGroup]="formEnd" (ngSubmit)="salvarEndereco()" class="space-y-4">
-            <app-endereco-form formControlName="endereco" size="sm" />
+          <form
+            [formGroup]="formEnd"
+            (ngSubmit)="salvarEndereco()"
+            class="space-y-4"
+          >
+            <app-endereco-form
+              formControlName="endereco"
+              size="sm"
+            />
 
             @if (formError()) {
               <p class="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{{ formError() }}</p>
             }
 
             <div class="flex gap-3">
-              <ui-button type="button" variant="secondary" [fullWidth]="true" (click)="cancelarForm()">
+              <ui-button
+                type="button"
+                variant="secondary"
+                [fullWidth]="true"
+                (click)="cancelarForm()"
+              >
                 Cancelar
               </ui-button>
-              <ui-button type="submit" [loading]="formLoading()" [disabled]="formLoading() || formEnd.invalid" [fullWidth]="true">
+              <ui-button
+                type="submit"
+                [loading]="formLoading()"
+                [disabled]="formLoading() || formEnd.invalid"
+                [fullWidth]="true"
+              >
                 {{ formLoading() ? 'Salvando...' : 'Salvar' }}
               </ui-button>
             </div>
@@ -54,7 +82,7 @@
       }
 
       @if (endLoading()) {
-        @for (_ of [1,2]; track $index) {
+        @for (_ of [1, 2]; track $index) {
           <div class="bg-white rounded-2xl p-5 h-28 skeleton"></div>
         }
       } @else {
@@ -66,25 +94,55 @@
                 <div>
                   <p class="font-medium text-gray-900 text-sm">
                     {{ end.logradouro }}, {{ end.numero }}
-                    @if (end.complemento) { — {{ end.complemento }} }
+                    @if (end.complemento) {
+                      — {{ end.complemento }}
+                    }
                   </p>
                   <p class="text-xs text-gray-500 mt-0.5">
                     {{ end.bairro }}, {{ end.cidade }} – {{ end.estado }}
-                    @if (end.cep) { · {{ end.cep }} }
+                    @if (end.cep) {
+                      · {{ end.cep }}
+                    }
                   </p>
                 </div>
               </div>
               <div class="flex items-center gap-2 shrink-0 ml-3">
-                <ui-button variant="ghost" size="xs" (click)="editarEndereco(end)">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                <ui-button
+                  variant="ghost"
+                  size="xs"
+                  (click)="editarEndereco(end)"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
                   </svg>
                 </ui-button>
-                <ui-button variant="ghost" size="xs" (click)="deletarEndereco(end.uuid)">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                <ui-button
+                  variant="ghost"
+                  size="xs"
+                  (click)="deletarEndereco(end.uuid)"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
                   </svg>
                 </ui-button>
               </div>
@@ -95,12 +153,22 @@
         <div
           (click)="abrirFormNovo()"
           (keydown.enter)="abrirFormNovo()"
-          role="button" tabindex="0"
-          class="w-full py-4 rounded-2xl border-2 border-dashed border-gray-200 text-sm font-medium text-gray-500
-                 hover:border-orange-300 hover:text-orange-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+          role="button"
+          tabindex="0"
+          class="w-full py-4 rounded-2xl border-2 border-dashed border-gray-200 text-sm font-medium text-gray-500 hover:border-orange-300 hover:text-orange-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
           </svg>
           Adicionar endereço
         </div>

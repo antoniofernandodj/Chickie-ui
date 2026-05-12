@@ -25,30 +25,141 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
       <!-- Funcionário -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-sm font-semibold text-gray-700 mb-4">➕ Adicionar Funcionário</h3>
-        <form [formGroup]="funcForm" (ngSubmit)="adicionarFuncionario()" class="space-y-3">
-          <ui-input formControlName="nome" label="Nome *" size="sm"
-                    [error]="ff.nome.invalid && ff.nome.touched ? 'Nome é obrigatório' : null"/>
-          <ui-input formControlName="username" label="Username *" size="sm"
-                    [state]="!ff.username.invalid && funcUsernameChecking() ? 'warning' : !ff.username.invalid && funcUsernameAvailable() === true ? 'success' : 'default'"
-                    [error]="(ff.username.invalid && ff.username.touched) ? (ff.username.errors?.['required'] ? 'Username é obrigatório' : 'Mínimo 3 caracteres') : (!ff.username.invalid && !funcUsernameChecking() && funcUsernameAvailable() === false) ? '❌ Username já está em uso' : null"
-                    [hint]="!ff.username.invalid && funcUsernameChecking() ? 'Verificando...' : (!ff.username.invalid && !funcUsernameChecking() && funcUsernameAvailable() === true) ? '✅ Username disponível!' : null"/>
-          <ui-input formControlName="email" type="email" label="E-mail *" size="sm"
-                    [state]="!ff.email.invalid && funcEmailChecking() ? 'warning' : !ff.email.invalid && funcEmailAvailable() === true ? 'success' : 'default'"
-                    [error]="(ff.email.invalid && ff.email.touched) ? (ff.email.errors?.['required'] ? 'E-mail é obrigatório' : 'E-mail inválido') : (!ff.email.invalid && !funcEmailChecking() && funcEmailAvailable() === false) ? '❌ E-mail já está em uso' : null"
-                    [hint]="!ff.email.invalid && funcEmailChecking() ? 'Verificando...' : (!ff.email.invalid && !funcEmailChecking() && funcEmailAvailable() === true) ? '✅ E-mail disponível!' : null"/>
-          <ui-password-input formControlName="senha" label="Senha *" size="sm"
-                             [error]="ff.senha.invalid && ff.senha.touched ? (ff.senha.errors?.['required'] ? 'Senha é obrigatória' : 'Mínimo 6 caracteres') : null"/>
-          <ui-input formControlName="celular" label="Celular *" size="sm" placeholder="(21) 9 9999-9999" mask="phone"
-                    [error]="ff.celular.invalid && ff.celular.touched ? (ff.celular.errors?.['required'] ? 'Celular é obrigatório' : 'Celular deve ter 11 dígitos') : null"/>
-          <ui-input formControlName="cargo" label="Cargo" size="sm"/>
-          <ui-input formControlName="salario" type="number" label="Salário *" size="sm" min="0" step="0.01"
-                    [error]="ff.salario.invalid && ff.salario.touched ? (ff.salario.errors?.['required'] ? 'Salário é obrigatório' : 'Salário deve ser >= 0') : null"/>
-          <ui-input formControlName="data_admissao" type="date" label="Data admissão *" size="sm"
-                    [error]="ff.data_admissao.invalid && ff.data_admissao.touched ? 'Data admissão é obrigatória' : null"/>
+        <form
+          [formGroup]="funcForm"
+          (ngSubmit)="adicionarFuncionario()"
+          class="space-y-3"
+        >
+          <ui-input
+            formControlName="nome"
+            label="Nome *"
+            size="sm"
+            [error]="ff.nome.invalid && ff.nome.touched ? 'Nome é obrigatório' : null"
+          />
+          <ui-input
+            formControlName="username"
+            label="Username *"
+            size="sm"
+            [state]="
+              !ff.username.invalid && funcUsernameChecking()
+                ? 'warning'
+                : !ff.username.invalid && funcUsernameAvailable() === true
+                  ? 'success'
+                  : 'default'
+            "
+            [error]="
+              ff.username.invalid && ff.username.touched
+                ? ff.username.errors?.['required']
+                  ? 'Username é obrigatório'
+                  : 'Mínimo 3 caracteres'
+                : !ff.username.invalid && !funcUsernameChecking() && funcUsernameAvailable() === false
+                  ? '❌ Username já está em uso'
+                  : null
+            "
+            [hint]="
+              !ff.username.invalid && funcUsernameChecking()
+                ? 'Verificando...'
+                : !ff.username.invalid && !funcUsernameChecking() && funcUsernameAvailable() === true
+                  ? '✅ Username disponível!'
+                  : null
+            "
+          />
+          <ui-input
+            formControlName="email"
+            type="email"
+            label="E-mail *"
+            size="sm"
+            [state]="
+              !ff.email.invalid && funcEmailChecking()
+                ? 'warning'
+                : !ff.email.invalid && funcEmailAvailable() === true
+                  ? 'success'
+                  : 'default'
+            "
+            [error]="
+              ff.email.invalid && ff.email.touched
+                ? ff.email.errors?.['required']
+                  ? 'E-mail é obrigatório'
+                  : 'E-mail inválido'
+                : !ff.email.invalid && !funcEmailChecking() && funcEmailAvailable() === false
+                  ? '❌ E-mail já está em uso'
+                  : null
+            "
+            [hint]="
+              !ff.email.invalid && funcEmailChecking()
+                ? 'Verificando...'
+                : !ff.email.invalid && !funcEmailChecking() && funcEmailAvailable() === true
+                  ? '✅ E-mail disponível!'
+                  : null
+            "
+          />
+          <ui-password-input
+            formControlName="senha"
+            label="Senha *"
+            size="sm"
+            [error]="
+              ff.senha.invalid && ff.senha.touched
+                ? ff.senha.errors?.['required']
+                  ? 'Senha é obrigatória'
+                  : 'Mínimo 6 caracteres'
+                : null
+            "
+          />
+          <ui-input
+            formControlName="celular"
+            label="Celular *"
+            size="sm"
+            placeholder="(21) 9 9999-9999"
+            mask="phone"
+            [error]="
+              ff.celular.invalid && ff.celular.touched
+                ? ff.celular.errors?.['required']
+                  ? 'Celular é obrigatório'
+                  : 'Celular deve ter 11 dígitos'
+                : null
+            "
+          />
+          <ui-input
+            formControlName="cargo"
+            label="Cargo"
+            size="sm"
+          />
+          <ui-input
+            formControlName="salario"
+            type="number"
+            label="Salário *"
+            size="sm"
+            min="0"
+            step="0.01"
+            [error]="
+              ff.salario.invalid && ff.salario.touched
+                ? ff.salario.errors?.['required']
+                  ? 'Salário é obrigatório'
+                  : 'Salário deve ser >= 0'
+                : null
+            "
+          />
+          <ui-input
+            formControlName="data_admissao"
+            type="date"
+            label="Data admissão *"
+            size="sm"
+            [error]="
+              ff.data_admissao.invalid && ff.data_admissao.touched
+                ? 'Data admissão é obrigatória'
+                : null
+            "
+          />
           @if (equipeError()) {
             <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{{ equipeError() }}</p>
           }
-          <ui-button type="submit" [disabled]="equipeLoading() || !funcFormReady" [loading]="equipeLoading()" size="sm" [fullWidth]="true">
+          <ui-button
+            type="submit"
+            [disabled]="equipeLoading() || !funcFormReady"
+            [loading]="equipeLoading()"
+            size="sm"
+            [fullWidth]="true"
+          >
             Adicionar
           </ui-button>
         </form>
@@ -57,7 +168,7 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
         <div class="mt-6">
           <h4 class="text-xs font-semibold text-gray-500 uppercase mb-3">Funcionários cadastrados</h4>
           @if (funcLoading()) {
-            @for (_ of [1,2,3]; track $index) {
+            @for (_ of [1, 2, 3]; track $index) {
               <div class="bg-gray-50 rounded-xl p-4 mb-2 skeleton h-16"></div>
             }
           } @else if (funcionarios().length === 0) {
@@ -68,11 +179,15 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
                 <div class="bg-gray-50 rounded-xl p-4 flex items-center justify-between">
                   <div>
                     <p class="text-sm font-medium text-gray-900">{{ func.cargo ?? 'Sem cargo' }}</p>
-                    <p class="text-xs text-gray-500">Admitido em {{ func.data_admissao | date:'dd/MM/yyyy' }}</p>
+                    <p class="text-xs text-gray-500">
+                      Admitido em {{ func.data_admissao | date: 'dd/MM/yyyy' }}
+                    </p>
                   </div>
                   <div class="flex items-center gap-3">
-                    <p class="text-sm font-semibold text-gray-900">R$ {{ func.salario | number:'1.2-2' }}</p>
-                    <admin-edit-btn (edit)="abrirEditFuncionario(func)"/>
+                    <p class="text-sm font-semibold text-gray-900">
+                      R$ {{ func.salario | number: '1.2-2' }}
+                    </p>
+                    <admin-edit-btn (edit)="abrirEditFuncionario(func)" />
                   </div>
                 </div>
               }
@@ -81,23 +196,76 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
 
           <!-- Edit Funcionario Modal -->
           @if (editFuncionario()) {
-            <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="fecharEditFuncionario()">
-              <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" (click)="$event.stopPropagation()">
+            <div
+              class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+              (click)="fecharEditFuncionario()"
+            >
+              <div
+                class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+                (click)="$event.stopPropagation()"
+              >
                 <div class="flex items-center justify-between mb-4">
                   <h3 class="text-base font-semibold text-gray-900">Editar Funcionário</h3>
-                  <ui-button type="button" variant="ghost" size="xs" (click)="fecharEditFuncionario()">✕</ui-button>
+                  <ui-button
+                    type="button"
+                    variant="ghost"
+                    size="xs"
+                    (click)="fecharEditFuncionario()"
+                    >✕</ui-button
+                  >
                 </div>
-                <form [formGroup]="editFuncForm" (ngSubmit)="salvarEditFuncionario()" class="space-y-4">
-                  <ui-input formControlName="cargo" label="Cargo" size="sm"/>
-                  <ui-input formControlName="salario" type="number" label="Salário *" size="sm" min="0" step="0.01"
-                            [error]="editFf.salario.invalid && editFf.salario.touched ? 'Salário é obrigatório e deve ser >= 0' : null"/>
-                  <ui-input formControlName="data_admissao" type="date" label="Data admissão *" size="sm"
-                            [error]="editFf.data_admissao.invalid && editFf.data_admissao.touched ? 'Data admissão é obrigatória' : null"/>
+                <form
+                  [formGroup]="editFuncForm"
+                  (ngSubmit)="salvarEditFuncionario()"
+                  class="space-y-4"
+                >
+                  <ui-input
+                    formControlName="cargo"
+                    label="Cargo"
+                    size="sm"
+                  />
+                  <ui-input
+                    formControlName="salario"
+                    type="number"
+                    label="Salário *"
+                    size="sm"
+                    min="0"
+                    step="0.01"
+                    [error]="
+                      editFf.salario.invalid && editFf.salario.touched
+                        ? 'Salário é obrigatório e deve ser >= 0'
+                        : null
+                    "
+                  />
+                  <ui-input
+                    formControlName="data_admissao"
+                    type="date"
+                    label="Data admissão *"
+                    size="sm"
+                    [error]="
+                      editFf.data_admissao.invalid && editFf.data_admissao.touched
+                        ? 'Data admissão é obrigatória'
+                        : null
+                    "
+                  />
                   <div class="flex gap-2 pt-2">
                     <div class="flex-1">
-                      <ui-button type="submit" [disabled]="editFuncLoading() || editFuncForm.invalid" [loading]="editFuncLoading()" size="sm" [fullWidth]="true">Salvar</ui-button>
+                      <ui-button
+                        type="submit"
+                        [disabled]="editFuncLoading() || editFuncForm.invalid"
+                        [loading]="editFuncLoading()"
+                        size="sm"
+                        [fullWidth]="true"
+                        >Salvar</ui-button
+                      >
                     </div>
-                    <ui-button type="button" variant="secondary" size="sm" (click)="fecharEditFuncionario()">Cancelar</ui-button>
+                    <ui-button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      (click)="fecharEditFuncionario()"
+                      >Cancelar</ui-button
+                    >
                   </div>
                 </form>
               </div>
@@ -109,27 +277,124 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
       <!-- Entregador -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h3 class="text-sm font-semibold text-gray-700 mb-4">🛵 Adicionar Entregador</h3>
-        <form [formGroup]="entregForm" (ngSubmit)="adicionarEntregador()" class="space-y-3">
-          <ui-input formControlName="nome" label="Nome *" size="sm"
-                    [error]="ef.nome.invalid && ef.nome.touched ? 'Nome é obrigatório' : null"/>
-          <ui-input formControlName="username" label="Username *" size="sm"
-                    [state]="!ef.username.invalid && entregUsernameChecking() ? 'warning' : !ef.username.invalid && entregUsernameAvailable() === true ? 'success' : 'default'"
-                    [error]="(ef.username.invalid && ef.username.touched) ? (ef.username.errors?.['required'] ? 'Username é obrigatório' : 'Mínimo 3 caracteres') : (!ef.username.invalid && !entregUsernameChecking() && entregUsernameAvailable() === false) ? '❌ Username já está em uso' : null"
-                    [hint]="!ef.username.invalid && entregUsernameChecking() ? 'Verificando...' : (!ef.username.invalid && !entregUsernameChecking() && entregUsernameAvailable() === true) ? '✅ Username disponível!' : null"/>
-          <ui-input formControlName="email" type="email" label="E-mail *" size="sm"
-                    [state]="!ef.email.invalid && entregEmailChecking() ? 'warning' : !ef.email.invalid && entregEmailAvailable() === true ? 'success' : 'default'"
-                    [error]="(ef.email.invalid && ef.email.touched) ? (ef.email.errors?.['required'] ? 'E-mail é obrigatório' : 'E-mail inválido') : (!ef.email.invalid && !entregEmailChecking() && entregEmailAvailable() === false) ? '❌ E-mail já está em uso' : null"
-                    [hint]="!ef.email.invalid && entregEmailChecking() ? 'Verificando...' : (!ef.email.invalid && !entregEmailChecking() && entregEmailAvailable() === true) ? '✅ E-mail disponível!' : null"/>
-          <ui-password-input formControlName="senha" label="Senha *" size="sm"
-                             [error]="ef.senha.invalid && ef.senha.touched ? (ef.senha.errors?.['required'] ? 'Senha é obrigatória' : 'Mínimo 6 caracteres') : null"/>
-          <ui-input formControlName="celular" label="Celular *" size="sm" placeholder="(21) 9 9999-9999" mask="phone"
-                    [error]="ef.celular.invalid && ef.celular.touched ? (ef.celular.errors?.['required'] ? 'Celular é obrigatório' : 'Celular deve ter 11 dígitos') : null"/>
-          <ui-input formControlName="veiculo" label="Veículo" size="sm"/>
-          <ui-input formControlName="placa" label="Placa" size="sm"/>
+        <form
+          [formGroup]="entregForm"
+          (ngSubmit)="adicionarEntregador()"
+          class="space-y-3"
+        >
+          <ui-input
+            formControlName="nome"
+            label="Nome *"
+            size="sm"
+            [error]="ef.nome.invalid && ef.nome.touched ? 'Nome é obrigatório' : null"
+          />
+          <ui-input
+            formControlName="username"
+            label="Username *"
+            size="sm"
+            [state]="
+              !ef.username.invalid && entregUsernameChecking()
+                ? 'warning'
+                : !ef.username.invalid && entregUsernameAvailable() === true
+                  ? 'success'
+                  : 'default'
+            "
+            [error]="
+              ef.username.invalid && ef.username.touched
+                ? ef.username.errors?.['required']
+                  ? 'Username é obrigatório'
+                  : 'Mínimo 3 caracteres'
+                : !ef.username.invalid &&
+                    !entregUsernameChecking() &&
+                    entregUsernameAvailable() === false
+                  ? '❌ Username já está em uso'
+                  : null
+            "
+            [hint]="
+              !ef.username.invalid && entregUsernameChecking()
+                ? 'Verificando...'
+                : !ef.username.invalid &&
+                    !entregUsernameChecking() &&
+                    entregUsernameAvailable() === true
+                  ? '✅ Username disponível!'
+                  : null
+            "
+          />
+          <ui-input
+            formControlName="email"
+            type="email"
+            label="E-mail *"
+            size="sm"
+            [state]="
+              !ef.email.invalid && entregEmailChecking()
+                ? 'warning'
+                : !ef.email.invalid && entregEmailAvailable() === true
+                  ? 'success'
+                  : 'default'
+            "
+            [error]="
+              ef.email.invalid && ef.email.touched
+                ? ef.email.errors?.['required']
+                  ? 'E-mail é obrigatório'
+                  : 'E-mail inválido'
+                : !ef.email.invalid && !entregEmailChecking() && entregEmailAvailable() === false
+                  ? '❌ E-mail já está em uso'
+                  : null
+            "
+            [hint]="
+              !ef.email.invalid && entregEmailChecking()
+                ? 'Verificando...'
+                : !ef.email.invalid && !entregEmailChecking() && entregEmailAvailable() === true
+                  ? '✅ E-mail disponível!'
+                  : null
+            "
+          />
+          <ui-password-input
+            formControlName="senha"
+            label="Senha *"
+            size="sm"
+            [error]="
+              ef.senha.invalid && ef.senha.touched
+                ? ef.senha.errors?.['required']
+                  ? 'Senha é obrigatória'
+                  : 'Mínimo 6 caracteres'
+                : null
+            "
+          />
+          <ui-input
+            formControlName="celular"
+            label="Celular *"
+            size="sm"
+            placeholder="(21) 9 9999-9999"
+            mask="phone"
+            [error]="
+              ef.celular.invalid && ef.celular.touched
+                ? ef.celular.errors?.['required']
+                  ? 'Celular é obrigatório'
+                  : 'Celular deve ter 11 dígitos'
+                : null
+            "
+          />
+          <ui-input
+            formControlName="veiculo"
+            label="Veículo"
+            size="sm"
+          />
+          <ui-input
+            formControlName="placa"
+            label="Placa"
+            size="sm"
+          />
           @if (entregError()) {
             <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{{ entregError() }}</p>
           }
-          <ui-button type="submit" [disabled]="entregLoading() || !entregFormReady" [loading]="entregLoading()" size="sm" [fullWidth]="true">
+          <ui-button
+            type="submit"
+            [disabled]="entregLoading() || !entregFormReady"
+            [loading]="entregLoading()"
+            size="sm"
+            [fullWidth]="true"
+          >
             Adicionar
           </ui-button>
         </form>
@@ -138,7 +403,7 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
         <div class="mt-6">
           <h4 class="text-xs font-semibold text-gray-500 uppercase mb-3">Entregadores cadastrados</h4>
           @if (entregLoadingList()) {
-            @for (_ of [1,2,3]; track $index) {
+            @for (_ of [1, 2, 3]; track $index) {
               <div class="bg-gray-50 rounded-xl p-4 mb-2 skeleton h-16"></div>
             }
           } @else if (entregadores().length === 0) {
@@ -156,14 +421,27 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
                     </p>
                     <p class="text-xs text-gray-500">
                       <span class="inline-flex items-center gap-1">
-                        <span class="w-2 h-2 rounded-full" [class.bg-green-500]="entreg.disponivel" [class.bg-red-500]="!entreg.disponivel"></span>
+                        <span
+                          class="w-2 h-2 rounded-full"
+                          [class.bg-green-500]="entreg.disponivel"
+                          [class.bg-red-500]="!entreg.disponivel"
+                        ></span>
                         {{ entreg.disponivel ? 'Disponível' : 'Indisponível' }}
                       </span>
                     </p>
                   </div>
                   <div class="flex items-center gap-2">
-                    <admin-toggle-available-btn [available]="entreg.disponivel" (toggle)="toggleDisponibilidadeEntregador(entreg.uuid, entreg.veiculo ?? 'Entregador', entreg.disponivel)"/>
-                    <admin-edit-btn (edit)="abrirEditEntregador(entreg)"/>
+                    <admin-toggle-available-btn
+                      [available]="entreg.disponivel"
+                      (toggle)="
+                        toggleDisponibilidadeEntregador(
+                          entreg.uuid,
+                          entreg.veiculo ?? 'Entregador',
+                          entreg.disponivel
+                        )
+                      "
+                    />
+                    <admin-edit-btn (edit)="abrirEditEntregador(entreg)" />
                   </div>
                 </div>
               }
@@ -172,20 +450,57 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
 
           <!-- Edit Entregador Modal -->
           @if (editEntregador()) {
-            <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="fecharEditEntregador()">
-              <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" (click)="$event.stopPropagation()">
+            <div
+              class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+              (click)="fecharEditEntregador()"
+            >
+              <div
+                class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+                (click)="$event.stopPropagation()"
+              >
                 <div class="flex items-center justify-between mb-4">
                   <h3 class="text-base font-semibold text-gray-900">Editar Entregador</h3>
-                  <ui-button type="button" variant="ghost" size="xs" (click)="fecharEditEntregador()">✕</ui-button>
+                  <ui-button
+                    type="button"
+                    variant="ghost"
+                    size="xs"
+                    (click)="fecharEditEntregador()"
+                    >✕</ui-button
+                  >
                 </div>
-                <form [formGroup]="editEntregForm" (ngSubmit)="salvarEditEntregador()" class="space-y-4">
-                  <ui-input formControlName="veiculo" label="Veículo" size="sm"/>
-                  <ui-input formControlName="placa" label="Placa" size="sm"/>
+                <form
+                  [formGroup]="editEntregForm"
+                  (ngSubmit)="salvarEditEntregador()"
+                  class="space-y-4"
+                >
+                  <ui-input
+                    formControlName="veiculo"
+                    label="Veículo"
+                    size="sm"
+                  />
+                  <ui-input
+                    formControlName="placa"
+                    label="Placa"
+                    size="sm"
+                  />
                   <div class="flex gap-2 pt-2">
                     <div class="flex-1">
-                      <ui-button type="submit" [disabled]="editEntregLoading() || editEntregForm.invalid" [loading]="editEntregLoading()" size="sm" [fullWidth]="true">Salvar</ui-button>
+                      <ui-button
+                        type="submit"
+                        [disabled]="editEntregLoading() || editEntregForm.invalid"
+                        [loading]="editEntregLoading()"
+                        size="sm"
+                        [fullWidth]="true"
+                        >Salvar</ui-button
+                      >
                     </div>
-                    <ui-button type="button" variant="secondary" size="sm" (click)="fecharEditEntregador()">Cancelar</ui-button>
+                    <ui-button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      (click)="fecharEditEntregador()"
+                      >Cancelar</ui-button
+                    >
                   </div>
                 </form>
               </div>

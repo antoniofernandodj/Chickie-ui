@@ -13,7 +13,11 @@ import { formatCpf } from '../../core/utils/cpf-utils';
   }],
   template: `
     @if (label()) {
-      <label class="block font-medium text-gray-700 mb-1.5" [class]="labelCls()">{{ label() }}</label>
+      <label
+        class="block font-medium text-gray-700 mb-1.5"
+        [class]="labelCls()"
+        >{{ label() }}</label
+      >
     }
     <input
       [type]="type()"
@@ -32,7 +36,7 @@ import { formatCpf } from '../../core/utils/cpf-utils';
     } @else if (hint()) {
       <p class="text-xs text-gray-500 mt-1">{{ hint() }}</p>
     }
-    <ng-content select="[uiInputFeedback]"/>
+    <ng-content select="[uiInputFeedback]" />
   `,
 })
 export class UiInputComponent implements ControlValueAccessor {

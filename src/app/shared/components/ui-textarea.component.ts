@@ -7,7 +7,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => UiTextareaComponent), multi: true }],
   template: `
     @if (label()) {
-      <label class="block font-medium text-gray-700 mb-1.5" [class]="labelCls()">{{ label() }}</label>
+      <label
+        class="block font-medium text-gray-700 mb-1.5"
+        [class]="labelCls()"
+        >{{ label() }}</label
+      >
     }
     <textarea
       [rows]="rows()"

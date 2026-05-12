@@ -18,9 +18,11 @@ export interface UiTab {
           [style.color]="active() === tab.id ? 'var(--color-brand)' : '#9ca3af'"
         >
           {{ tab.label }}
-          <span class="absolute bottom-[-2px] left-3 right-3 h-0.5 rounded-full transition-opacity duration-200"
-                style="background:var(--color-brand)"
-                [style.opacity]="active() === tab.id ? '1' : '0'"></span>
+          <span
+            class="absolute bottom-[-2px] left-3 right-3 h-0.5 rounded-full transition-opacity duration-200"
+            style="background: var(--color-brand)"
+            [style.opacity]="active() === tab.id ? '1' : '0'"
+          ></span>
         </button>
       }
     </div>

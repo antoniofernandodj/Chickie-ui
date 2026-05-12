@@ -7,7 +7,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => UiSelectComponent), multi: true }],
   template: `
     @if (label()) {
-      <label class="block font-medium text-gray-700 mb-1.5" [class]="labelCls()">{{ label() }}</label>
+      <label
+        class="block font-medium text-gray-700 mb-1.5"
+        [class]="labelCls()"
+        >{{ label() }}</label
+      >
     }
     <select
       [disabled]="isDisabled()"
@@ -16,7 +20,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       (blur)="onTouched()"
       [class]="selectCls()"
     >
-      <ng-content/>
+      <ng-content />
     </select>
     @if (error()) {
       <p class="text-xs text-red-600 mt-1">{{ error() }}</p>

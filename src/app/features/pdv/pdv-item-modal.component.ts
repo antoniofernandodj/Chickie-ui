@@ -14,50 +14,84 @@ import { catchError, of } from 'rxjs';
   imports: [CommonModule, FormsModule, DecimalPipe, UiButtonComponent],
   template: `
     <div class="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="fechar.emit()"></div>
-      
-      <div class="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200" style="max-height: 90vh;">
-        
+      <div
+        class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        (click)="fechar.emit()"
+      ></div>
+
+      <div
+        class="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
+        style="max-height: 90vh"
+      >
         <!-- Header -->
-        <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+        <div
+          class="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10"
+        >
           <div>
             <h3 class="text-xl font-black text-gray-900">{{ produto.nome }}</h3>
             <p class="text-sm text-gray-500">
               {{ categoria.pizza_mode ? 'Monte sua pizza' : 'Personalize seu item' }}
             </p>
           </div>
-          <ui-button variant="ghost" size="xs" (click)="fechar.emit()">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          <ui-button
+            variant="ghost"
+            size="xs"
+            (click)="fechar.emit()"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </ui-button>
         </div>
 
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
-          
           <!-- SEÇÃO PIZZA: SABORES -->
           @if (categoria.pizza_mode) {
             <section>
               <div class="flex items-center justify-between mb-4">
-                <h4 class="font-bold text-gray-900">Sabores ({{ pizzaPartes().length }}/{{ maxPartes() }})</h4>
-                <span class="text-sm text-orange-600 font-bold">R$ {{ pizzaBuilderPreco() | number:'1.2-2' }}</span>
+                <h4 class="font-bold text-gray-900">
+                  Sabores ({{ pizzaPartes().length }}/{{ maxPartes() }})
+                </h4>
+                <span class="text-sm text-orange-600 font-bold"
+                  >R$ {{ pizzaBuilderPreco() | number: '1.2-2' }}</span
+                >
               </div>
 
               <div class="grid grid-cols-2 gap-3">
                 @for (p of todosProdutosDaCategoria; track p.uuid) {
                   @let isSelected = isPizzaParteSelected(p.uuid);
                   @let isFull = !isSelected && pizzaPartes().length >= maxPartes();
-                  <div role="button" tabindex="0"
+                  <div
+                    role="button"
+                    tabindex="0"
                     (click)="!isFull && togglePizzaParte(p)"
                     (keydown.enter)="!isFull && togglePizzaParte(p)"
                     class="relative p-3 rounded-2xl border-2 text-left transition-all"
-                    [class]="isSelected ? 'bg-orange-50 border-orange-500 cursor-pointer' : isFull ? 'border-gray-50 opacity-40 cursor-not-allowed' : 'border-white bg-gray-50 hover:border-gray-200 cursor-pointer'"
+                    [class]="
+                      isSelected
+                        ? 'bg-orange-50 border-orange-500 cursor-pointer'
+                        : isFull
+                          ? 'border-gray-50 opacity-40 cursor-not-allowed'
+                          : 'border-white bg-gray-50 hover:border-gray-200 cursor-pointer'
+                    "
                   >
                     <div class="font-bold text-xs truncate">{{ p.nome }}</div>
-                    <div class="text-[10px] text-gray-500 mt-1">R$ {{ p.preco | number:'1.2-2' }}</div>
+                    <div class="text-[10px] text-gray-500 mt-1">R$ {{ p.preco | number: '1.2-2' }}</div>
 
                     @if (isSelected) {
-                      <span class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center font-bold">
+                      <span
+                        class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center font-bold"
+                      >
                         {{ getPizzaPartePosicao(p.uuid) }}
                       </span>
                     }
@@ -72,22 +106,45 @@ import { catchError, of } from 'rxjs';
                 <h4 class="font-bold text-gray-900">Adicionais por sabor</h4>
                 @for (parte of pizzaPartes(); track parte.posicao) {
                   <div class="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
-                    <ui-button variant="flat" [fullWidth]="true" (click)="pizzaParteExpandida.set(pizzaParteExpandida() === parte.posicao ? null : parte.posicao)">
+                    <ui-button
+                      variant="flat"
+                      [fullWidth]="true"
+                      (click)="
+                        pizzaParteExpandida.set(
+                          pizzaParteExpandida() === parte.posicao ? null : parte.posicao
+                        )
+                      "
+                    >
                       <div class="flex items-center justify-between w-full">
                         <div class="flex items-center gap-2">
-                          <span class="w-5 h-5 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center font-bold">
+                          <span
+                            class="w-5 h-5 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center font-bold"
+                          >
                             {{ parte.posicao }}
                           </span>
                           <span class="font-bold text-sm text-gray-700">{{ parte.produto.nome }}</span>
                         </div>
                         <div class="flex items-center gap-2">
                           @if ((pizzaAdicionaisPorPosicao()[parte.posicao]?.length ?? 0) > 0) {
-                            <span class="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold">
+                            <span
+                              class="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold"
+                            >
                               +{{ pizzaAdicionaisPorPosicao()[parte.posicao].length }}
                             </span>
                           }
-                          <svg class="w-4 h-4 text-gray-400 transition-transform" [class.rotate-180]="pizzaParteExpandida() === parte.posicao" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                          <svg
+                            class="w-4 h-4 text-gray-400 transition-transform"
+                            [class.rotate-180]="pizzaParteExpandida() === parte.posicao"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 9l-7 7-7-7"
+                            />
                           </svg>
                         </div>
                       </div>
@@ -98,10 +155,15 @@ import { catchError, of } from 'rxjs';
                         <div class="flex flex-wrap gap-2">
                           @for (ad of adicionaisDisponiveis(); track ad.uuid) {
                             <ui-button
-                              [variant]="isAdicionalSelectedForParte(parte.posicao, ad.uuid) ? 'primary' : 'secondary'"
+                              [variant]="
+                                isAdicionalSelectedForParte(parte.posicao, ad.uuid)
+                                  ? 'primary'
+                                  : 'secondary'
+                              "
                               size="xs"
                               (click)="toggleAdicionalPizzaParte(parte.posicao, ad)"
-                            >{{ ad.nome }} (+R$ {{ ad.preco | number:'1.2-2' }})</ui-button>
+                              >{{ ad.nome }} (+R$ {{ ad.preco | number: '1.2-2' }})</ui-button
+                            >
                           }
                         </div>
                       </div>
@@ -123,27 +185,31 @@ import { catchError, of } from 'rxjs';
                   >
                     <span class="flex flex-col items-start">
                       <span>{{ ad.nome }}</span>
-                      <span class="text-[10px] opacity-60">+ R$ {{ ad.preco | number:'1.2-2' }}</span>
+                      <span class="text-[10px] opacity-60">+ R$ {{ ad.preco | number: '1.2-2' }}</span>
                     </span>
                   </ui-button>
                 }
                 @if (adicionaisDisponiveis().length === 0) {
-                  <p class="text-sm text-gray-400 italic">Nenhum adicional disponível para este item.</p>
+                  <p class="text-sm text-gray-400 italic">
+                    Nenhum adicional disponível para este item.
+                  </p>
                 }
               </div>
             </section>
           }
-
         </div>
 
         <!-- Footer -->
         <div class="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
           <div class="text-left">
             <div class="text-xs text-gray-500 uppercase font-black">Preço Total</div>
-            <div class="text-2xl font-black text-gray-900">R$ {{ totalItem() | number:'1.2-2' }}</div>
+            <div class="text-2xl font-black text-gray-900">R$ {{ totalItem() | number: '1.2-2' }}</div>
           </div>
-          
-          <ui-button [disabled]="categoria.pizza_mode && pizzaPartes().length === 0" (click)="adicionar()">
+
+          <ui-button
+            [disabled]="categoria.pizza_mode && pizzaPartes().length === 0"
+            (click)="adicionar()"
+          >
             Adicionar ao Pedido
           </ui-button>
         </div>

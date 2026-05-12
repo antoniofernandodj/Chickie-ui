@@ -3,57 +3,126 @@
     <h1 class="text-2xl font-bold text-gray-800">Cozinha (KDS)</h1>
     <div class="flex items-center gap-4">
       <!-- Botão Testar Som -->
-      <ui-button variant="secondary" size="sm" (click)="notificarSom(true)" title="Testar sinal sonoro">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <ui-button
+        variant="secondary"
+        size="sm"
+        (click)="notificarSom(true)"
+        title="Testar sinal sonoro"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+          />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
         </svg>
         <span class="text-xs font-bold">Testar Som</span>
       </ui-button>
 
       <!-- Botão Silenciar -->
-      <ui-button [variant]="isMuted() ? 'danger' : 'secondary'" size="sm"
+      <ui-button
+        [variant]="isMuted() ? 'danger' : 'secondary'"
+        size="sm"
         (click)="toggleMute()"
         [title]="isMuted() ? 'Ativar som' : 'Silenciar notificações'"
       >
         @if (isMuted()) {
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
+            />
           </svg>
           <span class="text-xs font-bold">Silenciado</span>
         } @else {
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+            />
           </svg>
           <span class="text-xs font-bold text-gray-500">Com Som</span>
         }
       </ui-button>
 
       <!-- Botão Tela Cheia -->
-      <ui-button variant="secondary" size="sm"
+      <ui-button
+        variant="secondary"
+        size="sm"
         (click)="toggleFullscreen()"
         [title]="isFullscreen() ? 'Sair de tela cheia' : 'Entrar em tela cheia'"
       >
         @if (isFullscreen()) {
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9L4 4m0 0l5 0m-5 0l0 5m11-5l5 5m0-5l-5 0m5 0l0 5m-5 11l5 5m0-5l-5 0m5 0l0 5m-11-5l-5-5m0 5l5 0m-5 0l0-5" />
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 9L4 4m0 0l5 0m-5 0l0 5m11-5l5 5m0-5l-5 0m5 0l0 5m-5 11l5 5m0-5l-5 0m5 0l0 5m-11-5l-5-5m0 5l5 0m-5 0l0-5"
+            />
           </svg>
         } @else {
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+            />
           </svg>
         }
         <span class="text-xs font-bold">{{ isFullscreen() ? 'Sair F11' : 'Tela Cheia' }}</span>
       </ui-button>
 
       <div class="flex items-center gap-2">
-        <span 
+        <span
           class="w-3 h-3 rounded-full"
           [ngClass]="{
             'bg-green-500': connectionStatus() === 'OPEN',
             'bg-yellow-500': connectionStatus() === 'CONNECTING',
-            'bg-red-500': connectionStatus() === 'CLOSED'
+            'bg-red-500': connectionStatus() === 'CLOSED',
           }"
         ></span>
         <span class="text-sm text-gray-600">{{ connectionStatus() }}</span>
@@ -66,23 +135,42 @@
     <div class="flex flex-col bg-gray-200 rounded-lg p-4 overflow-hidden">
       <h2 class="text-lg font-semibold mb-4 flex justify-between items-center">
         <span>Confirmados</span>
-        <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{ confirmados().length }}</span>
+        <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{
+          confirmados().length
+        }}</span>
       </h2>
       <div class="flex-1 overflow-y-auto space-y-3">
-        <div *ngFor="let p of confirmados()" class="bg-white p-4 rounded shadow-sm border-l-4 border-blue-500">
+        <div
+          *ngFor="let p of confirmados()"
+          class="bg-white p-4 rounded shadow-sm border-l-4 border-blue-500"
+        >
           <div class="flex justify-between items-start mb-2">
             <div class="flex flex-col">
               <span class="font-bold text-lg">#{{ p.codigo }}</span>
-              <span class="text-xs text-gray-500">{{ p.criado_em | date:'HH:mm' }}</span>
+              <span class="text-xs text-gray-500">{{ p.criado_em | date: 'HH:mm' }}</span>
             </div>
-            <ui-button variant="ghost" size="xs" (click)="abrirDetalhes(p)" title="Ver detalhes">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+            <ui-button
+              variant="ghost"
+              size="xs"
+              (click)="abrirDetalhes(p)"
+              title="Ver detalhes"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                />
               </svg>
             </ui-button>
           </div>
           <div class="text-sm text-gray-700 mb-4">
-            <div *ngFor="let item of p.itens" class="mb-1">
+            <div
+              *ngFor="let item of p.itens"
+              class="mb-1"
+            >
               <strong>{{ item.quantidade }}x</strong> {{ item.partes[0].produto_nome }}
               @if (item.partes.length > 1) {
                 <span class="text-xs text-gray-500"> (+{{ item.partes.length - 1 }} partes)</span>
@@ -94,7 +182,11 @@
               </p>
             }
           </div>
-          <ui-button [fullWidth]="true" (click)="avancar(p)">Iniciar Preparo</ui-button>
+          <ui-button
+            [fullWidth]="true"
+            (click)="avancar(p)"
+            >Iniciar Preparo</ui-button
+          >
         </div>
       </div>
     </div>
@@ -103,27 +195,50 @@
     <div class="flex flex-col bg-gray-200 rounded-lg p-4 overflow-hidden">
       <h2 class="text-lg font-semibold mb-4 flex justify-between items-center">
         <span>Em Preparo</span>
-        <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{ emPreparo().length }}</span>
+        <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{
+          emPreparo().length
+        }}</span>
       </h2>
       <div class="flex-1 overflow-y-auto space-y-3">
-        <div *ngFor="let p of emPreparo()" class="bg-white p-4 rounded shadow-sm border-l-4 border-yellow-500">
+        <div
+          *ngFor="let p of emPreparo()"
+          class="bg-white p-4 rounded shadow-sm border-l-4 border-yellow-500"
+        >
           <div class="flex justify-between items-start mb-2">
             <div class="flex flex-col">
               <span class="font-bold text-lg">#{{ p.codigo }}</span>
-              <span class="text-xs text-gray-500">{{ p.criado_em | date:'HH:mm' }}</span>
+              <span class="text-xs text-gray-500">{{ p.criado_em | date: 'HH:mm' }}</span>
             </div>
-            <ui-button variant="ghost" size="xs" (click)="abrirDetalhes(p)" title="Ver detalhes">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+            <ui-button
+              variant="ghost"
+              size="xs"
+              (click)="abrirDetalhes(p)"
+              title="Ver detalhes"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                />
               </svg>
             </ui-button>
           </div>
           <div class="text-sm text-gray-700 mb-4">
-            <div *ngFor="let item of p.itens" class="mb-1">
+            <div
+              *ngFor="let item of p.itens"
+              class="mb-1"
+            >
               <strong>{{ item.quantidade }}x</strong> {{ item.partes[0].produto_nome }}
             </div>
           </div>
-          <ui-button [fullWidth]="true" (click)="avancar(p)">Marcar como Pronto</ui-button>
+          <ui-button
+            [fullWidth]="true"
+            (click)="avancar(p)"
+            >Marcar como Pronto</ui-button
+          >
         </div>
       </div>
     </div>
@@ -132,23 +247,42 @@
     <div class="flex flex-col bg-gray-200 rounded-lg p-4 overflow-hidden">
       <h2 class="text-lg font-semibold mb-4 flex justify-between items-center">
         <span>Prontos</span>
-        <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{ prontos().length }}</span>
+        <span class="bg-gray-400 text-white text-xs px-2 py-1 rounded-full">{{
+          prontos().length
+        }}</span>
       </h2>
       <div class="flex-1 overflow-y-auto space-y-3">
-        <div *ngFor="let p of prontos()" class="bg-white p-4 rounded shadow-sm border-l-4 border-green-500">
+        <div
+          *ngFor="let p of prontos()"
+          class="bg-white p-4 rounded shadow-sm border-l-4 border-green-500"
+        >
           <div class="flex justify-between items-start mb-2">
             <div class="flex flex-col">
               <span class="font-bold text-lg">#{{ p.codigo }}</span>
-              <span class="text-xs text-gray-500">{{ p.criado_em | date:'HH:mm' }}</span>
+              <span class="text-xs text-gray-500">{{ p.criado_em | date: 'HH:mm' }}</span>
             </div>
-            <ui-button variant="ghost" size="xs" (click)="abrirDetalhes(p)" title="Ver detalhes">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+            <ui-button
+              variant="ghost"
+              size="xs"
+              (click)="abrirDetalhes(p)"
+              title="Ver detalhes"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                />
               </svg>
             </ui-button>
           </div>
           <div class="text-sm text-gray-700 mb-4">
-            <div *ngFor="let item of p.itens" class="mb-1">
+            <div
+              *ngFor="let item of p.itens"
+              class="mb-1"
+            >
               <strong>{{ item.quantidade }}x</strong> {{ item.partes[0].produto_nome }}
             </div>
           </div>
@@ -160,17 +294,35 @@
 
   <!-- Modal de Detalhes do Pedido -->
   @if (selectedPedido(); as p) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+    >
+      <div
+        class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+      >
         <!-- Header -->
         <div class="p-6 border-b flex justify-between items-center bg-gray-50">
           <div>
             <h2 class="text-2xl font-bold text-gray-800">Pedido #{{ p.codigo }}</h2>
-            <p class="text-sm text-gray-500">{{ p.criado_em | date:'dd/MM/yyyy HH:mm' }}</p>
+            <p class="text-sm text-gray-500">{{ p.criado_em | date: 'dd/MM/yyyy HH:mm' }}</p>
           </div>
-          <ui-button variant="ghost" size="sm" (click)="fecharDetalhes()">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          <ui-button
+            variant="ghost"
+            size="sm"
+            (click)="fecharDetalhes()"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </ui-button>
         </div>
@@ -179,28 +331,46 @@
         <div class="p-6 overflow-y-auto flex-1 space-y-6">
           <!-- Status -->
           <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
-            <span class="text-xs text-blue-600 font-bold uppercase block mb-1">Status na Cozinha</span>
+            <span class="text-xs text-blue-600 font-bold uppercase block mb-1"
+              >Status na Cozinha</span
+            >
             <span class="font-semibold text-blue-900 text-lg">{{ getStatusLabel(p.status) }}</span>
           </div>
 
           <!-- Itens -->
           <div class="space-y-4">
             <h3 class="font-bold text-gray-800 text-xl flex items-center gap-2 border-b pb-2">
-              <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 00-2-2m0 0V5a2 2 0 012-2h14a2 2 0 012 2v2M7 7h10" />
+              <svg
+                class="w-6 h-6 text-orange-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 00-2-2m0 0V5a2 2 0 012-2h14a2 2 0 012 2v2M7 7h10"
+                />
               </svg>
               Itens para Preparo
             </h3>
 
             <div class="space-y-6">
-              <div *ngFor="let item of p.itens" class="p-4 bg-white border-2 border-gray-100 rounded-xl shadow-sm">
+              <div
+                *ngFor="let item of p.itens"
+                class="p-4 bg-white border-2 border-gray-100 rounded-xl shadow-sm"
+              >
                 <div class="flex justify-between items-start mb-3">
                   <span class="text-2xl font-black text-gray-900">{{ item.quantidade }}x</span>
                   @if (item.partes.length > 1) {
-                    <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold uppercase">Pizza Meio a Meio</span>
+                    <span
+                      class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold uppercase"
+                      >Pizza Meio a Meio</span
+                    >
                   }
                 </div>
-                
+
                 <!-- Nome do Produto (ou Partes) -->
                 <div class="space-y-4">
                   @for (parte of item.partes; track parte.uuid) {
@@ -208,12 +378,14 @@
                       <div class="text-xl font-bold text-gray-800">
                         {{ parte.produto_nome }}
                       </div>
-                      
+
                       <!-- Adicionais da Parte -->
                       @if (parte.adicionais.length > 0) {
                         <div class="mt-2 flex flex-wrap gap-2">
                           @for (adicional of parte.adicionais; track adicional.uuid) {
-                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-sm font-bold border border-yellow-200">
+                            <span
+                              class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-sm font-bold border border-yellow-200"
+                            >
                               + {{ adicional.nome }}
                             </span>
                           }
@@ -226,10 +398,14 @@
                 <!-- Adicionais Globais do Item (se houver) -->
                 @if (item.adicionais.length > 0) {
                   <div class="mt-4 pt-3 border-t border-dashed">
-                    <span class="text-xs font-bold text-gray-400 uppercase">Adicionais do Item:</span>
+                    <span class="text-xs font-bold text-gray-400 uppercase"
+                      >Adicionais do Item:</span
+                    >
                     <div class="mt-1 flex flex-wrap gap-2">
                       @for (adicional of item.adicionais; track adicional.uuid) {
-                        <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm font-bold border">
+                        <span
+                          class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm font-bold border"
+                        >
                           + {{ adicional.nome }}
                         </span>
                       }
@@ -240,7 +416,9 @@
                 <!-- Observações do Item -->
                 @if (item.observacoes) {
                   <div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-lg">
-                    <span class="text-xs font-black text-red-600 uppercase block mb-1">Observação do Item:</span>
+                    <span class="text-xs font-black text-red-600 uppercase block mb-1"
+                      >Observação do Item:</span
+                    >
                     <p class="text-lg font-bold text-red-900 italic">"{{ item.observacoes }}"</p>
                   </div>
                 }
@@ -252,8 +430,16 @@
           @if (p.observacoes) {
             <div class="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
               <h4 class="text-sm font-black text-yellow-800 uppercase mb-2 flex items-center gap-2">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                <svg
+                  class="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
                 Observações Gerais do Pedido
               </h4>
