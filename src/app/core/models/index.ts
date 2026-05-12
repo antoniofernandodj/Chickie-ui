@@ -56,8 +56,10 @@ export interface SignupResponse {
 }
 
 export interface ConfirmarEmailResponse {
-  token:   string;
-  usuario: Usuario;
+  access_token:  string;
+  refresh_token: string;
+  token_type:    'Bearer';
+  usuario:       Usuario;
 }
 
 export interface LoginRequest {
@@ -66,8 +68,15 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  access_token: string;
-  token_type:   'Bearer';
+  access_token:  string;
+  refresh_token: string;
+  token_type:    'Bearer';
+}
+
+export interface RefreshTokenResponse {
+  access_token:  string;
+  refresh_token: string;
+  token_type:    'Bearer';
 }
 
 // ─── Usuario ─────────────────────────────────────────────────────────────────
