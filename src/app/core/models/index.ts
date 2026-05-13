@@ -20,6 +20,7 @@ export type StatusPedido =
 export type TipoDesconto = 'percentual' | 'valor_fixo' | 'frete_gratis';
 export type TipoEscopo   = 'loja' | 'produto' | 'categoria';
 export type StatusCupom  = 'Ativo' | 'Inativo' | 'Expirado';
+export type EstadoDeComanda = 'aberta' | 'fechada';
 export type TipoCalculoPedido = 'mais_caro' | 'media_ponderada' | "MaisCaro" | "MediaPonderada";
 
 // ─── Configuração de Pedidos ─────────────────────────────────────────────────
@@ -377,6 +378,7 @@ export interface Pedido {
   numero_mesa:       string | null;
   nome_requerente:   string | null;
   tipo_pedido:       'delivery' | 'retirada' | 'mesa' | 'pdv';
+  comanda_uuid:      string | null;
   criado_em:         string;
   atualizado_em:     string;
   itens:             ItemPedido[];
@@ -434,6 +436,25 @@ export interface PedidoComEntrega {
 
 export interface UpdateStatusPedidoRequest {
   novo_status: StatusPedido;
+}
+
+// ─── Comanda ─────────────────────────────────────────────────────────────────
+
+export interface Comanda {
+  uuid:            string;
+  loja_uuid:       string;
+  numero_mesa:     string;
+  status:          EstadoDeComanda;
+  forma_pagamento: string | null;
+  total:           number;
+  criado_em:       string;
+  fechado_em:      string | null;
+  atualizado_em:   string;
+  pedidos:         Pedido[];
+}
+
+export interface FecharComandaRequest {
+  forma_pagamento: string;
 }
 
 // ─── Endereço de Entrega ──────────────────────────────────────────────────────

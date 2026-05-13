@@ -150,6 +150,44 @@
     </div>
   }
 
+  @if (comandaAtiva()) {
+    <div class="bg-amber-50 border-b border-amber-200">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl mt-0.5">🍽️</span>
+            <div>
+              <p class="text-sm font-bold text-amber-900">
+                Comanda aberta — Mesa {{ comandaAtiva()!.numero_mesa }}
+              </p>
+              <p class="text-xs text-amber-700 mt-0.5">{{ resumoComanda(comandaAtiva()!) }}</p>
+              @for (pedido of comandaAtiva()!.pedidos; track pedido.uuid) {
+                <p class="text-xs text-amber-600 mt-1">
+                  <span class="font-mono">#{{ pedido.codigo }}</span>
+                  @for (item of pedido.itens.slice(0, 2); track item.uuid) {
+                    · {{ item.quantidade }}× {{ item.partes[0]?.produto_nome ?? '—' }}
+                  }
+                  @if (pedido.itens.length > 2) {
+                    <span class="text-amber-500"> e mais {{ pedido.itens.length - 2 }}</span>
+                  }
+                </p>
+              }
+            </div>
+          </div>
+          <div class="shrink-0 text-right">
+            <p class="text-xs text-amber-700">Total parcial</p>
+            <p class="text-lg font-black text-amber-900">
+              {{ comandaAtiva()!.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </p>
+          </div>
+        </div>
+        <p class="text-xs text-amber-600 mt-3 text-center">
+          ↓ Adicione mais itens pelo cardápio abaixo
+        </p>
+      </div>
+    </div>
+  }
+
   <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     @if (loja()!.descricao) {
       <p class="text-gray-500 text-sm mb-8 leading-relaxed max-w-2xl">{{ loja()!.descricao }}</p>

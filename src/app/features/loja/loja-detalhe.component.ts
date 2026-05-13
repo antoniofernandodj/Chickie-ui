@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, effect } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { DecimalPipe, DatePipe } from '@angular/common';
+import { DecimalPipe, DatePipe, CurrencyPipe } from '@angular/common';
 import { switchMap, catchError, of, map, tap, distinctUntilChanged } from 'rxjs';
 import { LojaService } from '../../core/services/loja.service';
 import { CatalogoService } from '../../core/services/catalogo.service';
@@ -10,7 +10,8 @@ import { FavoritosService } from '../../core/services/favoritos.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
-import { Produto, CategoriaProdutos, HorarioFuncionamento, AvaliacaoDeLoja, AvaliarLojaRequest } from '../../core/models';
+import { ComandaService } from '../../core/services/comanda.service';
+import { Produto, CategoriaProdutos, HorarioFuncionamento, AvaliacaoDeLoja, AvaliarLojaRequest, Comanda } from '../../core/models';
 import { AvaliacaoLojaFormComponent } from './avaliacao-loja-form.component';
 import { CriarPedidoModalComponent } from './criar-pedido-modal.component';
 import { UiEmptyStateComponent, UiLojaAbertaComponent, UiButtonComponent } from '../../shared/components';
@@ -18,7 +19,7 @@ import { PhonePipe } from '../../shared/pipes/phone.pipe';
 
 @Component({
   selector: 'app-loja-detalhe',
-  imports: [RouterLink, DecimalPipe, DatePipe, PhonePipe, AvaliacaoLojaFormComponent, CriarPedidoModalComponent, UiEmptyStateComponent, UiLojaAbertaComponent, UiButtonComponent],
+  imports: [RouterLink, DecimalPipe, DatePipe, CurrencyPipe, PhonePipe, AvaliacaoLojaFormComponent, CriarPedidoModalComponent, UiEmptyStateComponent, UiLojaAbertaComponent, UiButtonComponent],
   templateUrl: './loja-detalhe.component.html',
 })
 export class LojaDetalheComponent {
@@ -30,10 +31,12 @@ export class LojaDetalheComponent {
   private marketingService = inject(MarketingService);
   readonly auth = inject(AuthService);
   readonly cart = inject(CartService);
+  private readonly comandaSvc = inject(ComandaService);
 
   readonly skeletons = Array(6);
   readonly favorita  = signal(false);
   readonly mostrandoModalPedido = signal(false);
+  readonly comandaAtiva = signal<Comanda | null>(null);
 
   readonly numeroMesa = toSignal(
     this.route.paramMap.pipe(map(p => p.get('numero'))),
@@ -42,8 +45,25 @@ export class LojaDetalheComponent {
   constructor() {
     effect(() => {
       const numero = this.numeroMesa();
+      const loja   = this.loja();
       this.cart.definirMesa(numero ?? null);
+
+      if (numero && loja) {
+        this.comandaSvc.buscarComandaAtiva(loja.uuid, numero).subscribe({
+          next: (comanda) => this.comandaAtiva.set(comanda),
+          error: () => this.comandaAtiva.set(null),
+        });
+      } else {
+        this.comandaAtiva.set(null);
+      }
     });
+  }
+
+  resumoComanda(comanda: Comanda): string {
+    const pedidos = comanda.pedidos;
+    if (!pedidos.length) return 'Nenhum pedido ainda';
+    const total = pedidos.reduce((s, p) => s + p.itens.length, 0);
+    return `${pedidos.length} pedido${pedidos.length > 1 ? 's' : ''} · ${total} item${total > 1 ? 'ns' : ''}`;
   }
 
   // ── Avaliação de Loja ──────────────────────────────────────────────────────
