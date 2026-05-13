@@ -82,6 +82,8 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   private catalogoService = inject(CatalogoService);
   private router = inject(Router);
 
+  readonly mesa = computed(() => this.cartService.mesa());
+
   // ── Steps ──────────────────────────────────────────────────────────────────
   steps: Step[] = [];
 
@@ -318,9 +320,10 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       }))
       .filter((s) => s.produtos.length > 0);
 
+    const isMesa = !!this.cartService.mesa();
     this.steps = [
       ...catSteps,
-      { tipo: 'endereco' },
+      ...(isMesa ? [] : [{ tipo: 'endereco' as const }]),
       { tipo: 'pagamento' },
       { tipo: 'resumo' },
     ];
@@ -665,7 +668,8 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       toast.error('Adicione pelo menos um item ao pedido.');
       return;
     }
-    if (!this.enderecoValido) {
+    const mesa = this.cartService.mesa();
+    if (!mesa && !this.enderecoValido) {
       toast.error('Preencha o endereço de entrega.');
       return;
     }
@@ -682,6 +686,8 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       observacoes: this.observacoes || null,
       contato: this.contato || null,
       codigo_cupom: this.cupomValidado()?.codigo ?? null,
+      origem: mesa ? 'mesa' : undefined,
+      numero_mesa: mesa ?? undefined,
       itens: this.cart().map((item) => ({
         quantidade: item.quantidade,
         partes: item.partes.map((p) => ({
@@ -690,7 +696,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
           adicionais: p.adicionais.map((a) => a.uuid),
         })),
       })),
-      endereco_entrega: {
+      endereco_entrega: mesa ? null : {
         logradouro: f.logradouro,
         numero: f.numero,
         complemento: f.complemento || null,

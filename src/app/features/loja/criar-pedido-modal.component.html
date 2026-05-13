@@ -889,21 +889,30 @@
                   </div>
                 </section>
 
-                <!-- Delivery address -->
-                <section>
-                  <h3 class="text-sm font-semibold text-gray-700 mb-2">Endereço de entrega</h3>
-                  <div class="p-3 bg-gray-50 rounded-xl text-sm text-gray-700 leading-relaxed">
-                    {{ enderecoForm.logradouro }}, {{ enderecoForm.numero }}
-                    @if (enderecoForm.complemento) {
-                      <span class="text-gray-400"> — {{ enderecoForm.complemento }}</span>
-                    }
-                    <br />
-                    {{ enderecoForm.bairro }}, {{ enderecoForm.cidade }}/{{ enderecoForm.estado }}
-                    @if (enderecoForm.cep) {
-                      <span class="text-gray-400"> · {{ enderecoForm.cep }}</span>
-                    }
-                  </div>
-                </section>
+                <!-- Delivery address or Mesa -->
+                @if (mesa()) {
+                  <section>
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Mesa</h3>
+                    <div class="p-3 bg-gray-50 rounded-xl text-sm text-gray-700">
+                      Mesa {{ mesa() }}
+                    </div>
+                  </section>
+                } @else {
+                  <section>
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Endereço de entrega</h3>
+                    <div class="p-3 bg-gray-50 rounded-xl text-sm text-gray-700 leading-relaxed">
+                      {{ enderecoForm.logradouro }}, {{ enderecoForm.numero }}
+                      @if (enderecoForm.complemento) {
+                        <span class="text-gray-400"> — {{ enderecoForm.complemento }}</span>
+                      }
+                      <br />
+                      {{ enderecoForm.bairro }}, {{ enderecoForm.cidade }}/{{ enderecoForm.estado }}
+                      @if (enderecoForm.cep) {
+                        <span class="text-gray-400"> · {{ enderecoForm.cep }}</span>
+                      }
+                    </div>
+                  </section>
+                }
 
                 <!-- Payment info -->
                 <section>
