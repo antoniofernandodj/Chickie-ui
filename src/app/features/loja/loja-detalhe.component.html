@@ -163,7 +163,7 @@
               <p class="text-xs text-amber-700 mt-0.5">{{ resumoComanda(comandaAtiva()!) }}</p>
               @for (pedido of comandaAtiva()!.pedidos; track pedido.uuid) {
                 <p class="text-xs text-amber-600 mt-1">
-                  <span class="font-mono">#{{ pedido.codigo }}</span>
+                  <a [routerLink]="['/pedidos', pedido.codigo]" class="font-mono underline underline-offset-2 hover:text-amber-800">#{{ pedido.codigo }}</a>
                   @for (item of pedido.itens.slice(0, 2); track item.uuid) {
                     · {{ item.quantidade }}× {{ item.partes[0]?.produto_nome ?? '—' }}
                   }
