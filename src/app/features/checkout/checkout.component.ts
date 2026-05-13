@@ -20,9 +20,11 @@ import {
   CreatePedidoRequest,
   CreatePagamentoResponse,
   EnderecoFormValue,
+  Comanda,
 } from '../../core/models';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ComandaService } from '../../core/services/comanda.service';
 import { PedidoService } from '../../core/services/pedido.service';
 import { PushNotificationService } from '../../core/services/push-notification.service';
 import { PedidoLocalStorageService } from '../../core/services/pedido-local-storage.service';
@@ -46,6 +48,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   readonly cart               = inject(CartService);
   private auth                = inject(AuthService);
   private pedidoService       = inject(PedidoService);
+  private comandaService      = inject(ComandaService);
   private push                = inject(PushNotificationService);
   private pedidoLocalStorage  = inject(PedidoLocalStorageService);
   private pagamentoService    = inject(PagamentoService);
@@ -58,6 +61,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   readonly loja  = computed(() => this.cart.lojaAtual());
   readonly mesa  = computed(() => this.cart.mesa());
+  readonly comandaAtiva = signal<Comanda | null>(null);
 
   private readonly _lojaStatus = toSignal(
     toObservable(this.loja).pipe(
@@ -134,6 +138,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   readonly pagadorErro         = signal('');
 
   get pagamentoValido(): boolean {
+    if (this.mesa()) {
+      return this.formaPagamento !== '';
+    }
     const base = this.formaPagamento !== '' && this.contato.length === 11;
     if (this.formaPagamento === 'PIX' && !this.auth.isAuthenticated()) {
       return base && this.pagadorNome().trim().length > 0 && validarCpf(this.pagadorCpf());
@@ -159,6 +166,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   });
 
   readonly total = computed(() => {
+    if (this.mesa()) {
+      return Number(this.comandaAtiva()?.total ?? 0) + this.cart.subtotal();
+    }
     if (!this.loja()) return this.cart.subtotal();
     return this.cart.subtotal() + this.taxaEntrega() - this.desconto();
   });
@@ -203,6 +213,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     if (this.mesa()) {
       this.step.set('pagamento');
+      const loja = this.loja();
+      if (loja) {
+        this.comandaService.buscarComandaAtiva(loja.uuid, this.mesa()!)
+          .pipe(catchError(() => of(null)))
+          .subscribe(c => this.comandaAtiva.set(c));
+      }
       return;
     }
 

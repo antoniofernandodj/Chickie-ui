@@ -302,8 +302,8 @@
                 }
               </div>
 
-              <!-- PIX pagador (não autenticado) -->
-              @if (formaPagamento === 'PIX' && !isAuthenticated()) {
+              <!-- PIX pagador (não autenticado, apenas delivery) -->
+              @if (formaPagamento === 'PIX' && !isAuthenticated() && !mesa()) {
                 <div class="bg-orange-50 rounded-xl p-4 mb-6 space-y-3">
                   <p class="text-sm font-medium text-orange-800">Dados para a cobrança PIX</p>
                   <ui-input
@@ -322,15 +322,17 @@
                 </div>
               }
 
-              <!-- Contact -->
-              <div class="mb-4">
-                <ui-input
-                  mask="phone"
-                  label="Celular de contato *"
-                  [(ngModel)]="contato"
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
+              <!-- Contact (apenas delivery) -->
+              @if (!mesa()) {
+                <div class="mb-4">
+                  <ui-input
+                    mask="phone"
+                    label="Celular de contato *"
+                    [(ngModel)]="contato"
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+              }
 
               <!-- Coupon -->
               <div class="mb-4">
@@ -452,7 +454,9 @@
                 </p>
                 <div class="bg-gray-50 rounded-xl p-3 text-sm">
                   <p class="font-medium text-gray-900">{{ formaPagamento }}</p>
-                  <p class="text-gray-500 mt-0.5">Contato: {{ contato }}</p>
+                  @if (contato) {
+                    <p class="text-gray-500 mt-0.5">Contato: {{ contato }}</p>
+                  }
                   @if (cupomValidado()) {
                     <p class="text-green-600 mt-0.5 font-medium">
                       Cupom: {{ cupomValidado()!.codigo }}
@@ -538,10 +542,23 @@
 
             <!-- Totals -->
             <div class="space-y-1.5 text-sm">
-              <div class="flex justify-between text-gray-600">
-                <span>Subtotal</span>
-                <span>R$&nbsp;{{ cart.subtotal() | number: '1.2-2' }}</span>
-              </div>
+              @if (mesa()) {
+                @if (comandaAtiva() && comandaAtiva()!.total > 0) {
+                  <div class="flex justify-between text-gray-600">
+                    <span>Pedidos anteriores</span>
+                    <span>R$&nbsp;{{ comandaAtiva()!.total | number: '1.2-2' }}</span>
+                  </div>
+                }
+                <div class="flex justify-between text-gray-600">
+                  <span>Este pedido</span>
+                  <span>R$&nbsp;{{ cart.subtotal() | number: '1.2-2' }}</span>
+                </div>
+              } @else {
+                <div class="flex justify-between text-gray-600">
+                  <span>Subtotal</span>
+                  <span>R$&nbsp;{{ cart.subtotal() | number: '1.2-2' }}</span>
+                </div>
+              }
               @if (mesa()) {
                 <div class="flex justify-between text-green-600">
                   <span>Entrega</span>
