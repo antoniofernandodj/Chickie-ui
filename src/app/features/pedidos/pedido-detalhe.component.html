@@ -63,6 +63,25 @@
       </div>
     </div>
 
+    <!-- Banner de mesa — voltar para adicionar itens -->
+    @if (pedido()!.tipo_pedido === 'mesa' && pedido()!.numero_mesa && lojaSlug()) {
+      <a
+        [routerLink]="['/loja', lojaSlug(), 'mesa', pedido()!.numero_mesa]"
+        class="flex items-center justify-between p-4 rounded-2xl border border-green-200 bg-green-50 mb-6 hover:bg-green-100 transition-colors"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🍽️</span>
+          <div>
+            <p class="text-sm font-bold text-green-900">Mesa {{ pedido()!.numero_mesa }}</p>
+            <p class="text-xs text-green-700">Toque para adicionar mais itens ao cardápio</p>
+          </div>
+        </div>
+        <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    }
+
     <!-- Banner de cancelamento -->
     @if (isCancelled()) {
       <div class="bg-red-50 border border-red-100 rounded-2xl p-6 mb-6 text-center">

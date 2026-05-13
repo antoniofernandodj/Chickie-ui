@@ -9,6 +9,7 @@ import { PedidosLiveService } from '../../core/services/pedidos-live.service';
 import { PagamentoService } from '../../core/services/pagamento.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MarketingService } from '../../core/services/marketing.service';
+import { LojaService } from '../../core/services/loja.service';
 import { Pedido, StatusPedido, CreatePagamentoResponse } from '../../core/models';
 import { FormsModule } from '@angular/forms';
 import { ChatPanelComponent } from '../../shared/components/chat-panel.component';
@@ -51,6 +52,7 @@ export class PedidoDetalheComponent {
   private pagamentoService   = inject(PagamentoService);
   private authService        = inject(AuthService);
   private marketingService   = inject(MarketingService);
+  private lojaService        = inject(LojaService);
   private destroyRef         = inject(DestroyRef);
   private locale             = inject(LOCALE_ID);
 
@@ -59,6 +61,8 @@ export class PedidoDetalheComponent {
   // ── Pedido ────────────────────────────────────────────────────────────────
 
   private readonly _pedido = signal<Pedido | null | undefined>(undefined);
+  readonly lojaSlug = signal<string | null>(null);
+  private _lojaSlugFetched = false;
   readonly pedido = this._pedido.asReadonly();
 
   readonly loading     = computed(() => this._pedido() === undefined);
@@ -142,9 +146,17 @@ export class PedidoDetalheComponent {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(pedido => {
       if (pedido) {
+        if (pedido.tipo_pedido === 'mesa' && !this._lojaSlugFetched) {
+          this._lojaSlugFetched = true;
+          this.lojaService.buscarPorUuid(pedido.loja_uuid).pipe(
+            catchError(() => of(null)),
+            takeUntilDestroyed(this.destroyRef),
+          ).subscribe(loja => { if (loja) this.lojaSlug.set(loja.slug); });
+        }
+
         const foiPago = !this._pedido()?.pago && pedido.pago;
         const transitouEntregue = pedido.status === 'entregue' && this._pedido()?.status !== 'entregue';
-        
+
         if (foiPago) console.info(`[OBSERVABILITY] PedidoDetalheComponent - Order was paid: ${pedido.codigo}`);
         if (transitouEntregue) console.info(`[OBSERVABILITY] PedidoDetalheComponent - Order was delivered: ${pedido.codigo}`);
 
