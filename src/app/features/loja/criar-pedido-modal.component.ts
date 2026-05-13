@@ -244,7 +244,8 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   }
 
   get total(): number {
-    return this.subtotal + Number(this.loja.taxa_entrega) - this.desconto;
+    const taxaEntrega = this.cartService.mesa() ? 0 : Number(this.loja.taxa_entrega);
+    return this.subtotal + taxaEntrega - this.desconto;
   }
 
   // ── Validation ──────────────────────────────────────────────────────────────
@@ -324,7 +325,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     this.steps = [
       ...catSteps,
       ...(isMesa ? [] : [{ tipo: 'endereco' as const }]),
-      { tipo: 'pagamento' },
+      ...(isMesa ? [] : [{ tipo: 'pagamento' as const }]),
       { tipo: 'resumo' },
     ];
   }
@@ -673,7 +674,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       toast.error('Preencha o endereço de entrega.');
       return;
     }
-    if (this.contato.length !== 11) {
+    if (!mesa && this.contato.length !== 11) {
       toast.error('Informe o celular de contato.');
       return;
     }
@@ -681,10 +682,10 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     const f = this.enderecoForm;
     const body: CreatePedidoRequest = {
       loja_uuid: this.loja.uuid,
-      taxa_entrega: Number(this.loja.taxa_entrega),
-      forma_pagamento: this.formaPagamento,
+      taxa_entrega: mesa ? 0 : Number(this.loja.taxa_entrega),
+      forma_pagamento: mesa ? '' : this.formaPagamento,
       observacoes: this.observacoes || null,
-      contato: this.contato || null,
+      contato: mesa ? null : (this.contato || null),
       codigo_cupom: this.cupomValidado()?.codigo ?? null,
       origem: mesa ? 'mesa' : undefined,
       numero_mesa: mesa ?? undefined,
@@ -708,7 +709,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     };
 
     const isAuth = this.auth.isAuthenticated();
-    const isPix  = this.formaPagamento === 'PIX';
+    const isPix  = !mesa && this.formaPagamento === 'PIX';
     const pagador = isPix && !isAuth
       ? { nome: this.pagadorNome().trim(), cpf: this.pagadorCpf() }
       : undefined;
