@@ -434,29 +434,31 @@ export class AdminMesasTabComponent implements OnDestroy {
       </div>
     `).join('');
 
-    win.document.write(`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <title>QR Codes — ${slug}</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: sans-serif; padding: 24px; background: #fff; }
-    h1 { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #111; }
-    .grid { display: flex; flex-wrap: wrap; gap: 16px; }
-    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 200px; break-inside: avoid; }
-    .label { font-size: 22px; font-weight: 900; color: #111; }
-    img { width: 160px; height: 160px; border-radius: 8px; }
-    .url { font-size: 9px; color: #6b7280; text-align: center; word-break: break-all; }
-    @media print { body { padding: 8px; } h1 { display: none; } }
-  </style>
-</head>
-<body>
-  <h1>QR Codes — ${slug}</h1>
-  <div class="grid">${cards}</div>
-  <script>window.onload = () => { window.print(); }<\/script>
-</body>
-</html>`);
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8"/>
+        <title>QR Codes — ${slug}</title>
+        <style>
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body { font-family: sans-serif; padding: 24px; background: #fff; }
+          h1 { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #111; }
+          .grid { display: flex; flex-wrap: wrap; gap: 16px; }
+          .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 200px; break-inside: avoid; }
+          .label { font-size: 22px; font-weight: 900; color: #111; }
+          img { width: 160px; height: 160px; border-radius: 8px; }
+          .url { font-size: 9px; color: #6b7280; text-align: center; word-break: break-all; }
+          @media print { body { padding: 8px; } h1 { display: none; } }
+        </style>
+      </head>
+      <body>
+        <h1>QR Codes — ${slug}</h1>
+        <div class="grid">${cards}</div>
+        <script>window.onload = () => { window.print(); }<\/script>
+      </body>
+      </html>`
+    );
     win.document.close();
   }
 }
