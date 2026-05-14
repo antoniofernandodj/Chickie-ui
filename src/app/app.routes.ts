@@ -119,6 +119,13 @@ export const routes: Routes = [
     title: 'Mesas — Chiquitos',
   },
   {
+    path: 'funcionario/pedidos',
+    canActivate: [funcionarioGuard],
+    loadComponent: () => import('./features/funcionario/funcionario-pedidos.component')
+      .then(m => m.FuncionarioPedidosComponent),
+    title: 'Pedidos da Loja — Chiquitos',
+  },
+  {
     path: 'owner',
     canActivate: [ownerGuard],
     loadComponent: () => import('./features/owner/owner-panel.component')

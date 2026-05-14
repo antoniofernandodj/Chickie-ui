@@ -1,4 +1,4 @@
-import { Component, inject, input, signal, computed, effect, DestroyRef, OnInit } from '@angular/core';
+import { Component, inject, input, signal, computed, effect, DestroyRef } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -701,7 +701,8 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
   `,
 })
 export class AdminPedidosTabComponent {
-  lojaUuid = input.required<string>();
+  lojaUuid        = input.required<string>();
+  excludeStatuses = input<StatusPedido[]>([]);
 
   private pedidosLiveService = inject(PedidosLiveService);
   private pedidoService = inject(PedidoService);
@@ -729,8 +730,12 @@ export class AdminPedidosTabComponent {
     { id: 'chat',     label: '💬 Chat'     },
   ];
 
-  readonly statusEntries = (Object.entries(STATUS_CFG) as [StatusPedido, typeof STATUS_CFG[StatusPedido]][])
-    .map(([key, cfg]) => ({ key, cfg }));
+  readonly statusEntries = computed(() => {
+    const excluded = this.excludeStatuses();
+    return (Object.entries(STATUS_CFG) as [StatusPedido, typeof STATUS_CFG[StatusPedido]][])
+      .map(([key, cfg]) => ({ key, cfg }))
+      .filter(({ key }) => !excluded.includes(key));
+  });
 
   readonly expandedPedidos = signal<Set<string>>(new Set());
   readonly pedidoDetalhe = signal<Pedido | null>(null);

@@ -150,6 +150,17 @@
                 }
                 @if (auth.isFuncionario()) {
                   <a
+                    routerLink="/funcionario/pedidos"
+                    (click)="menuOpen.set(false)"
+                    class="flex items-center gap-3 px-4 py-3 text-sm text-orange-700 hover:bg-orange-50 transition-colors"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Pedidos da Loja
+                  </a>
+                  <a
                     routerLink="/kds"
                     (click)="menuOpen.set(false)"
                     class="flex items-center gap-3 px-4 py-3 text-sm text-blue-700 hover:bg-blue-50 transition-colors"
@@ -368,6 +379,12 @@
             >
           }
           @if (auth.isFuncionario()) {
+            <a
+              routerLink="/funcionario/pedidos"
+              (click)="mobileOpen.set(false)"
+              class="block px-4 py-3 rounded-xl text-sm font-medium text-orange-700 hover:bg-orange-50"
+              >Pedidos da Loja</a
+            >
             <a
               routerLink="/kds"
               (click)="mobileOpen.set(false)"
