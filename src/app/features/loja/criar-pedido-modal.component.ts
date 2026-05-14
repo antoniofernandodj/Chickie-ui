@@ -10,7 +10,7 @@ import {
   OnDestroy,
   effect,
 } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { formatPhone } from '../../core/utils/phone-utils';
@@ -62,7 +62,7 @@ type Step = CategoriaStep | FixedStep;
 
 @Component({
   selector: 'app-criar-pedido-modal',
-  imports: [FormsModule, DecimalPipe, EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent],
+  imports: [FormsModule, DatePipe, DecimalPipe, EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent],
   templateUrl: './criar-pedido-modal.component.html',
 })
 export class CriarPedidoModalComponent implements OnInit, OnDestroy {
@@ -87,10 +87,10 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
 
   readonly mesa = computed(() => this.cartService.mesa());
 
-  // Comanda ativa para escolha de nova vs existente
-  readonly comandaAtiva = signal<Comanda | null>(null);
-  // null = não escolheu, true = nova comanda, false = adicionar à existente
-  readonly escolhaNova = signal<boolean | null>(null);
+  // Comandas ativas na mesa (pode haver várias)
+  readonly comandasAtivas = signal<Comanda[]>([]);
+  // null = não escolheu, 'nova' = nova comanda, string = uuid da comanda escolhida
+  readonly comandaEscolhida = signal<string | 'nova' | null>(null);
 
   // ── Steps ──────────────────────────────────────────────────────────────────
   steps: Step[] = [];
@@ -264,7 +264,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     if (!s) return false;
     if (s.tipo === 'categoria') return true;
     if (s.tipo === 'endereco') return this.enderecoValido;
-    if (s.tipo === 'comanda-choice') return this.escolhaNova() !== null;
+    if (s.tipo === 'comanda-choice') return this.comandaEscolhida() !== null;
     if (s.tipo === 'pagamento') {
       const base = this.formaPagamento !== '' && this.contato.length === 11;
       if (this.formaPagamento === 'PIX' && !this.auth.isAuthenticated()) {
@@ -299,11 +299,10 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
 
     const mesa = this.cartService.mesa();
     if (mesa) {
-      this.comandaService.buscarComandaAtiva(this.loja.uuid, mesa)
-        .pipe(catchError(() => of(null)))
-        .subscribe(c => {
-          this.comandaAtiva.set(c);
-          if (!c) this.escolhaNova.set(false);
+      this.comandaService.listarComandasAtivasPorMesa(this.loja.uuid, mesa)
+        .pipe(catchError(() => of([])))
+        .subscribe(cs => {
+          this.comandasAtivas.set(cs);
           this.buildSteps();
         });
     } else {
@@ -344,7 +343,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       .filter((s) => s.produtos.length > 0);
 
     const isMesa = !!this.cartService.mesa();
-    const temComandaAtiva = !!this.comandaAtiva();
+    const temComandaAtiva = this.comandasAtivas().length > 0;
     this.steps = [
       ...catSteps,
       ...(isMesa ? [] : [{ tipo: 'endereco' as const }]),
@@ -713,7 +712,10 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       codigo_cupom: this.cupomValidado()?.codigo ?? null,
       origem: mesa ? 'mesa' : undefined,
       numero_mesa: mesa ?? undefined,
-      forcar_nova_comanda: mesa && this.escolhaNova() === true ? true : undefined,
+      forcar_nova_comanda: mesa && this.comandaEscolhida() === 'nova' ? true : undefined,
+      comanda_uuid: mesa && this.comandaEscolhida() !== 'nova' && this.comandaEscolhida() !== null
+        ? this.comandaEscolhida()!
+        : undefined,
       itens: this.cart().map((item) => ({
         quantidade: item.quantidade,
         partes: item.partes.map((p) => ({

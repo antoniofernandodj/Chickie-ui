@@ -849,34 +849,66 @@
 
           <!-- ── Escolha de Comanda (mesa) ────────────────────────────── -->
           @case ('comanda-choice') {
-            <div class="px-5 py-5 space-y-4">
-              <div class="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
-                <span class="text-2xl shrink-0">🪑</span>
-                <div>
-                  <p class="text-sm font-semibold text-amber-900 mb-1">Comanda ativa encontrada</p>
-                  <p class="text-sm text-amber-800">
-                    A Mesa {{ mesa() }} já tem uma comanda aberta com
-                    <strong>R$&nbsp;{{ comandaAtiva()!.total | number:'1.2-2' }}</strong>.
-                    O que deseja fazer com este pedido?
-                  </p>
+            <div class="px-5 py-5 space-y-3">
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Comandas abertas na Mesa {{ mesa() }}
+              </p>
+
+              @for (comanda of comandasAtivas(); track comanda.uuid) {
+                <button
+                  type="button"
+                  class="w-full text-left p-4 rounded-2xl border-2 transition-all"
+                  [class]="comandaEscolhida() === comanda.uuid
+                    ? 'border-brand bg-orange-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'"
+                  [style.border-color]="comandaEscolhida() === comanda.uuid ? 'var(--color-brand)' : ''"
+                  (click)="comandaEscolhida.set(comanda.uuid)"
+                >
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-semibold text-gray-900">
+                        Comanda {{ $index + 1 }}
+                        <span class="ml-2 text-xs font-normal text-gray-400">
+                          {{ comanda.pedidos.length }} {{ comanda.pedidos.length === 1 ? 'pedido' : 'pedidos' }}
+                        </span>
+                      </p>
+                      <p class="text-xs text-gray-500 mt-0.5">
+                        Aberta às {{ comanda.criado_em | date:'HH:mm' }}
+                      </p>
+                    </div>
+                    <div class="text-right shrink-0 ml-3">
+                      <p class="text-base font-bold" style="color: var(--color-brand)">
+                        R$&nbsp;{{ comanda.total | number:'1.2-2' }}
+                      </p>
+                      @if (comandaEscolhida() === comanda.uuid) {
+                        <p class="text-xs text-green-600 font-semibold">Selecionada ✓</p>
+                      }
+                    </div>
+                  </div>
+                </button>
+              }
+
+              <!-- Nova comanda -->
+              <button
+                type="button"
+                class="w-full text-left p-4 rounded-2xl border-2 transition-all"
+                [class]="comandaEscolhida() === 'nova'
+                  ? 'border-brand bg-orange-50'
+                  : 'border-dashed border-gray-300 bg-white hover:border-gray-400'"
+                [style.border-color]="comandaEscolhida() === 'nova' ? 'var(--color-brand)' : ''"
+                (click)="comandaEscolhida.set('nova')"
+              >
+                <div class="flex items-center gap-3">
+                  <span class="text-xl">+</span>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800">Iniciar nova comanda</p>
+                    <p class="text-xs text-gray-500">Cria uma comanda separada para este pedido</p>
+                  </div>
+                  @if (comandaEscolhida() === 'nova') {
+                    <span class="ml-auto text-xs text-green-600 font-semibold shrink-0">Selecionada ✓</span>
+                  }
                 </div>
-              </div>
-
-              <ui-button
-                [variant]="escolhaNova() === false ? 'primary' : 'secondary'"
-                [fullWidth]="true"
-                (click)="escolhaNova.set(false)"
-              >
-                Adicionar à comanda existente
-              </ui-button>
-
-              <ui-button
-                [variant]="escolhaNova() === true ? 'primary' : 'secondary'"
-                [fullWidth]="true"
-                (click)="escolhaNova.set(true)"
-              >
-                Iniciar nova comanda
-              </ui-button>
+              </button>
             </div>
           }
 
