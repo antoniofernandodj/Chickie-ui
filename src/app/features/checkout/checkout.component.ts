@@ -67,7 +67,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     toObservable(this.loja).pipe(
       switchMap(loja =>
         loja
-          ? this.horarioService.verificarStatus(loja.uuid).pipe(catchError(() => of(null)))
+          ? this.horarioService.sseStatus(loja.uuid).pipe(catchError(() => of(null)))
           : of(null)
       )
     )
@@ -469,8 +469,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             }
           });
       },
-      error: () => {
-        toast.error('Erro ao criar pedido. Tente novamente.');
+      error: (err: { error?: string }) => {
+        const msg = err?.error === 'Loja está fechada'
+          ? 'A loja está fechada no momento.'
+          : 'Erro ao criar pedido. Tente novamente.';
+        toast.error(msg);
         this.submitting.set(false);
       },
     });

@@ -115,13 +115,13 @@ export class LojaDetalheComponent {
   readonly horarios = computed(() => this._horarios() ?? []);
   readonly diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
-  // Verificar se a loja está aberta agora via API (horário de Brasília delegado ao backend)
+  // Status da loja em tempo real via SSE — atualiza automaticamente ao fechar/abrir
   readonly _lojaStatus = toSignal(
     toObservable(this.loja).pipe(
       distinctUntilChanged((a, b) => a?.uuid === b?.uuid),
       switchMap(loja =>
         loja
-          ? this.horarioService.verificarStatus(loja.uuid).pipe(catchError(() => of(null)))
+          ? this.horarioService.sseStatus(loja.uuid).pipe(catchError(() => of(null)))
           : of(null)
       )
     )
