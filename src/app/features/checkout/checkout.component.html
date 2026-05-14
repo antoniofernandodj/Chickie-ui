@@ -283,50 +283,6 @@
 
           <!-- STEP 2: Pagamento -->
           @if (step() === 'pagamento') {
-            <!-- Escolha de comanda (apenas mesa com comanda existente) -->
-            @if (mesa()) {
-              @if (!comandaAtivaBuscada()) {
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                  <div class="flex items-center gap-3 text-gray-500">
-                    <div class="w-5 h-5 rounded-full border-2 border-gray-300 border-t-gray-600 animate-spin shrink-0"></div>
-                    <span class="text-sm">Verificando comanda ativa…</span>
-                  </div>
-                </div>
-              } @else if (escolhaNova() === null && comandaAtiva()) {
-                <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-6">
-                  <div class="flex items-start gap-3 mb-4">
-                    <span class="text-2xl shrink-0">🪑</span>
-                    <div>
-                      <h2 class="font-bold text-gray-900 text-base mb-1">Comanda ativa encontrada</h2>
-                      <p class="text-sm text-gray-600">
-                        A Mesa {{ mesa() }} já tem uma comanda aberta com
-                        <strong>R$&nbsp;{{ comandaAtiva()!.total | number:'1.2-2' }}</strong>.
-                        O que deseja fazer com este pedido?
-                      </p>
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-1 gap-3">
-                    <ui-button variant="secondary" [fullWidth]="true" (click)="escolhaNova.set(false)">
-                      Adicionar à comanda existente
-                    </ui-button>
-                    <ui-button variant="primary" [fullWidth]="true" (click)="escolhaNova.set(true)">
-                      Iniciar nova comanda
-                    </ui-button>
-                  </div>
-                </div>
-              } @else if (escolhaNova() !== null) {
-                <div class="flex items-center justify-between px-4 py-3 bg-green-50 border border-green-200 rounded-2xl text-sm text-green-800">
-                  @if (escolhaNova() === true) {
-                    <span class="font-medium">Nova comanda será iniciada</span>
-                  } @else {
-                    <span class="font-medium">Adicionando à comanda existente (R$&nbsp;{{ comandaAtiva()!.total | number:'1.2-2' }})</span>
-                  }
-                  <button class="text-green-600 underline text-xs ml-4 shrink-0" (click)="escolhaNova.set(null)">Alterar</button>
-                </div>
-              }
-            }
-
-            @if (!mesa() || escolhaNova() !== null) {
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <h2 class="font-bold text-gray-900 text-lg mb-5">Forma de pagamento</h2>
 
@@ -441,7 +397,6 @@
                 </ui-button>
               </div>
             </div>
-            }
           }
 
           <!-- STEP 3: Resumo e confirmação -->
@@ -588,7 +543,7 @@
             <!-- Totals -->
             <div class="space-y-1.5 text-sm">
               @if (mesa()) {
-                @if (escolhaNova() === false && comandaAtiva() && comandaAtiva()!.total > 0) {
+                @if (comandaAtiva() && comandaAtiva()!.total > 0) {
                   <div class="flex justify-between text-gray-600">
                     <span>Pedidos anteriores</span>
                     <span>R$&nbsp;{{ comandaAtiva()!.total | number: '1.2-2' }}</span>

@@ -62,9 +62,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   readonly loja  = computed(() => this.cart.lojaAtual());
   readonly mesa  = computed(() => this.cart.mesa());
   readonly comandaAtiva = signal<Comanda | null>(null);
-  readonly comandaAtivaBuscada = signal(false);
-  // null = não escolheu ainda, true = nova comanda, false = adicionar à existente
-  readonly escolhaNova = signal<boolean | null>(null);
 
   private readonly _lojaStatus = toSignal(
     toObservable(this.loja).pipe(
@@ -142,8 +139,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   get pagamentoValido(): boolean {
     if (this.mesa()) {
-      if (!this.comandaAtivaBuscada()) return false;
-      if (this.escolhaNova() === null) return false;
       return this.formaPagamento !== '';
     }
     const base = this.formaPagamento !== '' && this.contato.length === 11;
@@ -172,8 +167,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   readonly total = computed(() => {
     if (this.mesa()) {
-      const addToExisting = this.escolhaNova() === false && this.comandaAtiva();
-      return (addToExisting ? Number(this.comandaAtiva()!.total) : 0) + this.cart.subtotal();
+      return Number(this.comandaAtiva()?.total ?? 0) + this.cart.subtotal();
     }
     if (!this.loja()) return this.cart.subtotal();
     return this.cart.subtotal() + this.taxaEntrega() - this.desconto();
@@ -223,14 +217,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       if (loja) {
         this.comandaService.buscarComandaAtiva(loja.uuid, this.mesa()!)
           .pipe(catchError(() => of(null)))
-          .subscribe(c => {
-            this.comandaAtiva.set(c);
-            this.comandaAtivaBuscada.set(true);
-            if (!c) this.escolhaNova.set(false);
-          });
-      } else {
-        this.comandaAtivaBuscada.set(true);
-        this.escolhaNova.set(false);
+          .subscribe(c => this.comandaAtiva.set(c));
       }
       return;
     }
@@ -412,9 +399,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       observacoes:     this.observacoes || null,
       contato:         this.contato || null,
       codigo_cupom:    this.cupomValidado()?.codigo ?? null,
-      origem:               mesa ? 'mesa' : undefined,
-      numero_mesa:          mesa ?? null,
-      forcar_nova_comanda:  mesa && this.escolhaNova() === true ? true : undefined,
+      origem:          mesa ? 'mesa' : undefined,
+      numero_mesa:     mesa ?? null,
       itens: this.itens().map(item => ({
         quantidade: item.quantidade,
         partes: item.partes.map(p => ({
