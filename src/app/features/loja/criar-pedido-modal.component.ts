@@ -25,6 +25,7 @@ import {
   EnderecoUsuario,
   Cupom,
   Pedido,
+  Comanda,
   CreatePedidoRequest,
   CreatePagamentoResponse,
   EnderecoFormValue,
@@ -40,6 +41,7 @@ import { GuestEnderecoService, EnderecoGuestSalvo } from '../../core/services/gu
 import { ConfigPedidoService } from '../../core/services/config-pedido.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { CatalogoService } from '../../core/services/catalogo.service';
+import { ComandaService } from '../../core/services/comanda.service';
 import { EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent } from '../../shared/components';
 
 // ─── Local types ──────────────────────────────────────────────────────────────
@@ -51,7 +53,7 @@ interface CategoriaStep {
 }
 
 interface FixedStep {
-  tipo: 'endereco' | 'pagamento' | 'resumo';
+  tipo: 'endereco' | 'pagamento' | 'resumo' | 'comanda-choice';
 }
 
 type Step = CategoriaStep | FixedStep;
@@ -80,9 +82,15 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   private configService = inject(ConfigPedidoService);
   private marketingService = inject(MarketingService);
   private catalogoService = inject(CatalogoService);
+  private comandaService = inject(ComandaService);
   private router = inject(Router);
 
   readonly mesa = computed(() => this.cartService.mesa());
+
+  // Comanda ativa para escolha de nova vs existente
+  readonly comandaAtiva = signal<Comanda | null>(null);
+  // null = não escolheu, true = nova comanda, false = adicionar à existente
+  readonly escolhaNova = signal<boolean | null>(null);
 
   // ── Steps ──────────────────────────────────────────────────────────────────
   steps: Step[] = [];
@@ -108,6 +116,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     if (s.tipo === 'categoria') return (s as CategoriaStep).categoria.nome;
     if (s.tipo === 'endereco') return 'Endereço de Entrega';
     if (s.tipo === 'pagamento') return 'Pagamento';
+    if (s.tipo === 'comanda-choice') return 'Comanda';
     return 'Resumo do Pedido';
   }
 
@@ -123,6 +132,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     }
     if (s.tipo === 'endereco') return 'Onde você quer receber?';
     if (s.tipo === 'pagamento') return 'Como você vai pagar?';
+    if (s.tipo === 'comanda-choice') return 'Nova comanda ou adicionar à existente?';
     return 'Confira antes de confirmar';
   }
 
@@ -254,6 +264,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     if (!s) return false;
     if (s.tipo === 'categoria') return true;
     if (s.tipo === 'endereco') return this.enderecoValido;
+    if (s.tipo === 'comanda-choice') return this.escolhaNova() !== null;
     if (s.tipo === 'pagamento') {
       const base = this.formaPagamento !== '' && this.contato.length === 11;
       if (this.formaPagamento === 'PIX' && !this.auth.isAuthenticated()) {
@@ -286,7 +297,18 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.buildSteps();
+    const mesa = this.cartService.mesa();
+    if (mesa) {
+      this.comandaService.buscarComandaAtiva(this.loja.uuid, mesa)
+        .pipe(catchError(() => of(null)))
+        .subscribe(c => {
+          this.comandaAtiva.set(c);
+          if (!c) this.escolhaNova.set(false);
+          this.buildSteps();
+        });
+    } else {
+      this.buildSteps();
+    }
 
     this.configService
       .getConfigPedido(this.loja.uuid)
@@ -322,10 +344,12 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       .filter((s) => s.produtos.length > 0);
 
     const isMesa = !!this.cartService.mesa();
+    const temComandaAtiva = !!this.comandaAtiva();
     this.steps = [
       ...catSteps,
       ...(isMesa ? [] : [{ tipo: 'endereco' as const }]),
       ...(isMesa ? [] : [{ tipo: 'pagamento' as const }]),
+      ...(isMesa && temComandaAtiva ? [{ tipo: 'comanda-choice' as const }] : []),
       { tipo: 'resumo' },
     ];
   }
@@ -689,6 +713,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       codigo_cupom: this.cupomValidado()?.codigo ?? null,
       origem: mesa ? 'mesa' : undefined,
       numero_mesa: mesa ?? undefined,
+      forcar_nova_comanda: mesa && this.escolhaNova() === true ? true : undefined,
       itens: this.cart().map((item) => ({
         quantidade: item.quantidade,
         partes: item.partes.map((p) => ({

@@ -847,6 +847,39 @@
             </div>
           }
 
+          <!-- ── Escolha de Comanda (mesa) ────────────────────────────── -->
+          @case ('comanda-choice') {
+            <div class="px-5 py-5 space-y-4">
+              <div class="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+                <span class="text-2xl shrink-0">🪑</span>
+                <div>
+                  <p class="text-sm font-semibold text-amber-900 mb-1">Comanda ativa encontrada</p>
+                  <p class="text-sm text-amber-800">
+                    A Mesa {{ mesa() }} já tem uma comanda aberta com
+                    <strong>R$&nbsp;{{ comandaAtiva()!.total | number:'1.2-2' }}</strong>.
+                    O que deseja fazer com este pedido?
+                  </p>
+                </div>
+              </div>
+
+              <ui-button
+                [variant]="escolhaNova() === false ? 'primary' : 'secondary'"
+                [fullWidth]="true"
+                (click)="escolhaNova.set(false)"
+              >
+                Adicionar à comanda existente
+              </ui-button>
+
+              <ui-button
+                [variant]="escolhaNova() === true ? 'primary' : 'secondary'"
+                [fullWidth]="true"
+                (click)="escolhaNova.set(true)"
+              >
+                Iniciar nova comanda
+              </ui-button>
+            </div>
+          }
+
           <!-- ── Resumo ──────────────────────────────────────────────────── -->
           @case ('resumo') {
             <div class="px-5 py-5 space-y-5">
