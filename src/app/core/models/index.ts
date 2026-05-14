@@ -406,7 +406,6 @@ export interface CreatePedidoRequest {
   origem?:              'app' | 'pdv' | 'mesa';
   numero_mesa?:         string | null;
   nome_requerente?:     string | null;
-  forcar_nova_comanda?: boolean;
   comanda_uuid?:        string;
   itens:                CreatePedidoItemRequest[];
   endereco_entrega?: {

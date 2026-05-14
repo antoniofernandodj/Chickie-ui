@@ -712,7 +712,6 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       codigo_cupom: this.cupomValidado()?.codigo ?? null,
       origem: mesa ? 'mesa' : undefined,
       numero_mesa: mesa ?? undefined,
-      forcar_nova_comanda: mesa && this.comandaEscolhida() === 'nova' ? true : undefined,
       comanda_uuid: mesa && this.comandaEscolhida() !== 'nova' && this.comandaEscolhida() !== null
         ? this.comandaEscolhida()!
         : undefined,
