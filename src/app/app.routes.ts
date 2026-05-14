@@ -112,6 +112,13 @@ export const routes: Routes = [
     title: 'Telão PDV — Chiquitos',
   },
   {
+    path: 'mesas',
+    canActivate: [funcionarioGuard],
+    loadComponent: () => import('./features/funcionario/funcionario-mesas.component')
+      .then(m => m.FuncionarioMesasComponent),
+    title: 'Mesas — Chiquitos',
+  },
+  {
     path: 'owner',
     canActivate: [ownerGuard],
     loadComponent: () => import('./features/owner/owner-panel.component')

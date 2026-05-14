@@ -397,16 +397,17 @@ export interface CreatePedidoItemRequest {
 }
 
 export interface CreatePedidoRequest {
-  loja_uuid?:      string;
-  taxa_entrega:    number;
-  forma_pagamento: string;
-  observacoes?:    string | null;
-  contato?:        string | null;
-  codigo_cupom?:   string | null;
-  origem?:         'app' | 'pdv' | 'mesa';
-  numero_mesa?:    string | null;
-  nome_requerente?: string | null;
-  itens:           CreatePedidoItemRequest[];
+  loja_uuid?:           string;
+  taxa_entrega:         number;
+  forma_pagamento:      string;
+  observacoes?:         string | null;
+  contato?:             string | null;
+  codigo_cupom?:        string | null;
+  origem?:              'app' | 'pdv' | 'mesa';
+  numero_mesa?:         string | null;
+  nome_requerente?:     string | null;
+  forcar_nova_comanda?: boolean;
+  itens:                CreatePedidoItemRequest[];
   endereco_entrega?: {
     cep?:         string | null;
     logradouro:   string;

@@ -88,15 +88,17 @@ import { Comanda } from '../../../core/models';
 
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             @for (mesa of mesas(); track mesa) {
-              @let comanda = mesasOcupadas().get(mesa.toString());
+              @let comandas = mesasOcupadas().get(mesa.toString()) ?? [];
               <div
                 class="bg-white rounded-2xl shadow-sm border p-4 flex flex-col items-center gap-3 transition-all"
-                [class]="comanda ? 'border-green-400 ring-2 ring-green-300' : 'border-gray-100'"
+                [class]="comandas.length > 0 ? 'border-green-400 ring-2 ring-green-300' : 'border-gray-100'"
               >
                 <div class="flex items-center gap-1.5 w-full justify-between">
                   <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Mesa</p>
-                  @if (comanda) {
-                    <span class="text-xs font-bold text-green-700 bg-green-100 px-1.5 py-0.5 rounded-full">🟢 Aberta</span>
+                  @if (comandas.length > 0) {
+                    <span class="text-xs font-bold text-green-700 bg-green-100 px-1.5 py-0.5 rounded-full">
+                      🟢 {{ comandas.length > 1 ? comandas.length + ' cmd' : 'Aberta' }}
+                    </span>
                   }
                 </div>
                 <p class="text-2xl font-black text-gray-900 leading-none">{{ mesa }}</p>
@@ -107,18 +109,18 @@ import { Comanda } from '../../../core/models';
                   width="160"
                   height="160"
                 ></canvas>
-                @if (comanda) {
+                @if (comandas.length > 0) {
                   <div class="w-full text-center">
                     <p class="text-xs text-gray-500">
-                      {{ comanda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                      {{ totalMesa(comandas) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                     </p>
                     <ui-button
                       variant="primary"
                       size="xs"
                       [fullWidth]="true"
-                      (click)="abrirModal(comanda)"
+                      (click)="abrirModal(mesa.toString())"
                     >
-                      Ver Comanda
+                      Ver Comanda{{ comandas.length > 1 ? 's' : '' }}
                     </ui-button>
                   </div>
                 }
@@ -142,83 +144,102 @@ import { Comanda } from '../../../core/models';
       }
     </div>
 
-    <!-- ── Modal Comanda ──────────────────────────────────────────────── -->
-    @if (comandaModal()) {
+    <!-- ── Modal Comandas ────────────────────────────────────────────── -->
+    @if (modalMesa()) {
       <div
         class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
         style="background: rgba(0,0,0,0.5)"
         (click)="fecharModal()"
       >
         <div
-          class="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden"
+          class="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden"
           (click)="$event.stopPropagation()"
         >
           <!-- Header -->
           <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
-            <h3 class="text-lg font-black text-gray-900">
-              Comanda — Mesa {{ comandaModal()!.numero_mesa }}
-            </h3>
+            <h3 class="text-lg font-black text-gray-900">Mesa {{ modalMesa() }}</h3>
             <button
               (click)="fecharModal()"
               class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
             >✕</button>
           </div>
 
-          <!-- Items -->
-          <div class="overflow-y-auto flex-1 px-6 py-4 space-y-4">
-            @for (pedido of comandaModal()!.pedidos; track pedido.uuid) {
-              <div>
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-                  Pedido #{{ pedido.codigo }}
-                </p>
-                @for (item of pedido.itens; track item.uuid) {
-                  <div class="flex justify-between items-baseline py-1">
-                    <span class="text-sm text-gray-700">
-                      {{ item.quantidade }}× {{ item.partes[0]?.produto_nome ?? '—' }}
-                      @if (item.partes.length > 1) {
-                        <span class="text-gray-400"> + {{ item.partes.length - 1 }} parte{{ item.partes.length > 2 ? 's' : '' }}</span>
-                      }
-                    </span>
-                    <span class="text-sm font-medium text-gray-900 ml-4 shrink-0">
-                      {{ precoItem(item) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                    </span>
-                  </div>
-                }
-              </div>
-            }
-            <div class="border-t border-gray-200 pt-3 flex justify-between items-baseline">
-              <span class="font-semibold text-gray-700">Total</span>
-              <span class="text-xl font-black text-gray-900">
-                {{ comandaModal()!.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-              </span>
+          <!-- Comandas list -->
+          @if (modalCarregando()) {
+            <div class="flex items-center justify-center py-12">
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2" style="border-color: var(--color-brand)"></div>
             </div>
-          </div>
-
-          <!-- Footer — pagamento -->
-          <div class="px-6 pb-6 pt-4 border-t border-gray-100 space-y-3">
-            <p class="text-sm font-semibold text-gray-700">Como o cliente vai pagar?</p>
-            <div class="flex gap-2">
-              @for (forma of ['Dinheiro', 'Cartão', 'PIX']; track forma) {
-                <button
-                  class="flex-1 py-2 rounded-xl text-sm font-semibold border transition-all"
-                  [class]="formaPagamento() === forma
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'"
-                  (click)="formaPagamento.set(forma)"
-                >
-                  {{ forma === 'Dinheiro' ? '💵' : forma === 'Cartão' ? '💳' : '📱' }}
-                  {{ forma }}
-                </button>
+          } @else {
+            <div class="overflow-y-auto flex-1 px-6 py-4 space-y-6">
+              @for (comanda of modalComandas(); track comanda.uuid) {
+                <div class="border border-gray-200 rounded-2xl overflow-hidden">
+                  <!-- Comanda header -->
+                  <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+                    <p class="text-sm font-bold text-gray-800">
+                      Total: {{ comanda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                    </p>
+                    <span class="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full font-semibold">Aberta</span>
+                  </div>
+                  <!-- Pedidos -->
+                  <div class="px-4 py-3 space-y-3">
+                    @for (pedido of comanda.pedidos; track pedido.uuid) {
+                      <div>
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                          Pedido #{{ pedido.codigo }}
+                        </p>
+                        @for (item of pedido.itens; track item.uuid) {
+                          <div class="flex justify-between items-baseline py-0.5">
+                            <span class="text-sm text-gray-700">
+                              {{ item.quantidade }}× {{ item.partes[0]?.produto_nome ?? '—' }}
+                              @if (item.partes.length > 1) {
+                                <span class="text-gray-400"> +{{ item.partes.length - 1 }}</span>
+                              }
+                            </span>
+                            <span class="text-sm font-medium text-gray-900 ml-4 shrink-0">
+                              {{ precoItem(item) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                            </span>
+                          </div>
+                        }
+                      </div>
+                    }
+                    @if (comanda.pedidos.length === 0) {
+                      <p class="text-sm text-gray-400 text-center py-2">Nenhum pedido</p>
+                    }
+                  </div>
+                  <!-- Fechar esta comanda -->
+                  <div class="px-4 pb-4 pt-2 space-y-2 border-t border-gray-100">
+                    <p class="text-xs font-semibold text-gray-600">Pagamento desta comanda</p>
+                    <div class="flex gap-2">
+                      @for (forma of ['Dinheiro', 'Cartão', 'PIX']; track forma) {
+                        <button
+                          class="flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all"
+                          [class]="formaPagamento() === forma && fechandoComandaUuid() === comanda.uuid
+                            ? 'bg-gray-900 text-white border-gray-900'
+                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'"
+                          (click)="formaPagamento.set(forma); fechandoComandaUuid.set(comanda.uuid)"
+                        >{{ forma === 'Dinheiro' ? '💵' : forma === 'Cartão' ? '💳' : '📱' }} {{ forma }}</button>
+                      }
+                    </div>
+                    <ui-button
+                      [fullWidth]="true"
+                      size="sm"
+                      [disabled]="fechandoComandaUuid() !== comanda.uuid || !formaPagamento() || !!_fechandoUuid()"
+                      [loading]="_fechandoUuid() === comanda.uuid"
+                      (click)="fecharComanda(comanda)"
+                    >
+                      Fechar e Registrar Pagamento
+                    </ui-button>
+                  </div>
+                </div>
+              }
+              @if (modalComandas().length === 0) {
+                <p class="text-sm text-gray-400 text-center py-4">Nenhuma comanda ativa</p>
               }
             </div>
-            <ui-button
-              [fullWidth]="true"
-              [disabled]="!formaPagamento() || fechandoComanda()"
-              [loading]="fechandoComanda()"
-              (click)="fecharComanda()"
-            >
-              Fechar Comanda e Registrar Pagamento
-            </ui-button>
+          }
+
+          <div class="px-6 py-4 border-t border-gray-100">
+            <ui-button variant="secondary" [fullWidth]="true" (click)="fecharModal()">Fechar</ui-button>
           </div>
         </div>
       </div>
@@ -244,17 +265,26 @@ export class AdminMesasTabComponent implements OnDestroy {
   readonly qrCanvases = viewChildren<ElementRef<HTMLCanvasElement>>('qrCanvas');
 
   readonly comandasAtivas  = signal<Comanda[]>([]);
-  readonly mesasOcupadas   = computed(() =>
-    new Map(this.comandasAtivas().map(c => [c.numero_mesa, c]))
-  );
+  readonly mesasOcupadas   = computed(() => {
+    const map = new Map<string, Comanda[]>();
+    for (const c of this.comandasAtivas()) {
+      const list = map.get(c.numero_mesa) ?? [];
+      list.push(c);
+      map.set(c.numero_mesa, list);
+    }
+    return map;
+  });
   readonly temComandasAtivas = computed(() => this.comandasAtivas().length > 0);
   readonly mesasComComandasStr = computed(() =>
-    this.comandasAtivas().map(c => c.numero_mesa).join(', ')
+    [...this.mesasOcupadas().keys()].join(', ')
   );
 
-  readonly comandaModal   = signal<Comanda | null>(null);
-  readonly formaPagamento = signal('');
-  readonly fechandoComanda = signal(false);
+  // Modal agora suporta múltiplas comandas por mesa
+  readonly modalMesa        = signal<string | null>(null);
+  readonly modalComandas    = signal<Comanda[]>([]);
+  readonly modalCarregando  = signal(false);
+  readonly formaPagamento   = signal('');
+  readonly fechandoComandaUuid = signal<string | null>(null);
 
   private pollingInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -336,43 +366,58 @@ export class AdminMesasTabComponent implements OnDestroy {
     });
   }
 
-  abrirModal(comanda: Comanda): void {
-    // Busca comanda com pedidos hidratados
-    this.comandaSvc.buscarComandaAtiva(comanda.loja_uuid, comanda.numero_mesa).subscribe({
-      next: c => {
-        this.comandaModal.set(c ?? comanda);
-        this.formaPagamento.set('');
+  readonly _fechandoUuid = signal<string | null>(null);
+
+  totalMesa(comandas: Comanda[]): number {
+    return comandas.reduce((s, c) => s + Number(c.total), 0);
+  }
+
+  abrirModal(numeroMesa: string): void {
+    this.modalMesa.set(numeroMesa);
+    this.modalComandas.set([]);
+    this.modalCarregando.set(true);
+    this.formaPagamento.set('');
+    this.fechandoComandaUuid.set(null);
+    this.comandaSvc.listarComandasAtivasPorMesa(this.lojaUuid(), numeroMesa).subscribe({
+      next: cs => {
+        this.modalComandas.set(cs);
+        this.modalCarregando.set(false);
       },
       error: () => {
-        this.comandaModal.set(comanda);
-        this.formaPagamento.set('');
+        this.modalComandas.set(this.mesasOcupadas().get(numeroMesa) ?? []);
+        this.modalCarregando.set(false);
       },
     });
   }
 
   fecharModal(): void {
-    if (this.fechandoComanda()) return;
-    this.comandaModal.set(null);
+    if (this._fechandoUuid()) return;
+    this.modalMesa.set(null);
+    this.modalComandas.set([]);
     this.formaPagamento.set('');
+    this.fechandoComandaUuid.set(null);
   }
 
-  fecharComanda(): void {
-    const comanda = this.comandaModal();
-    const forma   = this.formaPagamento();
-    if (!comanda || !forma) return;
+  fecharComanda(comanda: Comanda): void {
+    const forma = this.formaPagamento();
+    if (!forma || this._fechandoUuid()) return;
 
-    this.fechandoComanda.set(true);
+    this._fechandoUuid.set(comanda.uuid);
     this.comandaSvc.fecharComanda(comanda.uuid, { forma_pagamento: forma }).subscribe({
       next: () => {
         toast.success(`Comanda da Mesa ${comanda.numero_mesa} fechada!`);
-        this.fechandoComanda.set(false);
-        this.comandaModal.set(null);
+        this._fechandoUuid.set(null);
         this.formaPagamento.set('');
+        this.fechandoComandaUuid.set(null);
         this.carregarComandas();
+        // Recarrega o modal se ainda estiver aberto
+        if (this.modalMesa()) {
+          this.abrirModal(this.modalMesa()!);
+        }
       },
       error: () => {
         toast.error('Erro ao fechar a comanda.');
-        this.fechandoComanda.set(false);
+        this._fechandoUuid.set(null);
       },
     });
   }

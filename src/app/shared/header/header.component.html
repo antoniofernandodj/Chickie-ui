@@ -189,6 +189,26 @@
                     </svg>
                     PDV (Vendas)
                   </a>
+                  <a
+                    routerLink="/mesas"
+                    (click)="menuOpen.set(false)"
+                    class="flex items-center gap-3 px-4 py-3 text-sm text-orange-700 hover:bg-orange-50 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 10h18M3 14h18M10 3v18M14 3v18"
+                      />
+                    </svg>
+                    Mesas
+                  </a>
                 }
                 @if (auth.isOwner()) {
                   <a
@@ -359,6 +379,12 @@
               (click)="mobileOpen.set(false)"
               class="block px-4 py-3 rounded-xl text-sm font-medium text-green-700 hover:bg-green-50"
               >PDV (Vendas)</a
+            >
+            <a
+              routerLink="/mesas"
+              (click)="mobileOpen.set(false)"
+              class="block px-4 py-3 rounded-xl text-sm font-medium text-orange-700 hover:bg-orange-50"
+              >Mesas</a
             >
           }
           @if (auth.isOwner()) {

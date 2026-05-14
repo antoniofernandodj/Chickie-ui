@@ -20,6 +20,10 @@ export class ComandaService {
     return this.http.get<Comanda[]>(`${this.base}/por-loja/${lojaUuid}/ativas`);
   }
 
+  listarComandasAtivasPorMesa(lojaUuid: string, numeroMesa: string): Observable<Comanda[]> {
+    return this.http.get<Comanda[]>(`${this.base}/por-loja/${lojaUuid}/mesa/${numeroMesa}/ativas`);
+  }
+
   fecharComanda(uuid: string, body: FecharComandaRequest): Observable<Comanda> {
     return this.http.post<Comanda>(`${this.base}/${uuid}/fechar`, body);
   }
