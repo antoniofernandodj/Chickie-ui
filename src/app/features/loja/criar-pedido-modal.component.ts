@@ -42,6 +42,7 @@ import { ConfigPedidoService } from '../../core/services/config-pedido.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { CatalogoService } from '../../core/services/catalogo.service';
 import { ComandaService } from '../../core/services/comanda.service';
+import { PushNotificationService } from '../../core/services/push-notification.service';
 import { EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent } from '../../shared/components';
 
 // ─── Local types ──────────────────────────────────────────────────────────────
@@ -83,6 +84,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   private marketingService = inject(MarketingService);
   private catalogoService = inject(CatalogoService);
   private comandaService = inject(ComandaService);
+  private push = inject(PushNotificationService);
   private router = inject(Router);
 
   readonly mesa = computed(() => this.cartService.mesa());
@@ -302,6 +304,8 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
         this.nextId = savedItems.reduce((max, i) => Math.max(max, i.id), -1) + 1;
       }
     }
+
+    this.push.carregarVapidKey();
 
     const mesa = this.cartService.mesa();
     if (mesa) {
@@ -708,6 +712,11 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const isAuth = this.auth.isAuthenticated();
+    if (isAuth) {
+      this.push.subscribe();
+    }
+
     const f = this.enderecoForm;
     const body: CreatePedidoRequest = {
       loja_uuid: this.loja.uuid,
@@ -743,7 +752,6 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       },
     };
 
-    const isAuth = this.auth.isAuthenticated();
     const isPix  = !mesa && this.formaPagamento === 'PIX';
     const pagador = isPix && !isAuth
       ? { nome: this.pagadorNome().trim(), cpf: this.pagadorCpf() }
@@ -752,6 +760,10 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     this.submitting.set(true);
     this.pedidoService.criar(body).subscribe({
       next: (res) => {
+        if (!isAuth) {
+          this.push.subscribePorPedido(res.uuid);
+        }
+
         // Tenta buscar pedido completo para salvar em localStorage; ignora erro
         this.pedidoService.buscarPorCodigo(res.codigo).pipe(catchError(() => of(null)))
           .subscribe((pedido) => {
