@@ -18,6 +18,7 @@ import { ComandaService } from '../../../core/services/comanda.service';
 import { UiButtonComponent, UiInputComponent } from '../../../shared/components';
 import { Comanda } from '../../../core/models';
 
+
 @Component({
   selector: 'admin-mesas-tab',
   standalone: true,
@@ -506,4 +507,5 @@ export class AdminMesasTabComponent implements OnDestroy {
     );
     win.document.close();
   }
+}
 }
