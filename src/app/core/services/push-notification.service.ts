@@ -16,19 +16,25 @@ export class PushNotificationService {
   private vapidKey: string | null = null;
 
   async carregarVapidKey(): Promise<string> {
-    if (!isPlatformBrowser(this.platformId)) return '';
+    if (!isPlatformBrowser(this.platformId)) {
+      console.debug('[PUSH] carregarVapidKey: não é browser, ignorando');
+      return '';
+    }
     if (this.vapidKey) return this.vapidKey;
 
+    console.info('[PUSH] buscando VAPID public key do backend...');
     try {
-      const { public_key } = await firstValueFrom(
+      const resp = await firstValueFrom(
         this.http.get<{ public_key: string }>(`${this.api}/push/vapid-public-key`),
       );
+      const public_key = resp?.public_key;
+      
       if (!public_key) {
         console.error('[PUSH] VAPID_PUBLIC_KEY está vazia no backend — configure a variável de ambiente');
         return '';
       }
       this.vapidKey = public_key;
-      console.info('[PUSH] VAPID public key carregada com sucesso');
+      console.info('[PUSH] VAPID public key carregada com sucesso:', public_key.substring(0, 10) + '...');
       return public_key;
     } catch (err) {
       console.error('[PUSH] falha ao buscar VAPID public key do backend:', err);
@@ -37,9 +43,11 @@ export class PushNotificationService {
   }
 
   async subscribe(): Promise<void> {
+    console.info('[PUSH] subscribe iniciado (usuário logado)');
     if (!isPlatformBrowser(this.platformId)) return;
+    
     if (!this.swPush.isEnabled) {
-      console.warn('[PUSH] swPush.isEnabled=false — service worker desabilitado (apenas funciona em build de produção). Subscription de usuário não registrada.');
+      console.warn('[PUSH] swPush.isEnabled=false — service worker desabilitado (apenas funciona em build de produção ou com PWA habilitado).');
       return;
     }
 
@@ -52,60 +60,78 @@ export class PushNotificationService {
 
       console.info('[PUSH] solicitando subscription ao browser (usuário)...');
       const sub = await this.swPush.requestSubscription({ serverPublicKey: publicKey });
-      console.info('[PUSH] subscription obtida — salvando no backend', { endpoint: sub.endpoint });
-      await firstValueFrom(this.http.post(`${this.api}/usuarios/me/push-subscription`, sub));
-      console.info('[PUSH] subscription de usuário salva com sucesso');
+      
+      console.info('[PUSH] subscription obtida com sucesso:', { 
+        endpoint: sub.endpoint,
+        keys: Object.keys((sub.toJSON() as any).keys || {})
+      });
+
+      await firstValueFrom(this.http.post(`${this.api}/usuarios/me/push-subscription`, sub.toJSON()));
+      console.info('[PUSH] subscription de usuário salva no backend com sucesso');
     } catch (err) {
-      console.error('[PUSH] falha ao registrar subscription de usuário:', err);
+      console.error('[PUSH] falha crítica no fluxo de subscribe de usuário:', err);
     }
   }
 
-  // DELETE is sent while token is still valid; browser unsubscription is fire-and-forget.
   async subscribePorPedido(pedidoUuid: string): Promise<void> {
+    console.info('[PUSH] subscribePorPedido iniciado', { pedidoUuid });
     if (!isPlatformBrowser(this.platformId)) return;
+
     if (!this.swPush.isEnabled) {
-      console.warn('[PUSH] swPush.isEnabled=false — service worker desabilitado (apenas funciona em build de produção). Subscription para pedido não registrada.', { pedidoUuid });
+      console.warn('[PUSH] swPush.isEnabled=false — service worker desabilitado. O push só funciona em ambiente de produção (PWA).', { pedidoUuid });
       return;
     }
 
     try {
-      const permissao = (Notification as any).permission;
-      console.info('[PUSH] subscribePorPedido iniciado', { pedidoUuid, permissao });
+      const permission = (Notification as any).permission;
+      console.info('[PUSH] estado atual da permissão de notificação:', permission);
 
       const publicKey = await this.carregarVapidKey();
       if (!publicKey) {
-        console.error('[PUSH] subscribePorPedido: publicKey vazia, abortando', { pedidoUuid });
+        console.error('[PUSH] subscribePorPedido: publicKey não encontrada, abortando', { pedidoUuid });
         return;
       }
 
-      console.info('[PUSH] solicitando subscription ao browser (pedido guest)...', { pedidoUuid });
+      console.info('[PUSH] solicitando subscription ao browser para pedido guest...', { pedidoUuid });
       const sub = await this.swPush.requestSubscription({ serverPublicKey: publicKey });
-      console.info('[PUSH] subscription obtida — enviando para backend', { pedidoUuid, endpoint: sub.endpoint });
+      
+      console.info('[PUSH] subscription guest obtida:', { 
+        endpoint: sub.endpoint,
+        pedidoUuid 
+      });
+
       await firstValueFrom(
-        this.http.post(`${this.api}/pedidos/${pedidoUuid}/push-subscription`, sub),
+        this.http.post(`${this.api}/pedidos/${pedidoUuid}/push-subscription`, sub.toJSON()),
       );
-      console.info('[PUSH] subscription de pedido salva no backend com sucesso', { pedidoUuid });
+      console.info('[PUSH] subscription guest vinculada ao pedido no backend', { pedidoUuid });
     } catch (err) {
-      console.error('[PUSH] falha ao registrar push subscription para pedido:', err, { pedidoUuid });
+      console.error('[PUSH] falha ao registrar push subscription para pedido guest:', err, { pedidoUuid });
     }
   }
 
   async unsubscribe(): Promise<void> {
+    console.info('[PUSH] unsubscribe solicitado');
     if (!isPlatformBrowser(this.platformId) || !this.swPush.isEnabled) return;
 
     try {
       const sub = await firstValueFrom(this.swPush.subscription.pipe(take(1)));
-      if (!sub) return;
+      if (!sub) {
+        console.debug('[PUSH] unsubscribe: nenhuma subscription ativa encontrada');
+        return;
+      }
 
+      console.info('[PUSH] removendo subscription do backend...', { endpoint: sub.endpoint });
       await firstValueFrom(
         this.http.delete(`${this.api}/usuarios/me/push-subscription`, {
           body: { endpoint: sub.endpoint },
         }),
       );
 
-      sub.unsubscribe().catch(() => {});
+      console.info('[PUSH] cancelando subscription no browser...');
+      const success = await sub.unsubscribe();
+      console.info('[PUSH] unsubscribe concluído', { success });
     } catch (err) {
-      console.warn('Falha ao remover push subscription:', err);
+      console.warn('[PUSH] erro durante o processo de unsubscribe:', err);
     }
   }
 
