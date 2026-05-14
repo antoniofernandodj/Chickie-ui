@@ -55,7 +55,7 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
 
       <!-- Filtros de status -->
       <div class="flex gap-2 overflow-x-auto pb-1">
-        @for (entry of statusEntries; track entry.key) {
+        @for (entry of statusEntries(); track entry.key) {
           <div
             (click)="pedidoFiltroStatus.set(entry.key)"
             (keydown.enter)="pedidoFiltroStatus.set(entry.key)"
