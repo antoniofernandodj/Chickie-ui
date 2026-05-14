@@ -458,6 +458,11 @@ export interface FecharComandaRequest {
   forma_pagamento: string;
 }
 
+export type ComandaEvent =
+  | { comandas: Comanda[] }
+  | { comanda: Comanda }
+  | { uuid: string; loja_uuid: string; numero_mesa: string };
+
 // ─── Endereço de Entrega ──────────────────────────────────────────────────────
 
 export interface EnderecoEntrega {

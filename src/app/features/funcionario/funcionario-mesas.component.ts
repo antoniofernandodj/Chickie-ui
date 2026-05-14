@@ -1,18 +1,20 @@
 import {
   Component,
+  DestroyRef,
   inject,
   signal,
   computed,
   effect,
-  OnDestroy,
 } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, of } from 'rxjs';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, combineLatest, filter, of, switchMap } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import { FuncionarioService } from '../../core/services/funcionario.service';
 import { ConfigPedidoService } from '../../core/services/config-pedido.service';
 import { ComandaService } from '../../core/services/comanda.service';
+import { AuthService } from '../../core/services/auth.service';
+import { MesasLiveService } from '../../core/services/mesas-live.service';
 import { UiButtonComponent } from '../../shared/components';
 import { Comanda } from '../../core/models';
 
@@ -20,6 +22,7 @@ import { Comanda } from '../../core/models';
   selector: 'app-funcionario-mesas',
   standalone: true,
   imports: [CurrencyPipe, UiButtonComponent],
+  providers: [MesasLiveService],
   template: `
     <div class="min-h-screen bg-gray-50">
       <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -94,79 +97,70 @@ import { Comanda } from '../../core/models';
             >✕</button>
           </div>
 
-          @if (modalCarregando()) {
-            <div class="flex items-center justify-center py-12">
-              <div class="animate-spin rounded-full h-6 w-6 border-b-2" style="border-color: var(--color-brand)"></div>
-            </div>
-          } @else {
-            <div class="overflow-y-auto flex-1 px-6 py-4 space-y-6">
-              @for (comanda of modalComandas(); track comanda.uuid) {
-                <div class="border border-gray-200 rounded-2xl overflow-hidden">
-                  <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
-                    <p class="text-sm font-bold text-gray-800">
-                      {{ comanda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                    </p>
-                    <span class="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full font-semibold">Aberta</span>
-                  </div>
-                  <div class="px-4 py-3 space-y-3">
-                    @for (pedido of comanda.pedidos; track pedido.uuid) {
-                      <div>
-                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-                          Pedido #{{ pedido.codigo }}
-                        </p>
-                        @for (item of pedido.itens; track item.uuid) {
-                          <div class="flex justify-between items-baseline py-0.5">
-                            <span class="text-sm text-gray-700">
-                              {{ item.quantidade }}× {{ item.partes[0]?.produto_nome ?? '—' }}
-                              @if (item.partes.length > 1) {
-                                <span class="text-gray-400"> +{{ item.partes.length - 1 }}</span>
-                              }
-                            </span>
-                            <span class="text-sm font-medium text-gray-900 ml-4 shrink-0">
-                              {{ precoItem(item) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                            </span>
-                          </div>
-                        }
-                        @if (pedido.itens.length === 0) {
-                          <p class="text-xs text-gray-400">Nenhum item</p>
-                        }
-                      </div>
-                    }
-                    @if (comanda.pedidos.length === 0) {
-                      <p class="text-sm text-gray-400 text-center py-2">Nenhum pedido ainda</p>
-                    }
-                  </div>
-                  <!-- Fechar esta comanda -->
-                  <div class="px-4 pb-4 pt-2 space-y-2 border-t border-gray-100">
-                    <p class="text-xs font-semibold text-gray-600">Pagamento desta comanda</p>
-                    <div class="flex gap-2">
-                      @for (forma of ['Dinheiro', 'Cartão', 'PIX']; track forma) {
-                        <button
-                          class="flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all"
-                          [class]="formaPagamento() === forma && fechandoComandaUuid() === comanda.uuid
-                            ? 'bg-gray-900 text-white border-gray-900'
-                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'"
-                          (click)="formaPagamento.set(forma); fechandoComandaUuid.set(comanda.uuid)"
-                        >{{ forma === 'Dinheiro' ? '💵' : forma === 'Cartão' ? '💳' : '📱' }} {{ forma }}</button>
+          <div class="overflow-y-auto flex-1 px-6 py-4 space-y-6">
+            @for (comanda of modalComandas(); track comanda.uuid) {
+              <div class="border border-gray-200 rounded-2xl overflow-hidden">
+                <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+                  <p class="text-sm font-bold text-gray-800">
+                    {{ comanda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                  </p>
+                  <span class="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full font-semibold">Aberta</span>
+                </div>
+                <div class="px-4 py-3 space-y-3">
+                  @for (pedido of comanda.pedidos; track pedido.uuid) {
+                    <div>
+                      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                        Pedido #{{ pedido.codigo }}
+                      </p>
+                      @for (item of pedido.itens; track item.uuid) {
+                        <div class="flex justify-between items-baseline py-0.5">
+                          <span class="text-sm text-gray-700">
+                            {{ item.quantidade }}× {{ item.partes[0]?.produto_nome ?? '—' }}
+                            @if (item.partes.length > 1) {
+                              <span class="text-gray-400"> +{{ item.partes.length - 1 }}</span>
+                            }
+                          </span>
+                          <span class="text-sm font-medium text-gray-900 ml-4 shrink-0">
+                            {{ precoItem(item) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                          </span>
+                        </div>
                       }
                     </div>
-                    <ui-button
-                      [fullWidth]="true"
-                      size="sm"
-                      [disabled]="fechandoComandaUuid() !== comanda.uuid || !formaPagamento() || !!_fechandoUuid()"
-                      [loading]="_fechandoUuid() === comanda.uuid"
-                      (click)="fecharComanda(comanda)"
-                    >
-                      Fechar e Registrar Pagamento
-                    </ui-button>
-                  </div>
+                  }
+                  @if (comanda.pedidos.length === 0) {
+                    <p class="text-sm text-gray-400 text-center py-2">Nenhum pedido ainda</p>
+                  }
                 </div>
-              }
-              @if (modalComandas().length === 0) {
-                <p class="text-sm text-gray-400 text-center py-4">Nenhuma comanda ativa</p>
-              }
-            </div>
-          }
+                <!-- Fechar esta comanda -->
+                <div class="px-4 pb-4 pt-2 space-y-2 border-t border-gray-100">
+                  <p class="text-xs font-semibold text-gray-600">Pagamento desta comanda</p>
+                  <div class="flex gap-2">
+                    @for (forma of ['Dinheiro', 'Cartão', 'PIX']; track forma) {
+                      <button
+                        class="flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all"
+                        [class]="formaPagamento() === forma && fechandoComandaUuid() === comanda.uuid
+                          ? 'bg-gray-900 text-white border-gray-900'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'"
+                        (click)="formaPagamento.set(forma); fechandoComandaUuid.set(comanda.uuid)"
+                      >{{ forma === 'Dinheiro' ? '💵' : forma === 'Cartão' ? '💳' : '📱' }} {{ forma }}</button>
+                    }
+                  </div>
+                  <ui-button
+                    [fullWidth]="true"
+                    size="sm"
+                    [disabled]="fechandoComandaUuid() !== comanda.uuid || !formaPagamento() || !!_fechandoUuid()"
+                    [loading]="_fechandoUuid() === comanda.uuid"
+                    (click)="fecharComanda(comanda)"
+                  >
+                    Fechar e Registrar Pagamento
+                  </ui-button>
+                </div>
+              </div>
+            }
+            @if (modalComandas().length === 0) {
+              <p class="text-sm text-gray-400 text-center py-4">Nenhuma comanda ativa</p>
+            }
+          </div>
 
           <div class="px-6 py-4 border-t border-gray-100">
             <ui-button variant="secondary" [fullWidth]="true" (click)="fecharModal()">Fechar</ui-button>
@@ -176,10 +170,13 @@ import { Comanda } from '../../core/models';
     }
   `,
 })
-export class FuncionarioMesasComponent implements OnDestroy {
+export class FuncionarioMesasComponent {
   private funcionarioSvc = inject(FuncionarioService);
   private configSvc      = inject(ConfigPedidoService);
   private comandaSvc     = inject(ComandaService);
+  private auth           = inject(AuthService);
+  private mesasLive      = inject(MesasLiveService);
+  private destroyRef     = inject(DestroyRef);
 
   readonly loading = signal(true);
 
@@ -202,13 +199,14 @@ export class FuncionarioMesasComponent implements OnDestroy {
   });
 
   readonly modalMesa          = signal<string | null>(null);
-  readonly modalComandas      = signal<Comanda[]>([]);
-  readonly modalCarregando    = signal(false);
+  readonly modalComandas      = computed(() => {
+    const mesa = this.modalMesa();
+    if (!mesa) return [];
+    return this.mesasOcupadas().get(mesa) ?? [];
+  });
   readonly formaPagamento     = signal('');
   readonly fechandoComandaUuid = signal<string | null>(null);
   readonly _fechandoUuid      = signal<string | null>(null);
-
-  private pollingInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     effect(() => {
@@ -221,21 +219,16 @@ export class FuncionarioMesasComponent implements OnDestroy {
         },
         error: () => this.loading.set(false),
       });
-      this._carregarComandas(uuid);
-      if (this.pollingInterval) clearInterval(this.pollingInterval);
-      this.pollingInterval = setInterval(() => this._carregarComandas(uuid), 30_000);
     });
-  }
 
-  ngOnDestroy(): void {
-    if (this.pollingInterval !== null) clearInterval(this.pollingInterval);
-  }
-
-  private _carregarComandas(uuid: string): void {
-    this.comandaSvc.listarComandasAtivas(uuid).subscribe({
-      next: cs => this.comandasAtivas.set(cs),
-      error: () => {},
-    });
+    combineLatest([
+      toObservable(this.lojaUuid),
+      toObservable(this.auth.token),
+    ]).pipe(
+      filter(([uuid, token]) => !!uuid && !!token),
+      switchMap(([uuid, token]) => this.mesasLive.conectar(uuid!, token!)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(cs => this.comandasAtivas.set(cs));
   }
 
   totalMesa(comandas: Comanda[]): number {
@@ -243,26 +236,13 @@ export class FuncionarioMesasComponent implements OnDestroy {
   }
 
   abrirModal(numeroMesa: string): void {
-    const uuid = this.lojaUuid();
-    if (!uuid) return;
     this.modalMesa.set(numeroMesa);
-    this.modalComandas.set([]);
-    this.modalCarregando.set(true);
-    this.comandaSvc.listarComandasAtivasPorMesa(uuid, numeroMesa).subscribe({
-      next: cs => {
-        this.modalComandas.set(cs);
-        this.modalCarregando.set(false);
-      },
-      error: () => {
-        this.modalComandas.set(this.mesasOcupadas().get(numeroMesa) ?? []);
-        this.modalCarregando.set(false);
-      },
-    });
+    this.formaPagamento.set('');
+    this.fechandoComandaUuid.set(null);
   }
 
   fecharModal(): void {
     this.modalMesa.set(null);
-    this.modalComandas.set([]);
     this.formaPagamento.set('');
     this.fechandoComandaUuid.set(null);
   }
@@ -278,9 +258,9 @@ export class FuncionarioMesasComponent implements OnDestroy {
         this._fechandoUuid.set(null);
         this.formaPagamento.set('');
         this.fechandoComandaUuid.set(null);
-        const uuid = this.lojaUuid();
-        if (uuid) this._carregarComandas(uuid);
-        if (this.modalMesa()) this.abrirModal(this.modalMesa()!);
+        // SSE vai remover a comanda automaticamente via comanda_fechada
+        // Se o modal ficou vazio, fecha
+        if (this.modalComandas().length === 0) this.fecharModal();
       },
       error: () => {
         toast.error('Erro ao fechar a comanda.');

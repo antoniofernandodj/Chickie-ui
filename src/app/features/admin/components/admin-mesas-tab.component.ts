@@ -1,5 +1,6 @@
 import {
   Component,
+  DestroyRef,
   inject,
   input,
   signal,
@@ -7,14 +8,17 @@ import {
   computed,
   ElementRef,
   viewChildren,
-  OnDestroy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { combineLatest, filter, switchMap } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import QRCode from 'qrcode';
 import { ConfigPedidoService } from '../../../core/services/config-pedido.service';
 import { ComandaService } from '../../../core/services/comanda.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { MesasLiveService } from '../../../core/services/mesas-live.service';
 import { UiButtonComponent, UiInputComponent } from '../../../shared/components';
 import { Comanda } from '../../../core/models';
 
@@ -23,6 +27,7 @@ import { Comanda } from '../../../core/models';
   selector: 'admin-mesas-tab',
   standalone: true,
   imports: [FormsModule, CurrencyPipe, UiButtonComponent, UiInputComponent],
+  providers: [MesasLiveService],
   template: `
     <div class="space-y-6">
 
@@ -166,12 +171,7 @@ import { Comanda } from '../../../core/models';
           </div>
 
           <!-- Comandas list -->
-          @if (modalCarregando()) {
-            <div class="flex items-center justify-center py-12">
-              <div class="animate-spin rounded-full h-6 w-6 border-b-2" style="border-color: var(--color-brand)"></div>
-            </div>
-          } @else {
-            <div class="overflow-y-auto flex-1 px-6 py-4 space-y-6">
+          <div class="overflow-y-auto flex-1 px-6 py-4 space-y-6">
               @for (comanda of modalComandas(); track comanda.uuid) {
                 <div class="border border-gray-200 rounded-2xl overflow-hidden">
                   <!-- Comanda header -->
@@ -236,8 +236,7 @@ import { Comanda } from '../../../core/models';
               @if (modalComandas().length === 0) {
                 <p class="text-sm text-gray-400 text-center py-4">Nenhuma comanda ativa</p>
               }
-            </div>
-          }
+          </div>
 
           <div class="px-6 py-4 border-t border-gray-100">
             <ui-button variant="secondary" [fullWidth]="true" (click)="fecharModal()">Fechar</ui-button>
@@ -247,12 +246,15 @@ import { Comanda } from '../../../core/models';
     }
   `,
 })
-export class AdminMesasTabComponent implements OnDestroy {
+export class AdminMesasTabComponent {
   lojaUuid = input.required<string>();
   lojaSlug = input.required<string>();
 
   private configService  = inject(ConfigPedidoService);
   private comandaSvc     = inject(ComandaService);
+  private auth           = inject(AuthService);
+  private mesasLive      = inject(MesasLiveService);
+  private destroyRef     = inject(DestroyRef);
 
   readonly loading  = signal(true);
   readonly saving   = signal(false);
@@ -280,22 +282,21 @@ export class AdminMesasTabComponent implements OnDestroy {
     [...this.mesasOcupadas().keys()].join(', ')
   );
 
-  // Modal agora suporta múltiplas comandas por mesa
+  // Modal suporta múltiplas comandas por mesa — derivado em tempo real do SSE
   readonly modalMesa        = signal<string | null>(null);
-  readonly modalComandas    = signal<Comanda[]>([]);
-  readonly modalCarregando  = signal(false);
+  readonly modalComandas    = computed(() => {
+    const mesa = this.modalMesa();
+    if (!mesa) return [];
+    return this.mesasOcupadas().get(mesa) ?? [];
+  });
   readonly formaPagamento   = signal('');
   readonly fechandoComandaUuid = signal<string | null>(null);
-
-  private pollingInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     effect(() => {
       const uuid = this.lojaUuid();
       if (!uuid) return;
       this.carregar();
-      this.carregarComandas();
-      this.pollingInterval = setInterval(() => this.carregarComandas(), 30_000);
     });
 
     effect(() => {
@@ -304,10 +305,15 @@ export class AdminMesasTabComponent implements OnDestroy {
       if (!canvases.length || !slug) return;
       this.renderizarQrCodes(canvases, slug);
     });
-  }
 
-  ngOnDestroy(): void {
-    if (this.pollingInterval !== null) clearInterval(this.pollingInterval);
+    combineLatest([
+      toObservable(this.lojaUuid),
+      toObservable(this.auth.token),
+    ]).pipe(
+      filter(([uuid, token]) => !!uuid && !!token),
+      switchMap(([uuid, token]) => this.mesasLive.conectar(uuid, token!)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(cs => this.comandasAtivas.set(cs));
   }
 
   private carregar(): void {
@@ -323,15 +329,6 @@ export class AdminMesasTabComponent implements OnDestroy {
         this.quantidadeInput = 0;
         this.loading.set(false);
       },
-    });
-  }
-
-  private carregarComandas(): void {
-    const uuid = this.lojaUuid();
-    if (!uuid) return;
-    this.comandaSvc.listarComandasAtivas(uuid).subscribe({
-      next: cs => this.comandasAtivas.set(cs),
-      error: () => {},
     });
   }
 
@@ -375,26 +372,13 @@ export class AdminMesasTabComponent implements OnDestroy {
 
   abrirModal(numeroMesa: string): void {
     this.modalMesa.set(numeroMesa);
-    this.modalComandas.set([]);
-    this.modalCarregando.set(true);
     this.formaPagamento.set('');
     this.fechandoComandaUuid.set(null);
-    this.comandaSvc.listarComandasAtivasPorMesa(this.lojaUuid(), numeroMesa).subscribe({
-      next: cs => {
-        this.modalComandas.set(cs);
-        this.modalCarregando.set(false);
-      },
-      error: () => {
-        this.modalComandas.set(this.mesasOcupadas().get(numeroMesa) ?? []);
-        this.modalCarregando.set(false);
-      },
-    });
   }
 
   fecharModal(): void {
     if (this._fechandoUuid()) return;
     this.modalMesa.set(null);
-    this.modalComandas.set([]);
     this.formaPagamento.set('');
     this.fechandoComandaUuid.set(null);
   }
@@ -410,11 +394,8 @@ export class AdminMesasTabComponent implements OnDestroy {
         this._fechandoUuid.set(null);
         this.formaPagamento.set('');
         this.fechandoComandaUuid.set(null);
-        this.carregarComandas();
-        // Recarrega o modal se ainda estiver aberto
-        if (this.modalMesa()) {
-          this.abrirModal(this.modalMesa()!);
-        }
+        // SSE vai remover a comanda automaticamente via comanda_fechada
+        if (this.modalComandas().length === 0) this.fecharModal();
       },
       error: () => {
         toast.error('Erro ao fechar a comanda.');

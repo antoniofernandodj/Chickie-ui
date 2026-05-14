@@ -31,6 +31,14 @@ const PEDIDO_SSE_EVENTS = [
 
 export type PedidoSseEvent = (typeof PEDIDO_SSE_EVENTS)[number];
 
+const COMANDA_SSE_EVENTS = [
+  'listar_comandas',
+  'comanda_atualizada',
+  'comanda_fechada',
+] as const;
+
+export type ComandaSseEvent = (typeof COMANDA_SSE_EVENTS)[number];
+
 /**
  * Cria um Observable de eventos SSE com reconexão automática e backoff exponencial.
  * O browser gerencia o Last-Event-ID header nativamente no EventSource.
@@ -104,4 +112,4 @@ export function createReconnectingSSE(
   });
 }
 
-export { PEDIDO_SSE_EVENTS };
+export { PEDIDO_SSE_EVENTS, COMANDA_SSE_EVENTS };
