@@ -89,9 +89,26 @@ export class PushNotificationService {
         return;
       }
 
+      const currentPermission = Notification.permission;
+      console.info('[PUSH] permissão atual:', currentPermission, { pedidoUuid });
+
+      if (currentPermission === 'denied') {
+        console.warn('[PUSH] permissão bloqueada pelo usuário — não é possível registrar push', { pedidoUuid });
+        return;
+      }
+
+      if (currentPermission === 'default') {
+        const result = await Notification.requestPermission();
+        console.info('[PUSH] resultado do pedido de permissão:', result, { pedidoUuid });
+        if (result !== 'granted') {
+          console.warn('[PUSH] permissão não concedida:', result, { pedidoUuid });
+          return;
+        }
+      }
+
       console.info('[PUSH] aguardando service worker ficar ativo...', { pedidoUuid });
       const registration = await navigator.serviceWorker.ready;
-      console.info('[PUSH] service worker ativo, solicitando permissão ao browser...', { pedidoUuid });
+      console.info('[PUSH] service worker ativo, solicitando subscription...', { pedidoUuid });
 
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
