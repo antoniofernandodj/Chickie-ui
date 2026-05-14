@@ -28,7 +28,7 @@ export class PushNotificationService {
         this.http.get<{ public_key: string }>(`${this.api}/push/vapid-public-key`),
       );
       const public_key = resp?.public_key;
-      
+
       if (!public_key) {
         console.error('[PUSH] VAPID_PUBLIC_KEY está vazia no backend — configure a variável de ambiente');
         return '';
@@ -45,7 +45,7 @@ export class PushNotificationService {
   async subscribe(): Promise<void> {
     console.info('[PUSH] subscribe iniciado (usuário logado)');
     if (!isPlatformBrowser(this.platformId)) return;
-    
+
     if (!this.swPush.isEnabled) {
       console.warn('[PUSH] swPush.isEnabled=false — service worker desabilitado (apenas funciona em build de produção ou com PWA habilitado).');
       return;
@@ -60,8 +60,8 @@ export class PushNotificationService {
 
       console.info('[PUSH] solicitando subscription ao browser (usuário)...');
       const sub = await this.swPush.requestSubscription({ serverPublicKey: publicKey });
-      
-      console.info('[PUSH] subscription obtida com sucesso:', { 
+
+      console.info('[PUSH] subscription obtida com sucesso:', {
         endpoint: sub.endpoint,
         keys: Object.keys((sub.toJSON() as any).keys || {})
       });
@@ -77,28 +77,28 @@ export class PushNotificationService {
     console.info('[PUSH] subscribePorPedido iniciado', { pedidoUuid });
     if (!isPlatformBrowser(this.platformId)) return;
 
-    if (!this.swPush.isEnabled) {
-      console.warn('[PUSH] swPush.isEnabled=false — service worker desabilitado. O push só funciona em ambiente de produção (PWA).', { pedidoUuid });
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      console.warn('[PUSH] browser não suporta push notifications', { pedidoUuid });
       return;
     }
 
     try {
-      const permission = (Notification as any).permission;
-      console.info('[PUSH] estado atual da permissão de notificação:', permission);
-
       const publicKey = await this.carregarVapidKey();
       if (!publicKey) {
         console.error('[PUSH] subscribePorPedido: publicKey não encontrada, abortando', { pedidoUuid });
         return;
       }
 
-      console.info('[PUSH] solicitando subscription ao browser para pedido guest...', { pedidoUuid });
-      const sub = await this.swPush.requestSubscription({ serverPublicKey: publicKey });
-      
-      console.info('[PUSH] subscription guest obtida:', { 
-        endpoint: sub.endpoint,
-        pedidoUuid 
+      console.info('[PUSH] aguardando service worker ficar ativo...', { pedidoUuid });
+      const registration = await navigator.serviceWorker.ready;
+      console.info('[PUSH] service worker ativo, solicitando permissão ao browser...', { pedidoUuid });
+
+      const sub = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: this.urlBase64ToUint8Array(publicKey),
       });
+
+      console.info('[PUSH] subscription guest obtida:', { endpoint: sub.endpoint, pedidoUuid });
 
       await firstValueFrom(
         this.http.post(`${this.api}/pedidos/${pedidoUuid}/push-subscription`, sub.toJSON()),
@@ -141,5 +141,12 @@ export class PushNotificationService {
 
   get notificationClicks$() {
     return this.swPush.notificationClicks;
+  }
+
+  private urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    return Uint8Array.from(rawData, c => c.charCodeAt(0));
   }
 }
