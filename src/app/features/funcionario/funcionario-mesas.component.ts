@@ -9,6 +9,7 @@ import {
 import { CurrencyPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
+import { toast } from 'ngx-sonner';
 import { FuncionarioService } from '../../core/services/funcionario.service';
 import { ConfigPedidoService } from '../../core/services/config-pedido.service';
 import { ComandaService } from '../../core/services/comanda.service';
@@ -135,6 +136,30 @@ import { Comanda } from '../../core/models';
                       <p class="text-sm text-gray-400 text-center py-2">Nenhum pedido ainda</p>
                     }
                   </div>
+                  <!-- Fechar esta comanda -->
+                  <div class="px-4 pb-4 pt-2 space-y-2 border-t border-gray-100">
+                    <p class="text-xs font-semibold text-gray-600">Pagamento desta comanda</p>
+                    <div class="flex gap-2">
+                      @for (forma of ['Dinheiro', 'Cartão', 'PIX']; track forma) {
+                        <button
+                          class="flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all"
+                          [class]="formaPagamento() === forma && fechandoComandaUuid() === comanda.uuid
+                            ? 'bg-gray-900 text-white border-gray-900'
+                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'"
+                          (click)="formaPagamento.set(forma); fechandoComandaUuid.set(comanda.uuid)"
+                        >{{ forma === 'Dinheiro' ? '💵' : forma === 'Cartão' ? '💳' : '📱' }} {{ forma }}</button>
+                      }
+                    </div>
+                    <ui-button
+                      [fullWidth]="true"
+                      size="sm"
+                      [disabled]="fechandoComandaUuid() !== comanda.uuid || !formaPagamento() || !!_fechandoUuid()"
+                      [loading]="_fechandoUuid() === comanda.uuid"
+                      (click)="fecharComanda(comanda)"
+                    >
+                      Fechar e Registrar Pagamento
+                    </ui-button>
+                  </div>
                 </div>
               }
               @if (modalComandas().length === 0) {
@@ -176,9 +201,12 @@ export class FuncionarioMesasComponent implements OnDestroy {
     return map;
   });
 
-  readonly modalMesa       = signal<string | null>(null);
-  readonly modalComandas   = signal<Comanda[]>([]);
-  readonly modalCarregando = signal(false);
+  readonly modalMesa          = signal<string | null>(null);
+  readonly modalComandas      = signal<Comanda[]>([]);
+  readonly modalCarregando    = signal(false);
+  readonly formaPagamento     = signal('');
+  readonly fechandoComandaUuid = signal<string | null>(null);
+  readonly _fechandoUuid      = signal<string | null>(null);
 
   private pollingInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -235,6 +263,30 @@ export class FuncionarioMesasComponent implements OnDestroy {
   fecharModal(): void {
     this.modalMesa.set(null);
     this.modalComandas.set([]);
+    this.formaPagamento.set('');
+    this.fechandoComandaUuid.set(null);
+  }
+
+  fecharComanda(comanda: Comanda): void {
+    const forma = this.formaPagamento();
+    if (!forma || this._fechandoUuid()) return;
+
+    this._fechandoUuid.set(comanda.uuid);
+    this.comandaSvc.fecharComanda(comanda.uuid, { forma_pagamento: forma }).subscribe({
+      next: () => {
+        toast.success(`Comanda da Mesa ${comanda.numero_mesa} fechada!`);
+        this._fechandoUuid.set(null);
+        this.formaPagamento.set('');
+        this.fechandoComandaUuid.set(null);
+        const uuid = this.lojaUuid();
+        if (uuid) this._carregarComandas(uuid);
+        if (this.modalMesa()) this.abrirModal(this.modalMesa()!);
+      },
+      error: () => {
+        toast.error('Erro ao fechar a comanda.');
+        this._fechandoUuid.set(null);
+      },
+    });
   }
 
   precoItem(item: { quantidade: number; partes: { preco_unitario: number }[] }): number {
