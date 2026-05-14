@@ -91,6 +91,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   readonly comandasAtivas = signal<Comanda[]>([]);
   // null = não escolheu, 'nova' = nova comanda, string = uuid da comanda escolhida
   readonly comandaEscolhida = signal<string | 'nova' | null>(null);
+  readonly novaComandaNome  = signal('');
 
   // ── Steps ──────────────────────────────────────────────────────────────────
   steps: Step[] = [];
@@ -264,7 +265,12 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     if (!s) return false;
     if (s.tipo === 'categoria') return true;
     if (s.tipo === 'endereco') return this.enderecoValido;
-    if (s.tipo === 'comanda-choice') return this.comandaEscolhida() !== null;
+    if (s.tipo === 'comanda-choice') {
+      const escolha = this.comandaEscolhida();
+      if (escolha === null) return false;
+      if (escolha === 'nova') return this.novaComandaNome().trim().length > 0;
+      return true;
+    }
     if (s.tipo === 'pagamento') {
       const base = this.formaPagamento !== '' && this.contato.length === 11;
       if (this.formaPagamento === 'PIX' && !this.auth.isAuthenticated()) {
@@ -714,6 +720,9 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       numero_mesa: mesa ?? undefined,
       comanda_uuid: mesa && this.comandaEscolhida() !== 'nova' && this.comandaEscolhida() !== null
         ? this.comandaEscolhida()!
+        : undefined,
+      nome_comanda: mesa && this.comandaEscolhida() === 'nova'
+        ? (this.novaComandaNome().trim() || null)
         : undefined,
       itens: this.cart().map((item) => ({
         quantidade: item.quantidade,

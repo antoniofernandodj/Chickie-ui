@@ -176,9 +176,14 @@ import { Comanda } from '../../../core/models';
                 <div class="border border-gray-200 rounded-2xl overflow-hidden">
                   <!-- Comanda header -->
                   <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
-                    <p class="text-sm font-bold text-gray-800">
-                      Total: {{ comanda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                    </p>
+                    <div>
+                      <p class="text-sm font-bold text-gray-900">
+                        {{ $index + 1 }}{{ comanda.nome ? ' - ' + comanda.nome : '' }}
+                      </p>
+                      <p class="text-xs text-gray-500">
+                        Total: {{ comanda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                      </p>
+                    </div>
                     <span class="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full font-semibold">Aberta</span>
                   </div>
                   <!-- Pedidos -->

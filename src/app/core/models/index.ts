@@ -407,6 +407,7 @@ export interface CreatePedidoRequest {
   numero_mesa?:         string | null;
   nome_requerente?:     string | null;
   comanda_uuid?:        string;
+  nome_comanda?:        string | null;
   itens:                CreatePedidoItemRequest[];
   endereco_entrega?: {
     cep?:         string | null;
@@ -445,6 +446,7 @@ export interface Comanda {
   uuid:            string;
   loja_uuid:       string;
   numero_mesa:     string;
+  nome:            string | null;
   status:          EstadoDeComanda;
   forma_pagamento: string | null;
   total:           number;

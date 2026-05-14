@@ -867,7 +867,7 @@
                   <div class="flex items-center justify-between">
                     <div>
                       <p class="text-sm font-semibold text-gray-900">
-                        Comanda {{ $index + 1 }}
+                        {{ $index + 1 }}{{ comanda.nome ? ' - ' + comanda.nome : '' }}
                         <span class="ml-2 text-xs font-normal text-gray-400">
                           {{ comanda.pedidos.length }} {{ comanda.pedidos.length === 1 ? 'pedido' : 'pedidos' }}
                         </span>
@@ -909,6 +909,17 @@
                   }
                 </div>
               </button>
+
+              @if (comandaEscolhida() === 'nova') {
+                <div class="px-1">
+                  <ui-input
+                    [label]="'Nome da comanda ' + (comandasAtivas().length + 1)"
+                    [placeholder]="'Ex: Antonio, Família Silva... → será ' + (comandasAtivas().length + 1) + ' - ' + (novaComandaNome().trim() || '...')"
+                    [ngModel]="novaComandaNome()"
+                    (ngModelChange)="novaComandaNome.set($event)"
+                  />
+                </div>
+              }
             </div>
           }
 
