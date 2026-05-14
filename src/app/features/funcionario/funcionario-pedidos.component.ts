@@ -1,5 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, signal } from '@angular/core';
 import { catchError, of } from 'rxjs';
 import { FuncionarioService } from '../../core/services/funcionario.service';
 import { AdminPedidosTabComponent } from '../admin/components/admin-pedidos-tab.component';
@@ -41,15 +40,14 @@ export class FuncionarioPedidosComponent {
   private funcionarioSvc = inject(FuncionarioService);
 
   readonly carregando = signal(true);
+  readonly lojaUuid   = signal<string | null>(null);
 
-  readonly _funcionario = toSignal(
-    this.funcionarioSvc.getMe().pipe(catchError(() => of(null))),
-    { initialValue: null },
-  );
-
-  readonly lojaUuid = computed(() => {
-    const f = this._funcionario();
-    if (f !== null) this.carregando.set(false);
-    return f?.loja_uuid ?? null;
-  });
+  constructor() {
+    this.funcionarioSvc.getMe()
+      .pipe(catchError(() => of(null)))
+      .subscribe(f => {
+        this.lojaUuid.set(f?.loja_uuid ?? null);
+        this.carregando.set(false);
+      });
+  }
 }
