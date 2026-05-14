@@ -508,4 +508,3 @@ export class AdminMesasTabComponent implements OnDestroy {
     win.document.close();
   }
 }
-}
