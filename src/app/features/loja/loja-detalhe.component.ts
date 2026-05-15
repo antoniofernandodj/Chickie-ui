@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, effect } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { DecimalPipe, DatePipe, CurrencyPipe } from '@angular/common';
 import { switchMap, catchError, of, map, tap, distinctUntilChanged } from 'rxjs';
@@ -11,6 +11,7 @@ import { MarketingService } from '../../core/services/marketing.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { ComandaService } from '../../core/services/comanda.service';
+import { ConfigPedidoService } from '../../core/services/config-pedido.service';
 import { Produto, CategoriaProdutos, HorarioFuncionamento, AvaliacaoDeLoja, AvaliarLojaRequest, Comanda } from '../../core/models';
 import { AvaliacaoLojaFormComponent } from './avaliacao-loja-form.component';
 import { CriarPedidoModalComponent } from './criar-pedido-modal.component';
@@ -24,6 +25,7 @@ import { PhonePipe } from '../../shared/pipes/phone.pipe';
 })
 export class LojaDetalheComponent {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private lojaService = inject(LojaService);
   private catalogoService = inject(CatalogoService);
   private horarioService = inject(HorarioService);
@@ -32,6 +34,7 @@ export class LojaDetalheComponent {
   readonly auth = inject(AuthService);
   readonly cart = inject(CartService);
   private readonly comandaSvc = inject(ComandaService);
+  private readonly configPedidoSvc = inject(ConfigPedidoService);
 
   readonly skeletons = Array(6);
   readonly favorita  = signal(false);
@@ -46,15 +49,41 @@ export class LojaDetalheComponent {
     effect(() => {
       const numero = this.numeroMesa();
       const loja   = this.loja();
-      this.cart.definirMesa(numero ?? null);
 
-      if (numero && loja) {
-        this.comandaSvc.buscarComandaAtiva(loja.uuid, numero).subscribe({
-          next: (comanda) => this.comandaAtiva.set(comanda),
-          error: () => this.comandaAtiva.set(null),
-        });
-      } else {
+      if (!numero) {
+        this.cart.definirMesa(null);
         this.comandaAtiva.set(null);
+        return;
+      }
+
+      const slug = this.route.snapshot.paramMap.get('slug');
+
+      const numeroInt = parseInt(numero, 10);
+      if (isNaN(numeroInt) || numeroInt < 1) {
+        this.cart.definirMesa(null);
+        this.router.navigate(['/loja', slug]);
+        return;
+      }
+
+      if (loja) {
+        this.configPedidoSvc.getConfigPedido(loja.uuid).subscribe({
+          next: (config) => {
+            if (numeroInt > config.quantidade_mesas) {
+              this.cart.definirMesa(null);
+              this.router.navigate(['/loja', slug]);
+              return;
+            }
+            this.cart.definirMesa(numero);
+            this.comandaSvc.buscarComandaAtiva(loja.uuid, numero).subscribe({
+              next: (comanda) => this.comandaAtiva.set(comanda),
+              error: () => this.comandaAtiva.set(null),
+            });
+          },
+          error: () => {
+            this.cart.definirMesa(null);
+            this.router.navigate(['/loja', slug]);
+          },
+        });
       }
     });
   }
