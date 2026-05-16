@@ -197,8 +197,8 @@ export class AdminHorariosTabComponent {
     this.horarioError.set('');
     this.horarioForm.patchValue({
       dia_semana: horario.dia_semana,
-      abertura: horario.abertura,
-      fechamento: horario.fechamento,
+      abertura: horario.abertura.substring(0, 5),
+      fechamento: horario.fechamento.substring(0, 5),
     });
   }
 
