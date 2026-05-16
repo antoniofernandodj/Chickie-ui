@@ -64,6 +64,7 @@ export interface ReservaMesa {
   quantidade_pessoas: number;
   status:             StatusReserva;
   observacoes:        string | null;
+  nomes_pessoas:      string[] | null;
   criado_em:          string;
   atualizado_em:      string;
 }

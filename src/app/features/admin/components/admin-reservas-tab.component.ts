@@ -109,8 +109,13 @@ const STATUS_CFG: Record<StatusReserva, { label: string; bg: string; text: strin
                       {{ r.quantidade_pessoas }} pessoa{{ r.quantidade_pessoas !== 1 ? 's' : '' }}
                     </span>
                   </div>
+                  @if (r.nomes_pessoas?.length) {
+                    <p class="text-xs text-gray-500 mt-1.5">
+                      {{ r.nomes_pessoas!.join(', ') }}
+                    </p>
+                  }
                   @if (r.observacoes) {
-                    <p class="text-xs text-gray-400 mt-1.5 italic">{{ r.observacoes }}</p>
+                    <p class="text-xs text-gray-400 mt-1 italic">{{ r.observacoes }}</p>
                   }
                   <p class="text-xs text-gray-400 mt-1">
                     Criado em {{ r.criado_em | date:'dd/MM/yyyy HH:mm':'':'pt-BR' }}
@@ -251,6 +256,48 @@ const STATUS_CFG: Record<StatusReserva, { label: string; bg: string; text: strin
               />
             </div>
 
+            <!-- Nomes dos participantes -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  Participantes <span class="font-normal text-gray-400">(opcional)</span>
+                </label>
+                <button
+                  type="button"
+                  class="text-xs font-semibold px-2 py-1 rounded-lg transition-colors"
+                  style="color: var(--color-brand)"
+                  (click)="adicionarNome()"
+                >+ Adicionar nome</button>
+              </div>
+              @if (form.nomes_pessoas.length === 0) {
+                <p class="text-xs text-gray-400">Nenhum participante adicionado.</p>
+              } @else {
+                <div class="space-y-2">
+                  @for (nome of form.nomes_pessoas; track $index; let i = $index) {
+                    <div class="flex items-center gap-2">
+                      <input
+                        type="text"
+                        class="flex-1 h-9 rounded-xl border border-gray-200 px-3 text-sm text-gray-800
+                               focus:outline-none focus:ring-2"
+                        [placeholder]="'Nome ' + (i + 1)"
+                        [(ngModel)]="form.nomes_pessoas[i]"
+                      />
+                      <button
+                        type="button"
+                        class="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400
+                               hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
+                        (click)="removerNome(i)"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
             <!-- Observações -->
             <div class="space-y-1.5">
               <label class="text-xs font-semibold text-gray-600 uppercase tracking-wide">
@@ -305,6 +352,7 @@ export class AdminReservasTabComponent {
     data_reserva:       '',
     hora_reserva:       '',
     quantidade_pessoas: 2,
+    nomes_pessoas:      [] as string[],
     observacoes:        '',
   };
 
@@ -349,12 +397,21 @@ export class AdminReservasTabComponent {
     });
   }
 
+  adicionarNome(): void {
+    this.form.nomes_pessoas = [...this.form.nomes_pessoas, ''];
+  }
+
+  removerNome(i: number): void {
+    this.form.nomes_pessoas = this.form.nomes_pessoas.filter((_, idx) => idx !== i);
+  }
+
   abrirFormNova(): void {
     this.form = {
       numero_mesa: null,
       data_reserva: new Date().toISOString().slice(0, 10),
       hora_reserva: '19:00',
       quantidade_pessoas: 2,
+      nomes_pessoas: [],
       observacoes: '',
     };
     this.formAberto.set(true);
@@ -377,11 +434,13 @@ export class AdminReservasTabComponent {
     if (!this.formValido || this.criando()) return;
     this.criando.set(true);
 
+    const nomes = this.form.nomes_pessoas.map(n => n.trim()).filter(Boolean);
     this.reservaSvc.criar(this.lojaUuid(), {
       numero_mesa:        this.form.numero_mesa!,
       data_reserva:       this.form.data_reserva,
       hora_reserva:       this.form.hora_reserva + ':00',
       quantidade_pessoas: this.form.quantidade_pessoas,
+      nomes_pessoas:      nomes.length ? nomes : null,
       observacoes:        this.form.observacoes?.trim() || null,
     }).subscribe({
       next: nova => {

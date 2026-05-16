@@ -10,6 +10,7 @@ export interface CriarReservaPayload {
   hora_reserva:       string;   // HH:MM:SS
   quantidade_pessoas: number;
   observacoes?:       string | null;
+  nomes_pessoas?:     string[] | null;
 }
 
 @Injectable({ providedIn: 'root' })
