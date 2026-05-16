@@ -25,6 +25,13 @@ import { AdminScheduleDeleteBtnComponent } from './admin-schedule-delete-btn.com
           </p>
         </div>
         <div class="flex gap-2">
+          <button
+            type="button"
+            class="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1.5 rounded hover:bg-blue-50"
+            (click)="editar.emit()"
+          >
+            Editar
+          </button>
           <admin-schedule-active-btn
             [ativo]="horario().ativo"
             (toggle)="toggleAtivo.emit()"
@@ -40,4 +47,5 @@ export class AdminScheduleDayCardComponent {
   diaNome = input.required<string>();
   toggleAtivo = output<void>();
   deletar = output<void>();
+  editar = output<void>();
 }

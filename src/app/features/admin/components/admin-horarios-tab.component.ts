@@ -8,6 +8,7 @@ import { AdminService } from '../../../core/services/admin.service';
 import { HorarioFuncionamento } from '../../../core/models';
 import { AdminScheduleDayCardComponent } from './admin-schedule-day-card.component';
 import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../../shared/components';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'admin-horarios-tab',
@@ -17,21 +18,42 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
     AdminScheduleDayCardComponent,
     UiInputComponent,
     UiSelectComponent,
-    UiButtonComponent
+    UiButtonComponent,
+    NgClass,
   ],
   template: `
     <div class="grid lg:grid-cols-2 gap-8">
-      <!-- Criar Horário -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-base font-semibold text-gray-900 mb-5">Adicionar Horário</h2>
+      <!-- Criar / Editar Horário -->
+      <div
+        class="bg-white rounded-2xl shadow-sm border p-6 transition-colors"
+        [ngClass]="editando() ? 'border-blue-200' : 'border-gray-100'"
+      >
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-base font-semibold text-gray-900">
+            {{ editando() ? 'Editar Horário' : 'Adicionar Horário' }}
+          </h2>
+          @if (editando()) {
+            <button
+              type="button"
+              class="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100"
+              (click)="cancelarEdicao()"
+            >
+              Cancelar
+            </button>
+          }
+        </div>
         <form
           [formGroup]="horarioForm"
-          (ngSubmit)="criarHorario()"
+          (ngSubmit)="salvarHorario()"
           class="space-y-4"
         >
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1.5"> Dia da Semana * </label>
-            @if (diasSemanaDisponiveis().length === 0) {
+            @if (editando()) {
+              <div class="w-full px-3 py-2.5 rounded-xl border border-blue-200 bg-blue-50 text-sm text-blue-800 font-medium">
+                {{ diasSemana[editando()!.dia_semana]?.nome }}
+              </div>
+            } @else if (diasSemanaDisponiveis().length === 0) {
               <div
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-500 text-center"
               >
@@ -85,7 +107,7 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
             size="sm"
             [fullWidth]="true"
           >
-            Criar Horário
+            {{ editando() ? 'Salvar Alterações' : 'Criar Horário' }}
           </ui-button>
         </form>
       </div>
@@ -105,6 +127,7 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
                 [diaNome]="diasSemana[horario.dia_semana]?.nome ?? ''"
                 (toggleAtivo)="toggleDiaAtivo(horario)"
                 (deletar)="deletarDia(horario.dia_semana, diasSemana[horario.dia_semana]?.nome ?? '')"
+                (editar)="iniciarEdicao(horario)"
               />
             }
           </div>
@@ -129,6 +152,7 @@ export class AdminHorariosTabComponent {
 
   horarioLoadingSubmit = signal(false);
   horarioError = signal('');
+  editando = signal<HorarioFuncionamento | null>(null);
 
   private readonly _horarios = toSignal(
     combineLatest([toObservable(this.lojaUuid), this.refreshHorarioTrigger]).pipe(
@@ -168,7 +192,23 @@ export class AdminHorariosTabComponent {
   get hh() { return this.horarioForm.controls; }
 
 
-  criarHorario() {
+  iniciarEdicao(horario: HorarioFuncionamento) {
+    this.editando.set(horario);
+    this.horarioError.set('');
+    this.horarioForm.patchValue({
+      dia_semana: horario.dia_semana,
+      abertura: horario.abertura,
+      fechamento: horario.fechamento,
+    });
+  }
+
+  cancelarEdicao() {
+    this.editando.set(null);
+    this.horarioError.set('');
+    this.horarioForm.reset({ dia_semana: 0 });
+  }
+
+  salvarHorario() {
     if (this.horarioForm.invalid) {
       this.horarioForm.markAllAsTouched();
       this.horarioError.set('Preencha todos os campos obrigatórios.');
@@ -177,21 +217,26 @@ export class AdminHorariosTabComponent {
     this.horarioLoadingSubmit.set(true);
     this.horarioError.set('');
     const fv = this.horarioForm.value;
+    const editando = this.editando();
+    const dia_semana = editando
+      ? editando.dia_semana
+      : parseInt(fv.dia_semana as unknown as string, 10);
     this.adminService.criarHorario(this.lojaUuid(), {
-      dia_semana: parseInt(fv.dia_semana as unknown as string, 10),
+      dia_semana,
       abertura: fv.abertura!,
       fechamento: fv.fechamento!,
-      ativo: true,
+      ativo: editando?.ativo ?? true,
     }).subscribe({
       next: () => {
         this.horarioLoadingSubmit.set(false);
-        toast.success('Horário criado com sucesso!');
+        toast.success(editando ? 'Horário atualizado com sucesso!' : 'Horário criado com sucesso!');
+        this.editando.set(null);
         this.horarioForm.reset({ dia_semana: 0 });
         this.refreshHorarios();
       },
       error: (e) => {
         this.horarioLoadingSubmit.set(false);
-        this.horarioError.set(e?.error?.error ?? 'Erro ao criar horário.');
+        this.horarioError.set(e?.error?.error ?? 'Erro ao salvar horário.');
       },
     });
   }
