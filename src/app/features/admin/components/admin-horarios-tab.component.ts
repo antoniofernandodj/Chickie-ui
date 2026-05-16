@@ -197,8 +197,8 @@ export class AdminHorariosTabComponent {
     this.horarioError.set('');
     this.horarioForm.patchValue({
       dia_semana: horario.dia_semana,
-      abertura: horario.abertura.substring(0, 5),
-      fechamento: horario.fechamento.substring(0, 5),
+      abertura: horario.abertura.split(':').slice(0, 2).join(':'),
+      fechamento: horario.fechamento.split(':').slice(0, 2).join(':'),
     });
   }
 
@@ -223,8 +223,8 @@ export class AdminHorariosTabComponent {
       : parseInt(fv.dia_semana as unknown as string, 10);
     this.adminService.criarHorario(this.lojaUuid(), {
       dia_semana,
-      abertura: fv.abertura!,
-      fechamento: fv.fechamento!,
+      abertura: fv.abertura!.split(':').slice(0, 2).join(':'),
+      fechamento: fv.fechamento!.split(':').slice(0, 2).join(':'),
       ativo: editando?.ativo ?? true,
     }).subscribe({
       next: () => {
