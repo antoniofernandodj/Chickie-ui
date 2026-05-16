@@ -274,7 +274,7 @@ const STATUS_CFG: Record<StatusReserva, { label: string; bg: string; text: strin
             <ui-button
               [fullWidth]="true"
               [loading]="criando()"
-              [disabled]="!formValido() || criando()"
+              [disabled]="!formValido || criando()"
               (click)="criar()"
             >
               Criar reserva
@@ -308,12 +308,14 @@ export class AdminReservasTabComponent {
     observacoes:        '',
   };
 
-  readonly formValido = computed(() =>
-    this.form.numero_mesa !== null &&
-    !!this.form.data_reserva &&
-    !!this.form.hora_reserva &&
-    this.form.quantidade_pessoas >= 1
-  );
+  get formValido(): boolean {
+    return (
+      this.form.numero_mesa !== null &&
+      !!this.form.data_reserva &&
+      !!this.form.hora_reserva &&
+      this.form.quantidade_pessoas >= 1
+    );
+  }
 
   readonly statusList: StatusReserva[] = [
     'pendente', 'confirmada', 'concluida', 'cancelada', 'nao_compareceu',
@@ -372,7 +374,7 @@ export class AdminReservasTabComponent {
   }
 
   criar(): void {
-    if (!this.formValido() || this.criando()) return;
+    if (!this.formValido || this.criando()) return;
     this.criando.set(true);
 
     this.reservaSvc.criar(this.lojaUuid(), {
