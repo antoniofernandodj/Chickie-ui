@@ -1,12 +1,12 @@
 import {
   Component,
   DestroyRef,
+  ElementRef,
+  computed,
+  effect,
   inject,
   input,
   signal,
-  effect,
-  computed,
-  ElementRef,
   viewChildren,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -20,8 +20,12 @@ import { ComandaService } from '../../../core/services/comanda.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { MesasLiveService } from '../../../core/services/mesas-live.service';
 import { UiButtonComponent, UiInputComponent } from '../../../shared/components';
-import { Comanda, Mesa } from '../../../core/models';
+import { Comanda, Mesa, NovaMesa } from '../../../core/models';
 
+interface LinhaForm {
+  capacidade: number;
+  localizacao: string;
+}
 
 @Component({
   selector: 'admin-mesas-tab',
@@ -29,52 +33,24 @@ import { Comanda, Mesa } from '../../../core/models';
   imports: [FormsModule, CurrencyPipe, UiButtonComponent, UiInputComponent],
   providers: [MesasLiveService],
   template: `
-    <div class="space-y-6">
+    <div class="space-y-8">
 
-      <!-- Config card -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 max-w-sm">
-        <h3 class="text-base font-semibold text-gray-900 mb-1">Configuração de Mesas</h3>
-        <p class="text-sm text-gray-500 mb-5">
-          Defina quantas mesas o estabelecimento possui. Um QR Code único será gerado para cada uma.
-          Você pode aumentar ou reduzir — mas não é possível remover mesas com comandas abertas.
-        </p>
-
-        @if (loading()) {
-          <div class="flex items-center justify-center py-8">
-            <div class="animate-spin rounded-full h-7 w-7 border-b-2" style="border-color: var(--color-brand)"></div>
-          </div>
-        } @else {
-          <div class="flex gap-3 items-end">
-            <div class="flex-1">
-              <ui-input
-                type="number"
-                label="Total de mesas"
-                [(ngModel)]="totalInput"
-                [min]="0"
-                [max]="500"
-              />
-            </div>
-            <ui-button
-              size="sm"
-              [loading]="saving()"
-              [disabled]="saving()"
-              (click)="salvar()"
-            >
-              Salvar
-            </ui-button>
-          </div>
-          <p class="text-xs text-gray-400 mt-2">
-            Atual: {{ mesas().length }} mesa{{ mesas().length !== 1 ? 's' : '' }}
-          </p>
-        }
-      </div>
-
-      <!-- QR Codes grid -->
-      @if (mesas().length > 0) {
+      <!-- ── Mesas cadastradas ──────────────────────────────────────── -->
+      @if (loading()) {
+        <div class="flex items-center justify-center py-16">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2" style="border-color: var(--color-brand)"></div>
+        </div>
+      } @else if (mesas().length === 0 && linhasForm().length === 0) {
+        <div class="text-center py-16 text-gray-400">
+          <div class="text-5xl mb-3">🪑</div>
+          <p class="text-sm font-medium">Nenhuma mesa cadastrada ainda.</p>
+          <p class="text-xs mt-1">Use o formulário abaixo para adicionar mesas.</p>
+        </div>
+      } @else if (mesas().length > 0) {
         <div>
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-base font-semibold text-gray-900">
-              QR Codes — {{ mesas().length }} {{ mesas().length === 1 ? 'mesa' : 'mesas' }}
+              {{ mesas().length }} {{ mesas().length === 1 ? 'mesa cadastrada' : 'mesas cadastradas' }}
             </h3>
             <ui-button variant="secondary" size="sm" (click)="imprimirTodos()">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,12 +62,28 @@ import { Comanda, Mesa } from '../../../core/models';
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            @for (mesa of mesas(); track mesa.numero) {
+            @for (mesa of mesas(); track mesa.numero; let last = $last) {
               @let comandas = mesasOcupadas().get(mesa.numero.toString()) ?? [];
               <div
-                class="bg-white rounded-2xl shadow-sm border p-4 flex flex-col items-center gap-3 transition-all"
+                class="relative bg-white rounded-2xl shadow-sm border p-4 flex flex-col items-center gap-2 transition-all group"
                 [class]="comandas.length > 0 ? 'border-green-400 ring-2 ring-green-300' : 'border-gray-100'"
               >
+                <!-- Delete button on last mesa hover (só se sem comanda ativa) -->
+                @if (last && comandas.length === 0) {
+                  <button
+                    class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-xs
+                           flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity
+                           hover:bg-red-600 shadow-md"
+                    [disabled]="deletando()"
+                    (click)="deletarUltima(mesa)"
+                    title="Remover mesa {{ mesa.numero }}"
+                  >
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                }
+
                 <div class="flex items-center gap-1.5 w-full justify-between">
                   <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Mesa</p>
                   @if (comandas.length > 0) {
@@ -100,53 +92,145 @@ import { Comanda, Mesa } from '../../../core/models';
                     </span>
                   }
                 </div>
+
                 <p class="text-2xl font-black text-gray-900 leading-none">{{ mesa.numero }}</p>
+
                 <canvas
                   #qrCanvas
                   [attr.data-mesa]="mesa.numero"
                   class="rounded-lg"
-                  width="160"
-                  height="160"
+                  width="120"
+                  height="120"
                 ></canvas>
-                @if (mesa.localizacao) {
-                  <p class="text-xs text-gray-400 text-center">{{ mesa.localizacao }}</p>
-                }
+
+                <div class="w-full text-center space-y-1">
+                  <p class="text-xs text-gray-400">{{ mesa.capacidade }} pessoa{{ mesa.capacidade !== 1 ? 's' : '' }}</p>
+                  @if (mesa.localizacao) {
+                    <p class="text-xs text-gray-400 truncate">{{ mesa.localizacao }}</p>
+                  }
+                </div>
+
                 @if (comandas.length > 0) {
-                  <div class="w-full text-center">
+                  <div class="w-full text-center space-y-1">
                     <p class="text-xs text-gray-500">
                       {{ totalMesa(comandas) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                     </p>
-                    <ui-button
-                      variant="primary"
-                      size="xs"
-                      [fullWidth]="true"
-                      (click)="abrirModal(mesa.numero.toString())"
-                    >
+                    <ui-button variant="primary" size="xs" [fullWidth]="true"
+                      (click)="abrirModal(mesa.numero.toString())">
                       Ver Comanda{{ comandas.length > 1 ? 's' : '' }}
                     </ui-button>
                   </div>
                 }
+
                 <ui-button variant="secondary" size="xs" [fullWidth]="true" (click)="baixar(mesa.numero)">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                   </svg>
-                  Baixar PNG
+                  PNG
                 </ui-button>
               </div>
             }
           </div>
         </div>
-      } @else if (!loading()) {
-        <div class="text-center py-16 text-gray-400">
-          <div class="text-5xl mb-3">🪑</div>
-          <p class="text-sm">Nenhuma mesa cadastrada ainda.</p>
-          <p class="text-xs mt-1">Defina a quantidade acima e salve para gerar os QR Codes.</p>
-        </div>
       }
+
+      <!-- ── Formulário para adicionar novas mesas ─────────────────── -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h3 class="text-base font-semibold text-gray-900">Adicionar novas mesas</h3>
+            <p class="text-xs text-gray-400 mt-0.5">
+              Os números são atribuídos automaticamente a partir da mesa {{ proximoNumero() }}.
+            </p>
+          </div>
+          <ui-button size="sm" (click)="adicionarLinha()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+            </svg>
+            Adicionar mesa
+          </ui-button>
+        </div>
+
+        @if (linhasForm().length === 0) {
+          <p class="text-sm text-gray-400 text-center py-6">
+            Clique em "Adicionar mesa" para começar.
+          </p>
+        } @else {
+          <!-- Header das colunas -->
+          <div class="grid grid-cols-[3rem_1fr_1fr_2rem] gap-3 mb-2 px-1">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Mesa</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Capacidade</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Localização</p>
+            <span></span>
+          </div>
+
+          <div class="space-y-2">
+            @for (linha of linhasForm(); track $index; let i = $index) {
+              <div class="grid grid-cols-[3rem_1fr_1fr_2rem] gap-3 items-center">
+                <!-- Número (readonly) -->
+                <div class="h-10 bg-gray-50 rounded-xl flex items-center justify-center text-sm font-black text-gray-700 border border-gray-200">
+                  {{ proximoNumero() + i }}
+                </div>
+
+                <!-- Capacidade -->
+                <input
+                  type="number"
+                  [min]="1"
+                  [max]="99"
+                  class="h-10 w-full rounded-xl border border-gray-200 px-3 text-sm font-medium text-gray-800
+                         focus:outline-none focus:ring-2 focus:border-transparent"
+                  style="focus-ring-color: var(--color-brand)"
+                  placeholder="Ex: 4"
+                  [(ngModel)]="linha.capacidade"
+                />
+
+                <!-- Localização -->
+                <input
+                  type="text"
+                  class="h-10 w-full rounded-xl border border-gray-200 px-3 text-sm text-gray-800
+                         focus:outline-none focus:ring-2 focus:border-transparent"
+                  placeholder="Ex: Varanda"
+                  [(ngModel)]="linha.localizacao"
+                />
+
+                <!-- Remover linha -->
+                <button
+                  class="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400
+                         hover:bg-red-50 hover:text-red-500 transition-colors"
+                  (click)="removerLinha(i)"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+
+          <div class="mt-5 flex items-center justify-between">
+            <p class="text-xs text-gray-400">
+              {{ linhasForm().length }} {{ linhasForm().length === 1 ? 'mesa' : 'mesas' }} a criar
+            </p>
+            <div class="flex gap-2">
+              <ui-button variant="secondary" size="sm" (click)="limparForm()">
+                Cancelar
+              </ui-button>
+              <ui-button
+                size="sm"
+                [loading]="saving()"
+                [disabled]="saving() || linhasForm().length === 0"
+                (click)="salvar()"
+              >
+                Salvar {{ linhasForm().length }} mesa{{ linhasForm().length !== 1 ? 's' : '' }}
+              </ui-button>
+            </div>
+          </div>
+        }
+      </div>
     </div>
 
-    <!-- ── Modal Comandas ────────────────────────────────────────────── -->
+    <!-- ── Modal Comandas ───────────────────────────────────────────── -->
     @if (modalMesa()) {
       <div
         class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
@@ -157,86 +241,81 @@ import { Comanda, Mesa } from '../../../core/models';
           class="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden"
           (click)="$event.stopPropagation()"
         >
-          <!-- Header -->
           <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
             <h3 class="text-lg font-black text-gray-900">Mesa {{ modalMesa() }}</h3>
             <button
               (click)="fecharModal()"
-              class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+              class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 transition-colors"
             >✕</button>
           </div>
 
-          <!-- Comandas list -->
           <div class="overflow-y-auto flex-1 px-6 py-4 space-y-6">
-              @for (comanda of modalComandas(); track comanda.uuid) {
-                <div class="border border-gray-200 rounded-2xl overflow-hidden">
-                  <!-- Comanda header -->
-                  <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+            @for (comanda of modalComandas(); track comanda.uuid) {
+              <div class="border border-gray-200 rounded-2xl overflow-hidden">
+                <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+                  <div>
+                    <p class="text-sm font-bold text-gray-900">
+                      {{ $index + 1 }}{{ comanda.nome ? ' - ' + comanda.nome : '' }}
+                    </p>
+                    <p class="text-xs text-gray-500">
+                      {{ comanda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                    </p>
+                  </div>
+                  <span class="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full font-semibold">Aberta</span>
+                </div>
+                <div class="px-4 py-3 space-y-3">
+                  @for (pedido of comanda.pedidos; track pedido.uuid) {
                     <div>
-                      <p class="text-sm font-bold text-gray-900">
-                        {{ $index + 1 }}{{ comanda.nome ? ' - ' + comanda.nome : '' }}
+                      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                        Pedido #{{ pedido.codigo }}
                       </p>
-                      <p class="text-xs text-gray-500">
-                        Total: {{ comanda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                      </p>
-                    </div>
-                    <span class="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full font-semibold">Aberta</span>
-                  </div>
-                  <!-- Pedidos -->
-                  <div class="px-4 py-3 space-y-3">
-                    @for (pedido of comanda.pedidos; track pedido.uuid) {
-                      <div>
-                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-                          Pedido #{{ pedido.codigo }}
-                        </p>
-                        @for (item of pedido.itens; track item.uuid) {
-                          <div class="flex justify-between items-baseline py-0.5">
-                            <span class="text-sm text-gray-700">
-                              {{ item.quantidade }}× {{ item.partes[0]?.produto_nome ?? '—' }}
-                              @if (item.partes.length > 1) {
-                                <span class="text-gray-400"> +{{ item.partes.length - 1 }}</span>
-                              }
-                            </span>
-                            <span class="text-sm font-medium text-gray-900 ml-4 shrink-0">
-                              {{ precoItem(item) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                            </span>
-                          </div>
-                        }
-                      </div>
-                    }
-                    @if (comanda.pedidos.length === 0) {
-                      <p class="text-sm text-gray-400 text-center py-2">Nenhum pedido</p>
-                    }
-                  </div>
-                  <!-- Fechar esta comanda -->
-                  <div class="px-4 pb-4 pt-2 space-y-2 border-t border-gray-100">
-                    <p class="text-xs font-semibold text-gray-600">Pagamento desta comanda</p>
-                    <div class="flex gap-2">
-                      @for (forma of ['Dinheiro', 'Cartão', 'PIX']; track forma) {
-                        <button
-                          class="flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all"
-                          [class]="formaPagamento() === forma && fechandoComandaUuid() === comanda.uuid
-                            ? 'bg-gray-900 text-white border-gray-900'
-                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'"
-                          (click)="formaPagamento.set(forma); fechandoComandaUuid.set(comanda.uuid)"
-                        >{{ forma === 'Dinheiro' ? '💵' : forma === 'Cartão' ? '💳' : '📱' }} {{ forma }}</button>
+                      @for (item of pedido.itens; track item.uuid) {
+                        <div class="flex justify-between items-baseline py-0.5">
+                          <span class="text-sm text-gray-700">
+                            {{ item.quantidade }}× {{ item.partes[0]?.produto_nome ?? '—' }}
+                            @if (item.partes.length > 1) {
+                              <span class="text-gray-400"> +{{ item.partes.length - 1 }}</span>
+                            }
+                          </span>
+                          <span class="text-sm font-medium text-gray-900 ml-4 shrink-0">
+                            {{ precoItem(item) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                          </span>
+                        </div>
                       }
                     </div>
-                    <ui-button
-                      [fullWidth]="true"
-                      size="sm"
-                      [disabled]="fechandoComandaUuid() !== comanda.uuid || !formaPagamento() || !!_fechandoUuid()"
-                      [loading]="_fechandoUuid() === comanda.uuid"
-                      (click)="fecharComanda(comanda)"
-                    >
-                      Fechar e Registrar Pagamento
-                    </ui-button>
-                  </div>
+                  }
+                  @if (comanda.pedidos.length === 0) {
+                    <p class="text-sm text-gray-400 text-center py-2">Nenhum pedido</p>
+                  }
                 </div>
-              }
-              @if (modalComandas().length === 0) {
-                <p class="text-sm text-gray-400 text-center py-4">Nenhuma comanda ativa</p>
-              }
+                <div class="px-4 pb-4 pt-2 space-y-2 border-t border-gray-100">
+                  <p class="text-xs font-semibold text-gray-600">Pagamento desta comanda</p>
+                  <div class="flex gap-2">
+                    @for (forma of ['Dinheiro', 'Cartão', 'PIX']; track forma) {
+                      <button
+                        class="flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all"
+                        [class]="formaPagamento() === forma && fechandoComandaUuid() === comanda.uuid
+                          ? 'bg-gray-900 text-white border-gray-900'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'"
+                        (click)="formaPagamento.set(forma); fechandoComandaUuid.set(comanda.uuid)"
+                      >{{ forma === 'Dinheiro' ? '💵' : forma === 'Cartão' ? '💳' : '📱' }} {{ forma }}</button>
+                    }
+                  </div>
+                  <ui-button
+                    [fullWidth]="true"
+                    size="sm"
+                    [disabled]="fechandoComandaUuid() !== comanda.uuid || !formaPagamento() || !!_fechandoUuid()"
+                    [loading]="_fechandoUuid() === comanda.uuid"
+                    (click)="fecharComanda(comanda)"
+                  >
+                    Fechar e Registrar Pagamento
+                  </ui-button>
+                </div>
+              </div>
+            }
+            @if (modalComandas().length === 0) {
+              <p class="text-sm text-gray-400 text-center py-4">Nenhuma comanda ativa</p>
+            }
           </div>
 
           <div class="px-6 py-4 border-t border-gray-100">
@@ -251,22 +330,27 @@ export class AdminMesasTabComponent {
   lojaUuid = input.required<string>();
   lojaSlug = input.required<string>();
 
-  private mesaSvc      = inject(MesaService);
-  private comandaSvc   = inject(ComandaService);
-  private auth         = inject(AuthService);
-  private mesasLive    = inject(MesasLiveService);
-  private destroyRef   = inject(DestroyRef);
+  private mesaSvc    = inject(MesaService);
+  private comandaSvc = inject(ComandaService);
+  private auth       = inject(AuthService);
+  private mesasLive  = inject(MesasLiveService);
+  private destroyRef = inject(DestroyRef);
 
   readonly loading  = signal(true);
   readonly saving   = signal(false);
-  totalInput        = 0;
+  readonly deletando = signal(false);
 
-  readonly mesas = signal<Mesa[]>([]);
+  readonly mesas       = signal<Mesa[]>([]);
+  readonly linhasForm  = signal<LinhaForm[]>([]);
+  readonly proximoNumero = computed(() => {
+    const m = this.mesas();
+    return m.length > 0 ? m[m.length - 1].numero + 1 : 1;
+  });
 
   readonly qrCanvases = viewChildren<ElementRef<HTMLCanvasElement>>('qrCanvas');
 
-  readonly comandasAtivas  = signal<Comanda[]>([]);
-  readonly mesasOcupadas   = computed(() => {
+  readonly comandasAtivas = signal<Comanda[]>([]);
+  readonly mesasOcupadas  = computed(() => {
     const map = new Map<string, Comanda[]>();
     for (const c of this.comandasAtivas()) {
       const list = map.get(c.numero_mesa) ?? [];
@@ -284,6 +368,7 @@ export class AdminMesasTabComponent {
   });
   readonly formaPagamento   = signal('');
   readonly fechandoComandaUuid = signal<string | null>(null);
+  readonly _fechandoUuid    = signal<string | null>(null);
 
   constructor() {
     effect(() => {
@@ -314,37 +399,66 @@ export class AdminMesasTabComponent {
     this.mesaSvc.listar(this.lojaUuid()).subscribe({
       next: mesas => {
         this.mesas.set(mesas);
-        this.totalInput = mesas.length;
         this.loading.set(false);
       },
       error: () => {
         this.mesas.set([]);
-        this.totalInput = 0;
         this.loading.set(false);
       },
     });
   }
 
-  salvar(): void {
-    const total = Math.max(0, Math.min(500, Number(this.totalInput) || 0));
-    this.saving.set(true);
+  adicionarLinha(): void {
+    this.linhasForm.update(ls => [...ls, { capacidade: 4, localizacao: '' }]);
+  }
 
-    this.mesaSvc.bulkSet(this.lojaUuid(), total).subscribe({
-      next: mesas => {
-        this.mesas.set(mesas);
-        this.totalInput = mesas.length;
+  removerLinha(i: number): void {
+    this.linhasForm.update(ls => ls.filter((_, idx) => idx !== i));
+  }
+
+  limparForm(): void {
+    this.linhasForm.set([]);
+  }
+
+  salvar(): void {
+    const linhas = this.linhasForm();
+    if (!linhas.length) return;
+
+    const payload: NovaMesa[] = linhas.map(l => ({
+      capacidade:  Math.max(1, Number(l.capacidade) || 4),
+      localizacao: l.localizacao?.trim() || null,
+    }));
+
+    this.saving.set(true);
+    this.mesaSvc.criar(this.lojaUuid(), payload).subscribe({
+      next: novas => {
+        this.mesas.update(ms => [...ms, ...novas]);
+        this.linhasForm.set([]);
         this.saving.set(false);
-        toast.success(`${mesas.length} ${mesas.length === 1 ? 'mesa configurada' : 'mesas configuradas'}!`);
+        toast.success(`${novas.length} ${novas.length === 1 ? 'mesa criada' : 'mesas criadas'}!`);
       },
-      error: (err) => {
+      error: err => {
         this.saving.set(false);
-        const msg = err?.error?.error ?? 'Erro ao salvar mesas.';
-        toast.error(msg);
+        toast.error(err?.error?.error ?? 'Erro ao criar mesas.');
       },
     });
   }
 
-  readonly _fechandoUuid = signal<string | null>(null);
+  deletarUltima(mesa: Mesa): void {
+    if (this.deletando()) return;
+    this.deletando.set(true);
+    this.mesaSvc.deletar(this.lojaUuid(), mesa.numero).subscribe({
+      next: () => {
+        this.mesas.update(ms => ms.filter(m => m.numero !== mesa.numero));
+        this.deletando.set(false);
+        toast.success(`Mesa ${mesa.numero} removida.`);
+      },
+      error: err => {
+        this.deletando.set(false);
+        toast.error(err?.error?.error ?? 'Erro ao remover mesa.');
+      },
+    });
+  }
 
   totalMesa(comandas: Comanda[]): number {
     return comandas.reduce((s, c) => s + Number(c.total), 0);
@@ -384,8 +498,7 @@ export class AdminMesasTabComponent {
   }
 
   precoItem(item: { quantidade: number; partes: { preco_unitario: number }[] }): number {
-    const base = item.partes.reduce((s, p) => s + p.preco_unitario, 0);
-    return base * item.quantidade;
+    return item.partes.reduce((s, p) => s + p.preco_unitario, 0) * item.quantidade;
   }
 
   private renderizarQrCodes(
@@ -398,7 +511,7 @@ export class AdminMesasTabComponent {
       if (!numero) return;
       const url = `${window.location.origin}/loja/${slug}/mesa/${numero}`;
       QRCode.toCanvas(canvas, url, {
-        width: 160,
+        width: 120,
         margin: 2,
         color: { dark: '#111827', light: '#ffffff' },
       });
@@ -406,8 +519,7 @@ export class AdminMesasTabComponent {
   }
 
   baixar(numero: number): void {
-    const canvases = this.qrCanvases();
-    const ref = canvases.find(
+    const ref = this.qrCanvases().find(
       c => Number(c.nativeElement.getAttribute('data-mesa')) === numero,
     );
     if (!ref) return;
@@ -419,11 +531,10 @@ export class AdminMesasTabComponent {
 
   imprimirTodos(): void {
     const slug = this.lojaSlug();
-    const canvases = this.qrCanvases();
-    const imagens = canvases.map(ref => {
-      const mesa = Number(ref.nativeElement.getAttribute('data-mesa'));
-      return { mesa, src: ref.nativeElement.toDataURL('image/png') };
-    });
+    const imagens = this.qrCanvases().map(ref => ({
+      mesa: Number(ref.nativeElement.getAttribute('data-mesa')),
+      src:  ref.nativeElement.toDataURL('image/png'),
+    }));
 
     const win = window.open('', '_blank');
     if (!win) return;
@@ -433,34 +544,22 @@ export class AdminMesasTabComponent {
         <div class="label">Mesa ${mesa}</div>
         <img src="${src}" alt="QR Code Mesa ${mesa}"/>
         <div class="url">${window.location.origin}/loja/${slug}/mesa/${mesa}</div>
-      </div>
-    `).join('');
+      </div>`).join('');
 
-    win.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8"/>
-        <title>QR Codes — ${slug}</title>
-        <style>
-          * { box-sizing: border-box; margin: 0; padding: 0; }
-          body { font-family: sans-serif; padding: 24px; background: #fff; }
-          h1 { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #111; }
-          .grid { display: flex; flex-wrap: wrap; gap: 16px; }
-          .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 200px; break-inside: avoid; }
-          .label { font-size: 22px; font-weight: 900; color: #111; }
-          img { width: 160px; height: 160px; border-radius: 8px; }
-          .url { font-size: 9px; color: #6b7280; text-align: center; word-break: break-all; }
-          @media print { body { padding: 8px; } h1 { display: none; } }
-        </style>
-      </head>
-      <body>
-        <h1>QR Codes — ${slug}</h1>
-        <div class="grid">${cards}</div>
-        <script>window.onload = () => { window.print(); }<\/script>
-      </body>
-      </html>`
-    );
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"/>
+      <title>QR Codes — ${slug}</title>
+      <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:sans-serif;padding:24px;background:#fff}
+      h1{font-size:18px;font-weight:bold;margin-bottom:20px;color:#111}
+      .grid{display:flex;flex-wrap:wrap;gap:16px}
+      .card{border:1px solid #e5e7eb;border-radius:12px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px;width:180px;break-inside:avoid}
+      .label{font-size:22px;font-weight:900;color:#111}img{width:120px;height:120px;border-radius:8px}
+      .url{font-size:9px;color:#6b7280;text-align:center;word-break:break-all}
+      @media print{body{padding:8px}h1{display:none}}</style>
+      </head><body>
+      <h1>QR Codes — ${slug}</h1>
+      <div class="grid">${cards}</div>
+      <script>window.onload=()=>{window.print()}<\/script>
+      </body></html>`);
     win.document.close();
   }
 }

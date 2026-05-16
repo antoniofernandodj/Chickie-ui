@@ -47,6 +47,11 @@ export interface Mesa {
   ativa:       boolean;
 }
 
+export interface NovaMesa {
+  capacidade:  number;
+  localizacao: string | null;
+}
+
 export type StatusReserva = 'pendente' | 'confirmada' | 'cancelada' | 'concluida' | 'nao_compareceu';
 
 export interface ReservaMesa {

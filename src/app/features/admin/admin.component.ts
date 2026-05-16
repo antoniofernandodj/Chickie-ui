@@ -19,6 +19,7 @@ import { AdminHorariosTabComponent } from './components/admin-horarios-tab.compo
 import { AdminMesasTabComponent } from './components/admin-mesas-tab.component';
 import { AdminNavBtnComponent } from './components/admin-nav-btn.component';
 import { AdminLojaTabComponent } from './components/admin-loja-tab.component';
+import { AdminReservasTabComponent } from './components/admin-reservas-tab.component';
 
 @Component({
   selector: 'app-admin',
@@ -39,6 +40,7 @@ import { AdminLojaTabComponent } from './components/admin-loja-tab.component';
     AdminMesasTabComponent,
     AdminNavBtnComponent,
     AdminLojaTabComponent,
+    AdminReservasTabComponent,
   ],
   templateUrl: './admin.component.html',
 })
@@ -75,6 +77,7 @@ export class AdminComponent {
     { id: 'enderecos',     icon: '📍', label: 'Endereços'     },
     { id: 'horarios',      icon: '🕐', label: 'Horários'      },
     { id: 'mesas',         icon: '🪑', label: 'Mesas'         },
+    { id: 'reservas',      icon: '📅', label: 'Reservas'      },
     { id: 'perfil',        icon: '🏪', label: 'Perfil Loja'   },
   ];
 

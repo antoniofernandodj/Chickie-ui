@@ -182,6 +182,9 @@
             [lojaSlug]="lojaSelecionada()!.slug"
           />
         }
+        @if (aba() === 'reservas') {
+          <admin-reservas-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
         @if (aba() === 'perfil') {
           <admin-loja-tab
             [loja]="lojaSelecionada()!"
