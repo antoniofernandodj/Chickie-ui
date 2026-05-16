@@ -11,12 +11,12 @@ import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-i
 import { catchError, combineLatest, filter, of, switchMap } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import { FuncionarioService } from '../../core/services/funcionario.service';
-import { ConfigPedidoService } from '../../core/services/config-pedido.service';
+import { MesaService } from '../../core/services/mesa.service';
 import { ComandaService } from '../../core/services/comanda.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MesasLiveService } from '../../core/services/mesas-live.service';
 import { UiButtonComponent } from '../../shared/components';
-import { Comanda } from '../../core/models';
+import { Comanda, Mesa } from '../../core/models';
 
 @Component({
   selector: 'app-funcionario-mesas',
@@ -42,12 +42,12 @@ import { Comanda } from '../../core/models';
           </div>
         } @else {
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            @for (mesa of mesas(); track mesa) {
-              @let comandas = mesasOcupadas().get(mesa.toString()) ?? [];
+            @for (mesa of mesas(); track mesa.numero) {
+              @let comandas = mesasOcupadas().get(mesa.numero.toString()) ?? [];
               <div
                 class="bg-white rounded-2xl shadow-sm border p-4 flex flex-col items-center gap-3 transition-all"
                 [class]="comandas.length > 0 ? 'border-green-400 ring-2 ring-green-300 cursor-pointer' : 'border-gray-100'"
-                (click)="comandas.length > 0 ? abrirModal(mesa.toString()) : null"
+                (click)="comandas.length > 0 ? abrirModal(mesa.numero.toString()) : null"
               >
                 <div class="flex items-center gap-1.5 w-full justify-between">
                   <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Mesa</p>
@@ -57,14 +57,14 @@ import { Comanda } from '../../core/models';
                     </span>
                   }
                 </div>
-                <p class="text-2xl font-black text-gray-900 leading-none">{{ mesa }}</p>
+                <p class="text-2xl font-black text-gray-900 leading-none">{{ mesa.numero }}</p>
                 @if (comandas.length > 0) {
                   <div class="w-full text-center">
                     <p class="text-xs text-gray-500">
                       {{ totalMesa(comandas) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                     </p>
                     <ui-button variant="primary" size="xs" [fullWidth]="true"
-                      (click)="$event.stopPropagation(); abrirModal(mesa.toString())">
+                      (click)="$event.stopPropagation(); abrirModal(mesa.numero.toString())">
                       Ver Comanda{{ comandas.length > 1 ? 's' : '' }}
                     </ui-button>
                   </div>
@@ -177,7 +177,7 @@ import { Comanda } from '../../core/models';
 })
 export class FuncionarioMesasComponent {
   private funcionarioSvc = inject(FuncionarioService);
-  private configSvc      = inject(ConfigPedidoService);
+  private mesaSvc        = inject(MesaService);
   private comandaSvc     = inject(ComandaService);
   private auth           = inject(AuthService);
   private mesasLive      = inject(MesasLiveService);
@@ -190,8 +190,7 @@ export class FuncionarioMesasComponent {
   );
   readonly lojaUuid = computed(() => this._funcionario()?.loja_uuid ?? null);
 
-  readonly quantidade    = signal(0);
-  readonly mesas         = computed(() => Array.from({ length: this.quantidade() }, (_, i) => i + 1));
+  readonly mesas          = signal<Mesa[]>([]);
   readonly comandasAtivas = signal<Comanda[]>([]);
   readonly mesasOcupadas  = computed(() => {
     const map = new Map<string, Comanda[]>();
@@ -217,9 +216,9 @@ export class FuncionarioMesasComponent {
     effect(() => {
       const uuid = this.lojaUuid();
       if (!uuid) return;
-      this.configSvc.getConfigPedido(uuid).subscribe({
-        next: cfg => {
-          this.quantidade.set(cfg.quantidade_mesas ?? 0);
+      this.mesaSvc.listar(uuid).subscribe({
+        next: mesas => {
+          this.mesas.set(mesas);
           this.loading.set(false);
         },
         error: () => this.loading.set(false),

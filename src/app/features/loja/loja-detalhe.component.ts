@@ -11,7 +11,7 @@ import { MarketingService } from '../../core/services/marketing.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { ComandaService } from '../../core/services/comanda.service';
-import { ConfigPedidoService } from '../../core/services/config-pedido.service';
+import { MesaService } from '../../core/services/mesa.service';
 import { Produto, CategoriaProdutos, HorarioFuncionamento, AvaliacaoDeLoja, AvaliarLojaRequest, Comanda } from '../../core/models';
 import { AvaliacaoLojaFormComponent } from './avaliacao-loja-form.component';
 import { CriarPedidoModalComponent } from './criar-pedido-modal.component';
@@ -34,7 +34,7 @@ export class LojaDetalheComponent {
   readonly auth = inject(AuthService);
   readonly cart = inject(CartService);
   private readonly comandaSvc = inject(ComandaService);
-  private readonly configPedidoSvc = inject(ConfigPedidoService);
+  private readonly mesaSvc = inject(MesaService);
 
   readonly skeletons = Array(6);
   readonly favorita  = signal(false);
@@ -66,9 +66,10 @@ export class LojaDetalheComponent {
       }
 
       if (loja) {
-        this.configPedidoSvc.getConfigPedido(loja.uuid).subscribe({
-          next: (config) => {
-            if (numeroInt > config.quantidade_mesas) {
+        this.mesaSvc.listar(loja.uuid).subscribe({
+          next: (mesas) => {
+            const existe = mesas.some(m => m.numero === numeroInt);
+            if (!existe) {
               this.cart.definirMesa(null);
               this.router.navigate(['/loja', slug]);
               return;

@@ -26,17 +26,49 @@ export type TipoCalculoPedido = 'mais_caro' | 'media_ponderada' | "MaisCaro" | "
 // ─── Configuração de Pedidos ─────────────────────────────────────────────────
 
 export interface ConfiguracaoDePedidosLoja {
-  uuid:             string;
-  loja_uuid:        string;
-  max_partes:       number;
-  tipo_calculo:     TipoCalculoPedido;
-  quantidade_mesas: number;
+  uuid:         string;
+  loja_uuid:    string;
+  max_partes:   number;
+  tipo_calculo: TipoCalculoPedido;
 }
 
 export interface UpdateConfigPedidoRequest {
-  max_partes?:       number;
-  tipo_calculo?:     string;
-  quantidade_mesas?: number;
+  max_partes?:  number;
+  tipo_calculo?: string;
+}
+
+// ─── Mesas ───────────────────────────────────────────────────────────────────
+
+export interface Mesa {
+  loja_uuid:   string;
+  numero:      number;
+  capacidade:  number;
+  localizacao: string | null;
+  ativa:       boolean;
+}
+
+export type StatusReserva = 'pendente' | 'confirmada' | 'cancelada' | 'concluida' | 'nao_compareceu';
+
+export interface ReservaMesa {
+  uuid:               string;
+  loja_uuid:          string;
+  usuario_uuid:       string;
+  numero_mesa:        number;
+  data_reserva:       string;
+  hora_reserva:       string;
+  quantidade_pessoas: number;
+  status:             StatusReserva;
+  observacoes:        string | null;
+  criado_em:          string;
+  atualizado_em:      string;
+}
+
+export interface CreateReservaMesaRequest {
+  numero_mesa:        number;
+  data_reserva:       string;
+  hora_reserva:       string;
+  quantidade_pessoas: number;
+  observacoes?:       string | null;
 }
 
 // ─── Auth ────────────────────────────────────────────────────────────────────

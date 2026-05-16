@@ -1,12 +1,11 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, HostListener, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, switchMap, catchError } from 'rxjs/operators';
 import { of, BehaviorSubject } from 'rxjs';
 import { LojaService } from '../../core/services/loja.service';
 import { Loja } from '../../core/models';
-import { UiTabBarComponent, UiSpinnerComponent, UiButtonComponent } from '../../shared/components';
-import type { UiTab } from '../../shared/components';
+import { UiSpinnerComponent, UiButtonComponent } from '../../shared/components';
 import { AdminPedidosTabComponent } from './components/admin-pedidos-tab.component';
 import { AdminEquipeTabComponent } from './components/admin-equipe-tab.component';
 import { AdminCatalogoTabComponent } from './components/admin-catalogo-tab.component';
@@ -25,7 +24,6 @@ import { AdminLojaTabComponent } from './components/admin-loja-tab.component';
   selector: 'app-admin',
   standalone: true,
   imports: [
-    UiTabBarComponent,
     UiSpinnerComponent,
     UiButtonComponent,
     AdminPedidosTabComponent,
@@ -50,20 +48,39 @@ export class AdminComponent {
   private lojaService = inject(LojaService);
 
   readonly aba = signal('equipe');
-  readonly tabs: UiTab[] = [
-    { id: 'pedidos',       label: '🛒 Pedidos'        },
-    { id: 'equipe',        label: '👥 Equipe'         },
-    { id: 'catalogo',      label: '📦 Catálogo'       },
-    { id: 'adicionais',    label: '🧀 Adicionais'      },
-    { id: 'cupons',        label: '🎟️ Cupons'         },
-    { id: 'promocoes',     label: '📢 Promoções'      },
-    { id: 'avaliacoes',    label: '⭐ Avaliações'     },
-    { id: 'config-pedido', label: '⚙️ Config Pedido'  },
-    { id: 'enderecos',     label: '📍 Endereços'      },
-    { id: 'horarios',      label: '🕐 Horários'       },
-    { id: 'mesas',         label: '🪑 Mesas'          },
-    { id: 'perfil',        label: '🏪 Perfil Loja'    },
+
+  private readonly _isMobile = signal(window.innerWidth < 1024);
+  readonly sidebarOpen = signal(window.innerWidth >= 1024);
+
+  @HostListener('window:resize')
+  onResize() {
+    const mobile = window.innerWidth < 1024;
+    this._isMobile.set(mobile);
+    if (!mobile && !this.sidebarOpen()) {
+      // keep collapsed state on desktop if user explicitly collapsed
+    }
+  }
+
+  readonly isMobile = this._isMobile.asReadonly();
+
+  readonly navItems = [
+    { id: 'pedidos',       icon: '🛒', label: 'Pedidos'       },
+    { id: 'equipe',        icon: '👥', label: 'Equipe'        },
+    { id: 'catalogo',      icon: '📦', label: 'Catálogo'      },
+    { id: 'adicionais',    icon: '🧀', label: 'Adicionais'    },
+    { id: 'cupons',        icon: '🎟️', label: 'Cupons'        },
+    { id: 'promocoes',     icon: '📢', label: 'Promoções'     },
+    { id: 'avaliacoes',    icon: '⭐', label: 'Avaliações'    },
+    { id: 'config-pedido', icon: '⚙️', label: 'Config Pedido' },
+    { id: 'enderecos',     icon: '📍', label: 'Endereços'     },
+    { id: 'horarios',      icon: '🕐', label: 'Horários'      },
+    { id: 'mesas',         icon: '🪑', label: 'Mesas'         },
+    { id: 'perfil',        icon: '🏪', label: 'Perfil Loja'   },
   ];
+
+  readonly abaLabel = computed(() =>
+    this.navItems.find(n => n.id === this.aba())?.label ?? ''
+  );
 
   private readonly refreshTrigger = new BehaviorSubject<void>(undefined);
 
@@ -85,6 +102,17 @@ export class AdminComponent {
   );
 
   readonly lojaLoading = computed(() => this.lojaSelecionada() === undefined);
+
+  toggleSidebar() {
+    this.sidebarOpen.update(v => !v);
+  }
+
+  selectAba(id: string) {
+    this.aba.set(id);
+    if (this._isMobile()) {
+      this.sidebarOpen.set(false);
+    }
+  }
 
   refreshLoja() {
     this.refreshTrigger.next();

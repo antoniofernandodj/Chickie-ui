@@ -1,149 +1,194 @@
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Full-height shell -->
+<div class="flex h-dvh overflow-hidden bg-gray-100">
+
   <!-- Loading -->
   @if (lojaLoading()) {
-    <div class="flex items-center justify-center py-20">
-      <div
-        class="text-center"
-        style="color: var(--color-brand)"
-      >
-        <ui-spinner
-          size="xl"
-          class="mx-auto mb-4 block"
-        />
+    <div class="flex-1 flex items-center justify-center">
+      <div class="text-center" style="color: var(--color-brand)">
+        <ui-spinner size="xl" class="mx-auto mb-4 block" />
         <p class="text-gray-500 text-sm">Carregando painel da loja...</p>
       </div>
     </div>
+
   } @else if (!lojaSelecionada()) {
-    <!-- Loja não encontrada -->
-    <div class="min-h-[60vh] flex items-center justify-center text-center px-4">
-      <div>
+    <div class="flex-1 flex items-center justify-center px-4">
+      <div class="text-center">
         <div class="text-5xl mb-4">😕</div>
         <h1 class="text-xl font-bold text-gray-800 mb-2">Loja não encontrada</h1>
         <p class="text-gray-500 text-sm mb-6">A loja que você busca não existe ou foi removida.</p>
         <ui-button (click)="voltar()">← Voltar para Minhas Lojas</ui-button>
       </div>
     </div>
-  } @else {
-    <!-- Header com breadcrumb -->
-    <div class="mb-6">
-      <ui-button
-        variant="ghost"
-        size="sm"
-        (click)="voltar()"
-        class="mb-4"
-      >
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-        Minhas Lojas
-      </ui-button>
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <div
-            class="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-2xl shrink-0 shadow-lg"
-            style="
-              background: linear-gradient(
-                135deg,
-                var(--color-brand) 0%,
-                var(--color-brand-dark) 100%
-              );
-            "
-          >
-            {{ lojaSelecionada()!.nome.charAt(0).toUpperCase() }}
-          </div>
-          <div>
-            <h1 class="text-2xl font-black text-gray-900 leading-tight">
-              {{ lojaSelecionada()!.nome }}
-            </h1>
-            <p class="text-sm font-semibold text-gray-400">{{ lojaSelecionada()!.slug }}</p>
-          </div>
-        </div>
 
-        <div class="flex items-center gap-2">
+  } @else {
+
+    <!-- Mobile backdrop -->
+    @if (sidebarOpen() && isMobile()) {
+      <div
+        class="fixed inset-0 bg-black/40 z-20"
+        (click)="toggleSidebar()"
+      ></div>
+    }
+
+    <!-- ── Sidebar ──────────────────────────────────────────── -->
+    <aside
+      class="flex flex-col bg-white border-r border-gray-200 shrink-0 overflow-hidden
+             transition-[width] duration-300 z-30"
+      [class.fixed]="isMobile()"
+      [class.inset-y-0]="isMobile()"
+      [class.left-0]="isMobile()"
+      [class.h-full]="isMobile()"
+      [style.width]="sidebarOpen() ? '256px' : (isMobile() ? '0px' : '64px')"
+    >
+      <!-- Sidebar top: loja avatar + name -->
+      <div
+        class="h-16 flex items-center gap-3 px-3 border-b border-gray-100 shrink-0 overflow-hidden"
+      >
+        <button
+          (click)="voltar()"
+          class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-base shrink-0
+                 hover:opacity-80 transition-opacity"
+          style="background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-dark) 100%)"
+          title="Minhas Lojas"
+        >
+          {{ lojaSelecionada()!.nome.charAt(0).toUpperCase() }}
+        </button>
+        <div class="min-w-0">
+          <p class="text-sm font-bold text-gray-900 truncate whitespace-nowrap">
+            {{ lojaSelecionada()!.nome }}
+          </p>
+          <p class="text-xs text-gray-400 truncate whitespace-nowrap">
+            {{ lojaSelecionada()!.slug }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Nav items -->
+      <nav class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-0.5">
+        @for (item of navItems; track item.id) {
+          <button
+            class="w-full flex items-center gap-3 rounded-xl px-2 py-2.5 text-sm font-medium
+                   transition-colors whitespace-nowrap overflow-hidden"
+            [class.text-white]="aba() === item.id"
+            [class.text-gray-600]="aba() !== item.id"
+            [class.hover:bg-gray-100]="aba() !== item.id"
+            [class.hover:text-gray-900]="aba() !== item.id"
+            [style.background]="aba() === item.id ? 'var(--color-brand)' : ''"
+            [title]="item.label"
+            (click)="selectAba(item.id)"
+          >
+            <span class="text-lg w-6 shrink-0 flex items-center justify-center">{{ item.icon }}</span>
+            <span class="truncate">{{ item.label }}</span>
+          </button>
+        }
+      </nav>
+
+      <!-- Sidebar footer: back link -->
+      <div class="px-2 pb-3 border-t border-gray-100 pt-3 shrink-0">
+        <button
+          (click)="voltar()"
+          class="w-full flex items-center gap-3 rounded-xl px-2 py-2.5 text-sm font-medium
+                 text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors whitespace-nowrap overflow-hidden"
+        >
+          <svg class="w-5 h-5 shrink-0 mx-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+          <span class="truncate">Minhas Lojas</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── Main area ─────────────────────────────────────────── -->
+    <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+
+      <!-- Top header -->
+      <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 shrink-0 gap-4">
+
+        <!-- Hamburger -->
+        <button
+          (click)="toggleSidebar()"
+          class="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500
+                 hover:bg-gray-100 hover:text-gray-900 transition-all shrink-0"
+          aria-label="Alternar menu"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+        <!-- Current section -->
+        <span class="text-sm font-semibold text-gray-700 hidden sm:block truncate flex-1">
+          {{ abaLabel() }}
+        </span>
+
+        <!-- Action buttons -->
+        <div class="flex items-center gap-2 shrink-0">
           <admin-nav-btn
             [link]="['/admin', lojaSelecionada()!.uuid, 'kds']"
             color="blue"
           >
-            Painel KDS
+            <span class="hidden sm:inline">Painel </span>KDS
           </admin-nav-btn>
-
           <admin-nav-btn
             [link]="['/admin', lojaSelecionada()!.uuid, 'pdv']"
             color="green"
           >
-            Tela PDV
+            PDV
           </admin-nav-btn>
-
           <admin-nav-btn
             [link]="['/admin', lojaSelecionada()!.uuid, 'telao']"
             color="orange"
           >
-            Telão
+            <span class="hidden sm:inline">Tela</span>ão
           </admin-nav-btn>
         </div>
-      </div>
-    </div>
+      </header>
 
-    <!-- Tabs -->
-    <div class="mb-6">
-      <ui-tab-bar
-        [tabs]="tabs"
-        [(active)]="aba"
-      />
+      <!-- Scrollable content -->
+      <main class="flex-1 overflow-auto p-6">
+        @if (aba() === 'pedidos') {
+          <admin-pedidos-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'equipe') {
+          <admin-equipe-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'catalogo') {
+          <admin-catalogo-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'adicionais') {
+          <admin-adicionais-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'cupons') {
+          <admin-cupons-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'promocoes') {
+          <admin-promocoes-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'avaliacoes') {
+          <admin-avaliacoes-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'config-pedido') {
+          <admin-config-pedido-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'enderecos') {
+          <admin-enderecos-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'horarios') {
+          <admin-horarios-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'mesas') {
+          <admin-mesas-tab
+            [lojaUuid]="lojaSelecionada()!.uuid"
+            [lojaSlug]="lojaSelecionada()!.slug"
+          />
+        }
+        @if (aba() === 'perfil') {
+          <admin-loja-tab
+            [loja]="lojaSelecionada()!"
+            (updated)="refreshLoja()"
+          />
+        }
+      </main>
     </div>
-
-    <!-- Tab Content -->
-    @if (aba() === 'pedidos') {
-      <admin-pedidos-tab [lojaUuid]="lojaSelecionada()!.uuid" />
-    }
-    @if (aba() === 'equipe') {
-      <admin-equipe-tab [lojaUuid]="lojaSelecionada()!.uuid" />
-    }
-    @if (aba() === 'catalogo') {
-      <admin-catalogo-tab [lojaUuid]="lojaSelecionada()!.uuid" />
-    }
-    @if (aba() === 'adicionais') {
-      <admin-adicionais-tab [lojaUuid]="lojaSelecionada()!.uuid" />
-    }
-    @if (aba() === 'cupons') {
-      <admin-cupons-tab [lojaUuid]="lojaSelecionada()!.uuid" />
-    }
-    @if (aba() === 'promocoes') {
-      <admin-promocoes-tab [lojaUuid]="lojaSelecionada()!.uuid" />
-    }
-    @if (aba() === 'avaliacoes') {
-      <admin-avaliacoes-tab [lojaUuid]="lojaSelecionada()!.uuid" />
-    }
-    @if (aba() === 'config-pedido') {
-      <admin-config-pedido-tab [lojaUuid]="lojaSelecionada()!.uuid" />
-    }
-    @if (aba() === 'enderecos') {
-      <admin-enderecos-tab [lojaUuid]="lojaSelecionada()!.uuid" />
-    }
-    @if (aba() === 'horarios') {
-      <admin-horarios-tab [lojaUuid]="lojaSelecionada()!.uuid" />
-    }
-    @if (aba() === 'mesas') {
-      <admin-mesas-tab
-        [lojaUuid]="lojaSelecionada()!.uuid"
-        [lojaSlug]="lojaSelecionada()!.slug"
-      />
-    }
-    @if (aba() === 'perfil') {
-      <admin-loja-tab
-        [loja]="lojaSelecionada()!"
-        (updated)="refreshLoja()"
-      />
-    }
   }
 </div>

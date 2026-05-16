@@ -15,12 +15,12 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { combineLatest, filter, switchMap } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import QRCode from 'qrcode';
-import { ConfigPedidoService } from '../../../core/services/config-pedido.service';
+import { MesaService } from '../../../core/services/mesa.service';
 import { ComandaService } from '../../../core/services/comanda.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { MesasLiveService } from '../../../core/services/mesas-live.service';
 import { UiButtonComponent, UiInputComponent } from '../../../shared/components';
-import { Comanda } from '../../../core/models';
+import { Comanda, Mesa } from '../../../core/models';
 
 
 @Component({
@@ -36,6 +36,7 @@ import { Comanda } from '../../../core/models';
         <h3 class="text-base font-semibold text-gray-900 mb-1">Configuração de Mesas</h3>
         <p class="text-sm text-gray-500 mb-5">
           Defina quantas mesas o estabelecimento possui. Um QR Code único será gerado para cada uma.
+          Você pode aumentar ou reduzir — mas não é possível remover mesas com comandas abertas.
         </p>
 
         @if (loading()) {
@@ -47,32 +48,24 @@ import { Comanda } from '../../../core/models';
             <div class="flex-1">
               <ui-input
                 type="number"
-                label="Quantidade de mesas"
-                [(ngModel)]="quantidadeInput"
+                label="Total de mesas"
+                [(ngModel)]="totalInput"
                 [min]="0"
-                [max]="200"
-                [attr.disabled]="temComandasAtivas() ? true : null"
+                [max]="500"
               />
             </div>
             <ui-button
               size="sm"
               [loading]="saving()"
-              [disabled]="saving() || temComandasAtivas()"
+              [disabled]="saving()"
               (click)="salvar()"
             >
               Salvar
             </ui-button>
           </div>
-
-          @if (temComandasAtivas()) {
-            <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-              <p class="font-semibold mb-1">⚠️ Não é possível alterar a quantidade de mesas enquanto há comandas abertas.</p>
-              <p>Feche todas as comandas antes de modificar a configuração.</p>
-              <p class="mt-1">Mesas com comanda ativa:
-                <strong>{{ mesasComComandasStr() }}</strong>
-              </p>
-            </div>
-          }
+          <p class="text-xs text-gray-400 mt-2">
+            Atual: {{ mesas().length }} mesa{{ mesas().length !== 1 ? 's' : '' }}
+          </p>
         }
       </div>
 
@@ -93,8 +86,8 @@ import { Comanda } from '../../../core/models';
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            @for (mesa of mesas(); track mesa) {
-              @let comandas = mesasOcupadas().get(mesa.toString()) ?? [];
+            @for (mesa of mesas(); track mesa.numero) {
+              @let comandas = mesasOcupadas().get(mesa.numero.toString()) ?? [];
               <div
                 class="bg-white rounded-2xl shadow-sm border p-4 flex flex-col items-center gap-3 transition-all"
                 [class]="comandas.length > 0 ? 'border-green-400 ring-2 ring-green-300' : 'border-gray-100'"
@@ -107,14 +100,17 @@ import { Comanda } from '../../../core/models';
                     </span>
                   }
                 </div>
-                <p class="text-2xl font-black text-gray-900 leading-none">{{ mesa }}</p>
+                <p class="text-2xl font-black text-gray-900 leading-none">{{ mesa.numero }}</p>
                 <canvas
                   #qrCanvas
-                  [attr.data-mesa]="mesa"
+                  [attr.data-mesa]="mesa.numero"
                   class="rounded-lg"
                   width="160"
                   height="160"
                 ></canvas>
+                @if (mesa.localizacao) {
+                  <p class="text-xs text-gray-400 text-center">{{ mesa.localizacao }}</p>
+                }
                 @if (comandas.length > 0) {
                   <div class="w-full text-center">
                     <p class="text-xs text-gray-500">
@@ -124,13 +120,13 @@ import { Comanda } from '../../../core/models';
                       variant="primary"
                       size="xs"
                       [fullWidth]="true"
-                      (click)="abrirModal(mesa.toString())"
+                      (click)="abrirModal(mesa.numero.toString())"
                     >
                       Ver Comanda{{ comandas.length > 1 ? 's' : '' }}
                     </ui-button>
                   </div>
                 }
-                <ui-button variant="secondary" size="xs" [fullWidth]="true" (click)="baixar(mesa)">
+                <ui-button variant="secondary" size="xs" [fullWidth]="true" (click)="baixar(mesa.numero)">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -255,20 +251,17 @@ export class AdminMesasTabComponent {
   lojaUuid = input.required<string>();
   lojaSlug = input.required<string>();
 
-  private configService  = inject(ConfigPedidoService);
-  private comandaSvc     = inject(ComandaService);
-  private auth           = inject(AuthService);
-  private mesasLive      = inject(MesasLiveService);
-  private destroyRef     = inject(DestroyRef);
+  private mesaSvc      = inject(MesaService);
+  private comandaSvc   = inject(ComandaService);
+  private auth         = inject(AuthService);
+  private mesasLive    = inject(MesasLiveService);
+  private destroyRef   = inject(DestroyRef);
 
   readonly loading  = signal(true);
   readonly saving   = signal(false);
-  quantidadeInput   = 0;
+  totalInput        = 0;
 
-  readonly quantidade = signal(0);
-  readonly mesas = computed(() =>
-    Array.from({ length: this.quantidade() }, (_, i) => i + 1),
-  );
+  readonly mesas = signal<Mesa[]>([]);
 
   readonly qrCanvases = viewChildren<ElementRef<HTMLCanvasElement>>('qrCanvas');
 
@@ -282,12 +275,7 @@ export class AdminMesasTabComponent {
     }
     return map;
   });
-  readonly temComandasAtivas = computed(() => this.comandasAtivas().length > 0);
-  readonly mesasComComandasStr = computed(() =>
-    [...this.mesasOcupadas().keys()].join(', ')
-  );
 
-  // Modal suporta múltiplas comandas por mesa — derivado em tempo real do SSE
   readonly modalMesa        = signal<string | null>(null);
   readonly modalComandas    = computed(() => {
     const mesa = this.modalMesa();
@@ -323,48 +311,35 @@ export class AdminMesasTabComponent {
 
   private carregar(): void {
     this.loading.set(true);
-    this.configService.getConfigPedido(this.lojaUuid()).subscribe({
-      next: config => {
-        this.quantidade.set(config.quantidade_mesas ?? 0);
-        this.quantidadeInput = config.quantidade_mesas ?? 0;
+    this.mesaSvc.listar(this.lojaUuid()).subscribe({
+      next: mesas => {
+        this.mesas.set(mesas);
+        this.totalInput = mesas.length;
         this.loading.set(false);
       },
       error: () => {
-        this.quantidade.set(0);
-        this.quantidadeInput = 0;
+        this.mesas.set([]);
+        this.totalInput = 0;
         this.loading.set(false);
       },
     });
   }
 
   salvar(): void {
-    if (this.temComandasAtivas()) return;
-    const qty = Math.max(0, Math.min(200, Number(this.quantidadeInput) || 0));
+    const total = Math.max(0, Math.min(500, Number(this.totalInput) || 0));
     this.saving.set(true);
 
-    this.configService.getConfigPedido(this.lojaUuid()).subscribe({
-      next: config => {
-        if (config.tipo_calculo === 'MaisCaro') config.tipo_calculo = 'mais_caro';
-        if (config.tipo_calculo === 'MediaPonderada') config.tipo_calculo = 'media_ponderada';
-        this.configService.saveConfigPedido(this.lojaUuid(), {
-          max_partes:       config.max_partes,
-          tipo_calculo:     config.tipo_calculo,
-          quantidade_mesas: qty,
-        }).subscribe({
-          next: () => {
-            this.quantidade.set(qty);
-            this.saving.set(false);
-            toast.success(`${qty} ${qty === 1 ? 'mesa configurada' : 'mesas configuradas'}!`);
-          },
-          error: () => {
-            this.saving.set(false);
-            toast.error('Erro ao salvar configuração de mesas.');
-          },
-        });
-      },
-      error: () => {
+    this.mesaSvc.bulkSet(this.lojaUuid(), total).subscribe({
+      next: mesas => {
+        this.mesas.set(mesas);
+        this.totalInput = mesas.length;
         this.saving.set(false);
-        toast.error('Erro ao carregar configuração atual.');
+        toast.success(`${mesas.length} ${mesas.length === 1 ? 'mesa configurada' : 'mesas configuradas'}!`);
+      },
+      error: (err) => {
+        this.saving.set(false);
+        const msg = err?.error?.error ?? 'Erro ao salvar mesas.';
+        toast.error(msg);
       },
     });
   }
@@ -399,7 +374,6 @@ export class AdminMesasTabComponent {
         this._fechandoUuid.set(null);
         this.formaPagamento.set('');
         this.fechandoComandaUuid.set(null);
-        // SSE vai remover a comanda automaticamente via comanda_fechada
         if (this.modalComandas().length === 0) this.fecharModal();
       },
       error: () => {
@@ -412,10 +386,6 @@ export class AdminMesasTabComponent {
   precoItem(item: { quantidade: number; partes: { preco_unitario: number }[] }): number {
     const base = item.partes.reduce((s, p) => s + p.preco_unitario, 0);
     return base * item.quantidade;
-  }
-
-  private mesaUrl(numero: number): string {
-    return `${window.location.origin}/loja/${this.lojaSlug()}/mesa/${numero}`;
   }
 
   private renderizarQrCodes(
@@ -435,14 +405,14 @@ export class AdminMesasTabComponent {
     });
   }
 
-  baixar(mesa: number): void {
+  baixar(numero: number): void {
     const canvases = this.qrCanvases();
     const ref = canvases.find(
-      c => Number(c.nativeElement.getAttribute('data-mesa')) === mesa,
+      c => Number(c.nativeElement.getAttribute('data-mesa')) === numero,
     );
     if (!ref) return;
     const link = document.createElement('a');
-    link.download = `mesa-${mesa}-qrcode.png`;
+    link.download = `mesa-${numero}-qrcode.png`;
     link.href = ref.nativeElement.toDataURL('image/png');
     link.click();
   }
