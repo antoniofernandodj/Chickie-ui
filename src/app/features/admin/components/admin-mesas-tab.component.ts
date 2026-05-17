@@ -19,8 +19,9 @@ import { MesaService } from '../../../core/services/mesa.service';
 import { ComandaService } from '../../../core/services/comanda.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { MesasLiveService } from '../../../core/services/mesas-live.service';
+import { ReservaMesaService } from '../../../core/services/reserva-mesa.service';
 import { UiButtonComponent, UiInputComponent } from '../../../shared/components';
-import { Comanda, Mesa, NovaMesa } from '../../../core/models';
+import { Comanda, Mesa, NovaMesa, ReservaMesa } from '../../../core/models';
 
 interface LinhaForm {
   capacidade: number;
@@ -68,8 +69,8 @@ interface LinhaForm {
                 class="relative bg-white rounded-2xl shadow-sm border p-4 flex flex-col items-center gap-2 transition-all group"
                 [class]="comandas.length > 0 ? 'border-green-400 ring-2 ring-green-300' : 'border-gray-100'"
               >
-                <!-- Delete button on last mesa hover (só se sem comanda ativa) -->
-                @if (last && comandas.length === 0) {
+                <!-- Delete button on last mesa hover (só se sem comanda ativa e sem reserva) -->
+                @if (last && comandas.length === 0 && !mesasComReservaSet().has(mesa.numero)) {
                   <button
                     class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white text-xs
                            flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity
@@ -330,18 +331,30 @@ export class AdminMesasTabComponent {
   lojaUuid = input.required<string>();
   lojaSlug = input.required<string>();
 
-  private mesaSvc    = inject(MesaService);
-  private comandaSvc = inject(ComandaService);
-  private auth       = inject(AuthService);
-  private mesasLive  = inject(MesasLiveService);
-  private destroyRef = inject(DestroyRef);
+  private mesaSvc       = inject(MesaService);
+  private comandaSvc    = inject(ComandaService);
+  private auth          = inject(AuthService);
+  private mesasLive     = inject(MesasLiveService);
+  private reservaMesaSvc = inject(ReservaMesaService);
+  private destroyRef    = inject(DestroyRef);
 
   readonly loading  = signal(true);
   readonly saving   = signal(false);
   readonly deletando = signal(false);
 
   readonly mesas       = signal<Mesa[]>([]);
+  readonly reservas    = signal<ReservaMesa[]>([]);
   readonly linhasForm  = signal<LinhaForm[]>([]);
+
+  readonly mesasComReservaSet = computed(() => {
+    const set = new Set<number>();
+    for (const r of this.reservas()) {
+      if (r.status === 'pendente' || r.status === 'confirmada') {
+        set.add(r.numero_mesa);
+      }
+    }
+    return set;
+  });
   readonly proximoNumero = computed(() => {
     const m = this.mesas();
     return m.length > 0 ? m[m.length - 1].numero + 1 : 1;
@@ -396,7 +409,8 @@ export class AdminMesasTabComponent {
 
   private carregar(): void {
     this.loading.set(true);
-    this.mesaSvc.listar(this.lojaUuid()).subscribe({
+    const uuid = this.lojaUuid();
+    this.mesaSvc.listar(uuid).subscribe({
       next: mesas => {
         this.mesas.set(mesas);
         this.loading.set(false);
@@ -405,6 +419,10 @@ export class AdminMesasTabComponent {
         this.mesas.set([]);
         this.loading.set(false);
       },
+    });
+    this.reservaMesaSvc.listar(uuid).subscribe({
+      next: reservas => this.reservas.set(reservas),
+      error: () => this.reservas.set([]),
     });
   }
 

@@ -12,6 +12,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { ComandaService } from '../../core/services/comanda.service';
 import { MesaService } from '../../core/services/mesa.service';
+import { ReservaMesaService } from '../../core/services/reserva-mesa.service';
 import { Produto, CategoriaProdutos, HorarioFuncionamento, AvaliacaoDeLoja, AvaliarLojaRequest, Comanda } from '../../core/models';
 import { AvaliacaoLojaFormComponent } from './avaliacao-loja-form.component';
 import { CriarPedidoModalComponent } from './criar-pedido-modal.component';
@@ -35,11 +36,13 @@ export class LojaDetalheComponent {
   readonly cart = inject(CartService);
   private readonly comandaSvc = inject(ComandaService);
   private readonly mesaSvc = inject(MesaService);
+  private readonly reservaMesaSvc = inject(ReservaMesaService);
 
   readonly skeletons = Array(6);
   readonly favorita  = signal(false);
   readonly mostrandoModalPedido = signal(false);
   readonly comandaAtiva = signal<Comanda | null>(null);
+  readonly mesaBloqueada = signal(false);
 
   readonly numeroMesa = toSignal(
     this.route.paramMap.pipe(map(p => p.get('numero'))),
@@ -53,6 +56,7 @@ export class LojaDetalheComponent {
       if (!numero) {
         this.cart.definirMesa(null);
         this.comandaAtiva.set(null);
+        this.mesaBloqueada.set(false);
         return;
       }
 
@@ -78,6 +82,10 @@ export class LojaDetalheComponent {
             this.comandaSvc.buscarComandaAtiva(loja.uuid, numero).subscribe({
               next: (comanda) => this.comandaAtiva.set(comanda),
               error: () => this.comandaAtiva.set(null),
+            });
+            this.reservaMesaSvc.verificarBloqueada(loja.uuid, numeroInt).subscribe({
+              next: (res) => this.mesaBloqueada.set(res.bloqueada),
+              error: () => this.mesaBloqueada.set(false),
             });
           },
           error: () => {

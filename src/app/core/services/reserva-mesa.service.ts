@@ -26,6 +26,12 @@ export class ReservaMesaService {
     return this.http.get<ReservaMesa[]>(`${this.baseUrl}/reservas-mesa/${lojaUuid}`);
   }
 
+  verificarBloqueada(lojaUuid: string, numeroMesa: number): Observable<{ bloqueada: boolean }> {
+    return this.http.get<{ bloqueada: boolean }>(
+      `${this.baseUrl}/reservas-mesa/${lojaUuid}/mesa/${numeroMesa}/bloqueada`,
+    );
+  }
+
   criar(lojaUuid: string, payload: CriarReservaPayload): Observable<ReservaMesa> {
     return this.http.post<ReservaMesa>(`${this.baseUrl}/reservas-mesa/${lojaUuid}`, payload);
   }
