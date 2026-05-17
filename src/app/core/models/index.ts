@@ -61,6 +61,7 @@ export interface ReservaMesa {
   numero_mesa:        number;
   data_reserva:       string;
   hora_reserva:       string;
+  hora_fim_reserva:   string;
   quantidade_pessoas: number;
   status:             StatusReserva;
   observacoes:        string | null;
@@ -73,6 +74,7 @@ export interface CreateReservaMesaRequest {
   numero_mesa:        number;
   data_reserva:       string;
   hora_reserva:       string;
+  hora_fim_reserva:   string;
   quantidade_pessoas: number;
   observacoes?:       string | null;
 }

@@ -102,7 +102,7 @@ const STATUS_CFG: Record<StatusReserva, { label: string; bg: string; text: strin
                     <span class="text-gray-300">·</span>
                     <span class="text-sm text-gray-600">
                       {{ r.data_reserva | date:'dd/MM/yyyy':'':'pt-BR' }}
-                      às {{ r.hora_reserva.slice(0, 5) }}
+                      {{ r.hora_reserva.slice(0, 5) }}–{{ r.hora_fim_reserva.slice(0, 5) }}
                     </span>
                     <span class="text-gray-300">·</span>
                     <span class="text-sm text-gray-600">
@@ -232,7 +232,7 @@ const STATUS_CFG: Record<StatusReserva, { label: string; bg: string; text: strin
                 />
               </div>
               <div class="space-y-1.5">
-                <label class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Horário</label>
+                <label class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Início</label>
                 <input
                   type="time"
                   class="w-full h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-800
@@ -240,6 +240,20 @@ const STATUS_CFG: Record<StatusReserva, { label: string; bg: string; text: strin
                   [(ngModel)]="form.hora_reserva"
                 />
               </div>
+            </div>
+
+            <!-- Horário de fim -->
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Fim</label>
+              <input
+                type="time"
+                class="w-full h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-800
+                       focus:outline-none focus:ring-2"
+                [(ngModel)]="form.hora_fim_reserva"
+              />
+              @if (form.hora_fim_reserva && form.hora_reserva && form.hora_fim_reserva <= form.hora_reserva) {
+                <p class="text-xs text-red-500">O horário de fim deve ser posterior ao início.</p>
+              }
             </div>
 
             <!-- Pessoas -->
@@ -351,6 +365,7 @@ export class AdminReservasTabComponent {
     numero_mesa:        null as number | null,
     data_reserva:       '',
     hora_reserva:       '',
+    hora_fim_reserva:   '',
     quantidade_pessoas: 2,
     nomes_pessoas:      [] as string[],
     observacoes:        '',
@@ -361,6 +376,8 @@ export class AdminReservasTabComponent {
       this.form.numero_mesa !== null &&
       !!this.form.data_reserva &&
       !!this.form.hora_reserva &&
+      !!this.form.hora_fim_reserva &&
+      this.form.hora_fim_reserva > this.form.hora_reserva &&
       this.form.quantidade_pessoas >= 1
     );
   }
@@ -410,6 +427,7 @@ export class AdminReservasTabComponent {
       numero_mesa: null,
       data_reserva: new Date().toISOString().slice(0, 10),
       hora_reserva: '19:00',
+      hora_fim_reserva: '21:00',
       quantidade_pessoas: 2,
       nomes_pessoas: [],
       observacoes: '',
@@ -439,6 +457,7 @@ export class AdminReservasTabComponent {
       numero_mesa:        this.form.numero_mesa!,
       data_reserva:       this.form.data_reserva,
       hora_reserva:       this.form.hora_reserva + ':00',
+      hora_fim_reserva:   this.form.hora_fim_reserva + ':00',
       quantidade_pessoas: this.form.quantidade_pessoas,
       nomes_pessoas:      nomes.length ? nomes : null,
       observacoes:        this.form.observacoes?.trim() || null,
