@@ -37,11 +37,11 @@ export class PedidoService {
     );
   }
 
-  avancar(uuid: string, isRetirada: boolean): Observable<StatusPedidoResponse> {
+  avancar(uuid: string): Observable<StatusPedidoResponse> {
     console.info(`[OBSERVABILITY] PedidoService - Advancing order status. UUID: ${uuid}`);
     return this.http.post<StatusPedidoResponse>(
       `${this.base}/${uuid}/avancar`,
-      { is_retirada: isRetirada },
+      {},
     ).pipe(
       tap({
         next: (res) => console.info(`[OBSERVABILITY] PedidoService - Order advanced. New status: ${res.status}`),

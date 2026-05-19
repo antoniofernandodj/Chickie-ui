@@ -1,13 +1,12 @@
 import { Component, inject, input, signal, computed, effect, DestroyRef } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import { PedidosLiveService } from '../../../core/services/pedidos-live.service';
 import { PedidoService } from '../../../core/services/pedido.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PhonePipe } from '../../../shared/pipes/phone.pipe';
-import { UiTabBarComponent, ChatPanelComponent, STATUS_PEDIDO_CFG, UiButtonComponent, UiCheckboxComponent } from '../../../shared/components';
+import { UiTabBarComponent, ChatPanelComponent, STATUS_PEDIDO_CFG, UiButtonComponent } from '../../../shared/components';
 import { Pedido, StatusPedido, ItemPedido, PaginatedResponse } from '../../../core/models';
 import type { UiTab } from '../../../shared/components';
 import { ContextMenuDirective } from '../../../shared/directives/context-menu.directive';
@@ -18,7 +17,7 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
 @Component({
   selector: 'admin-pedidos-tab',
   standalone: true,
-  imports: [DecimalPipe, DatePipe, PhonePipe, FormsModule, UiTabBarComponent, ChatPanelComponent, UiButtonComponent, UiCheckboxComponent, ContextMenuDirective],
+  imports: [DecimalPipe, DatePipe, PhonePipe, UiTabBarComponent, ChatPanelComponent, UiButtonComponent, ContextMenuDirective],
   template: `
     <div class="space-y-4">
       <!-- Header + refresh -->
@@ -334,17 +333,9 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                       class="px-5 py-3.5 border-t border-orange-100 space-y-2.5"
                       style="background: var(--color-brand-light)"
                     >
-                      @if (pedido.status === 'pronto') {
-                        <ui-checkbox
-                          [ngModel]="getIsRetirada(pedido.uuid)"
-                          (ngModelChange)="setIsRetirada(pedido.uuid, $event)"
-                          label="Retirada na loja (sem entregador)"
-                          size="sm"
-                        />
-                      }
                       <ui-button
                         [fullWidth]="true"
-                        (click)="avancarPedido(pedido.uuid, getIsRetirada(pedido.uuid))"
+                        (click)="avancarPedido(pedido.uuid)"
                       >
                         Avançar ▶
                       </ui-button>
@@ -631,16 +622,9 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
           @if (!isPedidoTerminal(p.status)) {
             <div class="px-5 py-4 border-t border-gray-100 shrink-0 space-y-2">
               <div class="space-y-2">
-                @if (p.status === 'pronto') {
-                  <ui-checkbox
-                    [ngModel]="getIsRetirada(p.uuid)"
-                    (ngModelChange)="setIsRetirada(p.uuid, $event)"
-                    label="Retirada na loja (sem entregador)"
-                  />
-                }
                 <ui-button
                   [fullWidth]="true"
-                  (click)="avancarPedido(p.uuid, getIsRetirada(p.uuid))"
+                  (click)="avancarPedido(p.uuid)"
                 >
                   Avançar ▶
                 </ui-button>
@@ -740,7 +724,6 @@ export class AdminPedidosTabComponent {
   readonly expandedPedidos = signal<Set<string>>(new Set());
   readonly pedidoDetalhe = signal<Pedido | null>(null);
   readonly pedidoCancelarConfirm = signal<Pedido | null>(null);
-  private readonly isRetiradaMap = signal<Map<string, boolean>>(new Map());
   readonly statusTerminal: StatusPedido[] = ['entregue', 'cancelado'];
 
   constructor() {
@@ -858,8 +841,8 @@ export class AdminPedidosTabComponent {
     return this.statusTerminal.includes(status);
   }
 
-  avancarPedido(pedidoUuid: string, isRetirada = false) {
-    this.pedidoService.avancar(pedidoUuid, isRetirada).subscribe({
+  avancarPedido(pedidoUuid: string) {
+    this.pedidoService.avancar(pedidoUuid).subscribe({
       next: (res) => {
         toast.success('Pedido avançado com sucesso!');
         this.refreshPedidos();
@@ -892,16 +875,6 @@ export class AdminPedidosTabComponent {
       },
       error: (e) => toast.error(e?.error?.error ?? 'Erro ao cancelar pedido.'),
     });
-  }
-
-  getIsRetirada(uuid: string): boolean {
-    return this.isRetiradaMap().get(uuid) ?? false;
-  }
-
-  setIsRetirada(uuid: string, value: boolean): void {
-    const m = new Map(this.isRetiradaMap());
-    m.set(uuid, value);
-    this.isRetiradaMap.set(m);
   }
 
   abrirDetalhesPedido(pedido: Pedido): void {
@@ -943,7 +916,7 @@ export class AdminPedidosTabComponent {
         icon: '➡️',
         label: 'Avançar status',
         disabled: terminal.includes(pedido.status),
-        action: () => this.avancarPedido(pedido.uuid, this.getIsRetirada(pedido.uuid)),
+        action: () => this.avancarPedido(pedido.uuid),
       },
     ];
   }

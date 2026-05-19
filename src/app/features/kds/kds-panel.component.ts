@@ -192,7 +192,7 @@ export class KdsPanelComponent {
       return;
     }
     
-    this.pedidoService.avancar(pedido.uuid, false).subscribe({
+    this.pedidoService.avancar(pedido.uuid).subscribe({
       next: (res) => {
         console.info(`[OBSERVABILITY] KdsPanelComponent - Order #${pedido.codigo} advanced. New status: ${res.status}`);
         toast.success(`Pedido #${pedido.codigo} atualizado!`);

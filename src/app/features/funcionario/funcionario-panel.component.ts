@@ -116,7 +116,7 @@ export class FuncionarioPanelComponent {
       return;
     }
     
-    this.pedidoService.avancar(pedido.uuid, false).subscribe({
+    this.pedidoService.avancar(pedido.uuid).subscribe({
       next: () => {
         toast.success(`Pedido #${pedido.codigo} atualizado!`);
       },
