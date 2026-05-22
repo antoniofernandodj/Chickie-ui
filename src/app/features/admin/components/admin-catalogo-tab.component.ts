@@ -588,7 +588,7 @@ export class AdminCatalogoTabComponent {
       nome: prod.nome,
       descricao: prod.descricao ?? '',
       preco: prod.preco,
-      tempo_preparo_min: prod.tempo_preparo_min,
+      tempo_preparo_min: prod.tempo_preparo_min ?? 30,
       destaque: prod.destaque ?? false,
       disponivel_delivery: prod.disponivel_delivery ?? true,
       imagem_url: prod.imagem_url ?? '',
