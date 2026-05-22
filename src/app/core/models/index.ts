@@ -26,15 +26,17 @@ export type TipoCalculoPedido = 'mais_caro' | 'media_ponderada' | "MaisCaro" | "
 // ─── Configuração de Pedidos ─────────────────────────────────────────────────
 
 export interface ConfiguracaoDePedidosLoja {
-  uuid:         string;
-  loja_uuid:    string;
-  max_partes:   number;
-  tipo_calculo: TipoCalculoPedido;
+  uuid:           string;
+  loja_uuid:      string;
+  max_partes:     number;
+  tipo_calculo:   TipoCalculoPedido;
+  aceita_delivery:boolean;
 }
 
 export interface UpdateConfigPedidoRequest {
-  max_partes?:  number;
-  tipo_calculo?: string;
+  max_partes?:      number;
+  tipo_calculo?:    string;
+  aceita_delivery?: boolean;
 }
 
 // ─── Mesas ───────────────────────────────────────────────────────────────────
@@ -257,40 +259,44 @@ export interface CreateClienteRequest {
 // ─── Produto ─────────────────────────────────────────────────────────────────
 
 export interface Produto {
-  uuid:             string;
-  loja_uuid:        string;
-  categoria_uuid:   string;
-  nome:             string;
-  descricao:        string | null;
-  preco:            number;
-  imagem_url:       string | null;
-  disponivel:       boolean;
-  tempo_preparo_min:number;
-  destaque:         boolean;
-  criado_em:        string;
-  atualizado_em:    string;
+  uuid:               string;
+  loja_uuid:          string;
+  categoria_uuid:     string;
+  nome:               string;
+  descricao:          string | null;
+  preco:              number;
+  imagem_url:         string | null;
+  disponivel:         boolean;
+  disponivel_delivery:boolean;
+  tempo_preparo_min:  number;
+  destaque:           boolean;
+  criado_em:          string;
+  atualizado_em:      string;
 }
 
 export interface CreateProdutoRequest {
-  uuid?:            string;
-  categoria_uuid:   string;
-  nome:             string;
-  descricao?:       string | null;
-  preco:            number;
-  imagem_url?:      string | null;
-  disponivel:       boolean;
-  tempo_preparo_min:number;
-  destaque:         boolean;
-  criado_em?:       string;
-  atualizado_em?:   string;
+  uuid?:              string;
+  categoria_uuid:     string;
+  nome:               string;
+  descricao?:         string | null;
+  preco:              number;
+  imagem_url?:        string | null;
+  disponivel:         boolean;
+  disponivel_delivery?:boolean;
+  tempo_preparo_min:  number;
+  destaque:           boolean;
+  criado_em?:         string;
+  atualizado_em?:     string;
 }
 
 export interface UpdateProdutoRequest {
-  nome:             string;
-  descricao?:       string | null;
-  preco:            number;
-  categoria_uuid:   string;
-  tempo_preparo_min:number;
+  nome:               string;
+  descricao?:         string | null;
+  preco:              number;
+  categoria_uuid:     string;
+  tempo_preparo_min:  number;
+  disponivel_delivery?:boolean;
+  destaque?:          boolean;
 }
 
 // ─── Adicional ────────────────────────────────────────────────────────────────

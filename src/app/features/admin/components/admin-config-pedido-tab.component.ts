@@ -3,12 +3,12 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { toast } from 'ngx-sonner';
 import { ConfigPedidoService } from '../../../core/services/config-pedido.service';
 import { ConfiguracaoDePedidosLoja, TipoCalculoPedido } from '../../../core/models';
-import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../../shared/components';
+import { UiInputComponent, UiSelectComponent, UiButtonComponent, UiCheckboxComponent } from '../../../shared/components';
 
 @Component({
   selector: 'admin-config-pedido-tab',
   standalone: true,
-  imports: [ReactiveFormsModule, UiInputComponent, UiSelectComponent, UiButtonComponent],
+  imports: [ReactiveFormsModule, UiInputComponent, UiSelectComponent, UiButtonComponent, UiCheckboxComponent],
   template: `
     <div class="max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <h3 class="text-base font-semibold text-gray-900 mb-5">⚙️ Configuração de Pedidos</h3>
@@ -32,6 +32,12 @@ import { UiInputComponent, UiSelectComponent, UiButtonComponent } from '../../..
           (ngSubmit)="salvarConfigPedido()"
           class="space-y-5"
         >
+          <ui-checkbox
+            formControlName="aceita_delivery"
+            label="🛵 Loja aceita pedidos de delivery"
+            size="sm"
+            hint="Quando desativado, a loja não aparece nas buscas de delivery e nenhum produto é listado para entrega."
+          />
           <ui-input
             formControlName="max_partes"
             type="number"
@@ -81,6 +87,7 @@ export class AdminConfigPedidoTabComponent {
   configPedidoError = signal('');
 
   configPedidoForm = this.fb.group({
+    aceita_delivery: [true],
     max_partes: [4, [Validators.required, Validators.min(1), Validators.max(8)]],
     tipo_calculo: ['mais_caro' as TipoCalculoPedido, Validators.required],
   });
@@ -105,17 +112,20 @@ export class AdminConfigPedidoTabComponent {
     this.configPedidoError.set('');
     this.configPedidoService.getConfigPedido(uuid).subscribe({
       next: (config) => {
-
         if (config.tipo_calculo == "MaisCaro") { config.tipo_calculo = "mais_caro"; }
         if (config.tipo_calculo == "MediaPonderada") { config.tipo_calculo = "media_ponderada"; }
 
         this.configPedidoData.set(config);
-        this.configPedidoForm.patchValue({ max_partes: Number(config.max_partes), tipo_calculo: config.tipo_calculo });
+        this.configPedidoForm.patchValue({
+          aceita_delivery: config.aceita_delivery ?? true,
+          max_partes: Number(config.max_partes),
+          tipo_calculo: config.tipo_calculo,
+        });
         this.configPedidoLoading.set(false);
       },
       error: () => {
         this.configPedidoData.set(null);
-        this.configPedidoForm.reset({ max_partes: 4, tipo_calculo: 'mais_caro' });
+        this.configPedidoForm.reset({ aceita_delivery: true, max_partes: 4, tipo_calculo: 'mais_caro' });
         this.configPedidoLoading.set(false);
       },
     });
@@ -132,6 +142,7 @@ export class AdminConfigPedidoTabComponent {
     this.configPedidoLoadingSubmit.set(true);
     this.configPedidoError.set('');
     this.configPedidoService.saveConfigPedido(this.lojaUuid(), {
+      aceita_delivery: fv.aceita_delivery ?? true,
       max_partes: Number(fv.max_partes || 1),
       tipo_calculo: fv.tipo_calculo || "mais_caro",
     }).subscribe({

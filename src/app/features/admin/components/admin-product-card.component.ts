@@ -60,6 +60,9 @@ import type { ContextMenuItem } from '../../../core/services/context-menu.servic
       <div class="text-right shrink-0 ml-2">
         <p class="text-sm font-semibold text-gray-900">R$ {{ produto().preco | number: '1.2-2' }}</p>
         <p class="text-xs text-gray-400">{{ produto().tempo_preparo_min }} min</p>
+        @if (!produto().disponivel_delivery) {
+          <p class="text-xs text-orange-500 font-medium">sem delivery</p>
+        }
       </div>
       <div class="shrink-0">
         <span

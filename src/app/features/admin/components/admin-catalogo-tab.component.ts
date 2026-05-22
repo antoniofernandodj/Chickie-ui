@@ -236,11 +236,18 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
             }
           </div>
 
-          <ui-checkbox
-            formControlName="destaque"
-            label="Destaque"
-            size="sm"
-          />
+          <div class="flex gap-4">
+            <ui-checkbox
+              formControlName="destaque"
+              label="Destaque"
+              size="sm"
+            />
+            <ui-checkbox
+              formControlName="disponivel_delivery"
+              label="🛵 Disponível no delivery"
+              size="sm"
+            />
+          </div>
 
           @if (prodError()) {
             <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">
@@ -315,6 +322,7 @@ export class AdminCatalogoTabComponent {
     preco: [0, [Validators.required, Validators.min(0)]],
     tempo_preparo_min: [30, [Validators.required, Validators.min(1)]],
     destaque: [false],
+    disponivel_delivery: [true],
     imagem_url: [''],
   });
 
@@ -546,6 +554,7 @@ export class AdminCatalogoTabComponent {
       tempo_preparo_min: Number(fv.tempo_preparo_min ?? 30),
       destaque: fv.destaque ?? false,
       disponivel: true,
+      disponivel_delivery: fv.disponivel_delivery ?? true,
     }).subscribe({
       next: (prod) => {
         const imgFile = this.prodImagem();
@@ -554,7 +563,7 @@ export class AdminCatalogoTabComponent {
             next: () => {
               this.prodLoading.set(false);
               toast.success('Produto e imagem criados com sucesso!');
-              this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
+              this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false, disponivel_delivery: true });
               this.limparInputImagem();
               this.carregarProdutosDaCategoria(fv.categoria_uuid!);
             },
@@ -563,7 +572,7 @@ export class AdminCatalogoTabComponent {
         } else {
           toast.success('Produto criado com sucesso!');
           this.prodLoading.set(false);
-          this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
+          this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false, disponivel_delivery: true });
           this.limparInputImagem();
           this.carregarProdutosDaCategoria(fv.categoria_uuid!);
         }
@@ -581,6 +590,7 @@ export class AdminCatalogoTabComponent {
       preco: prod.preco,
       tempo_preparo_min: prod.tempo_preparo_min,
       destaque: prod.destaque ?? false,
+      disponivel_delivery: prod.disponivel_delivery ?? true,
       imagem_url: prod.imagem_url ?? '',
     });
     this.prodError.set('');
@@ -598,7 +608,7 @@ export class AdminCatalogoTabComponent {
     const limparForm = (toastMessage: string) => {
         this.prodLoading.set(false);
         this.prodEditId.set(null);
-        this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
+        this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false, disponivel_delivery: true });
         this.limparInputImagem();
         this.carregarProdutosDaCategoria(fv.categoria_uuid!);
         toast.success(toastMessage);
@@ -611,6 +621,7 @@ export class AdminCatalogoTabComponent {
       preco: fv.preco!,
       tempo_preparo_min: Number(fv.tempo_preparo_min ?? 30),
       destaque: fv.destaque ?? false,
+      disponivel_delivery: fv.disponivel_delivery ?? true,
     }).subscribe({
       next: (prod) => {
         const imgFile = this.prodImagem();
@@ -630,7 +641,7 @@ export class AdminCatalogoTabComponent {
 
   cancelarEdicaoProduto() {
     this.prodEditId.set(null);
-    this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false });
+    this.prodForm.reset({ preco: 0, tempo_preparo_min: 30, destaque: false, disponivel_delivery: true });
     this.limparInputImagem();
     this.prodError.set('');
   }
