@@ -425,6 +425,7 @@ export interface Pedido {
   nome_requerente:   string | null;
   tipo_pedido:       'delivery' | 'retirada' | 'mesa' | 'pdv';
   comanda_uuid:      string | null;
+  para_viagem:       boolean | null;
   criado_em:         string;
   atualizado_em:     string;
   itens:             ItemPedido[];
@@ -454,6 +455,7 @@ export interface CreatePedidoRequest {
   nome_requerente?:     string | null;
   comanda_uuid?:        string;
   nome_comanda?:        string | null;
+  para_viagem?:         boolean | null;
   itens:                CreatePedidoItemRequest[];
   endereco_entrega?: {
     cep?:         string | null;

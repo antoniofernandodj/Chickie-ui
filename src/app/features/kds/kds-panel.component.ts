@@ -1,6 +1,6 @@
 import { Component, inject, computed, signal, effect, untracked, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UiButtonComponent } from '../../shared/components';
+import { UiButtonComponent, UiConsumoBadgeComponent } from '../../shared/components';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { catchError, of, switchMap, filter, map } from 'rxjs';
@@ -15,7 +15,7 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-kds-panel',
   standalone: true,
-  imports: [CommonModule, UiButtonComponent],
+  imports: [CommonModule, UiButtonComponent, UiConsumoBadgeComponent],
   templateUrl: './kds-panel.component.html',
 })
 export class KdsPanelComponent {

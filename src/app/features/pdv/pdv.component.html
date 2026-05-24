@@ -418,6 +418,85 @@
             <ui-button
               [fullWidth]="true"
               size="lg"
+              (click)="avancarParaTipoConsumo()"
+            >
+              Continuar
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </ui-button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- PASSO 3.5: TIPO DE CONSUMO -->
+    @case ('tipo-consumo') {
+      <div
+        class="flex-1 flex flex-col items-center justify-center p-6 bg-gray-50 animate-in slide-in-from-bottom duration-300"
+      >
+        <div class="w-full max-w-lg bg-white rounded-3xl shadow-xl overflow-hidden">
+          <div class="p-8 space-y-6">
+            <div>
+              <ui-button
+                variant="ghost"
+                size="xs"
+                (click)="voltarParaIdentificacao()"
+                class="mb-4"
+              >
+                <span class="flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                  </svg>
+                  Voltar
+                </span>
+              </ui-button>
+              <h3 class="text-2xl font-black text-gray-900">Tipo de Consumo</h3>
+              <p class="text-gray-500 text-sm mt-1">O pedido é para comer aqui ou para viagem?</p>
+            </div>
+
+            <!-- Comer no local -->
+            <button
+              type="button"
+              class="w-full text-left p-5 rounded-2xl border-2 transition-all flex items-center gap-4"
+              [class]="paraViagem() === false
+                ? 'border-orange-400 bg-orange-50'
+                : 'border-gray-200 hover:border-gray-300'"
+              (click)="paraViagem.set(false)"
+            >
+              <span class="text-5xl">🪑</span>
+              <div class="flex-1">
+                <p class="text-lg font-bold text-gray-900">Comer no local</p>
+                <p class="text-sm text-gray-500">O cliente vai consumir aqui</p>
+              </div>
+              @if (paraViagem() === false) {
+                <span class="text-green-600 font-black text-xl">✓</span>
+              }
+            </button>
+
+            <!-- Para viagem -->
+            <button
+              type="button"
+              class="w-full text-left p-5 rounded-2xl border-2 transition-all flex items-center gap-4"
+              [class]="paraViagem() === true
+                ? 'border-orange-400 bg-orange-50'
+                : 'border-gray-200 hover:border-gray-300'"
+              (click)="paraViagem.set(true)"
+            >
+              <span class="text-5xl">🥡</span>
+              <div class="flex-1">
+                <p class="text-lg font-bold text-gray-900">Para viagem</p>
+                <p class="text-sm text-gray-500">O cliente vai levar para fora</p>
+              </div>
+              @if (paraViagem() === true) {
+                <span class="text-green-600 font-black text-xl">✓</span>
+              }
+            </button>
+
+            <ui-button
+              [fullWidth]="true"
+              size="lg"
+              [disabled]="paraViagem() === null"
               (click)="avancarParaPagamento()"
             >
               Ir para Pagamento
@@ -444,7 +523,7 @@
               <ui-button
                 variant="ghost"
                 size="xs"
-                (click)="voltarParaIdentificacao()"
+                (click)="voltarParaTipoConsumo()"
                 class="mb-8"
               >
                 <span class="flex items-center gap-2">
@@ -489,6 +568,11 @@
               }
               @if (nomeRequerente()) {
                 <p class="text-purple-300 font-semibold">Cliente: {{ nomeRequerente() }}</p>
+              }
+              @if (paraViagem() !== null) {
+                <p class="font-semibold" [class]="paraViagem() ? 'text-yellow-300' : 'text-green-300'">
+                  {{ paraViagem() ? '🥡 Para viagem' : '🪑 Comer no local' }}
+                </p>
               }
             </div>
           </div>

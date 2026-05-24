@@ -54,7 +54,7 @@ interface CategoriaStep {
 }
 
 interface FixedStep {
-  tipo: 'endereco' | 'pagamento' | 'resumo' | 'comanda-choice';
+  tipo: 'endereco' | 'pagamento' | 'resumo' | 'comanda-choice' | 'tipo-consumo';
 }
 
 type Step = CategoriaStep | FixedStep;
@@ -120,6 +120,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     if (s.tipo === 'endereco') return 'Endereço de Entrega';
     if (s.tipo === 'pagamento') return 'Pagamento';
     if (s.tipo === 'comanda-choice') return 'Comanda';
+    if (s.tipo === 'tipo-consumo') return 'Tipo de Consumo';
     return 'Resumo do Pedido';
   }
 
@@ -136,6 +137,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     if (s.tipo === 'endereco') return 'Onde você quer receber?';
     if (s.tipo === 'pagamento') return 'Como você vai pagar?';
     if (s.tipo === 'comanda-choice') return 'Nova comanda ou adicionar à existente?';
+    if (s.tipo === 'tipo-consumo') return 'O pedido é para comer aqui ou para viagem?';
     return 'Confira antes de confirmar';
   }
 
@@ -214,6 +216,9 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     this.contato = digits;
   }
 
+  // ── Tipo de consumo (mesa/pdv) ───────────────────────────────────────────────
+  readonly paraViagem = signal<boolean | null>(null);
+
   readonly cupomValidado = signal<Cupom | null>(null);
   readonly validandoCupom = signal(false);
   readonly cupomErro = signal<string | null>(null);
@@ -273,6 +278,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       if (escolha === 'nova') return this.novaComandaNome().trim().length > 0;
       return true;
     }
+    if (s.tipo === 'tipo-consumo') return this.paraViagem() !== null;
     if (s.tipo === 'pagamento') {
       const base = this.formaPagamento !== '' && this.contato.length === 11;
       if (this.formaPagamento === 'PIX' && !this.auth.isAuthenticated()) {
@@ -359,6 +365,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       ...(isMesa ? [] : [{ tipo: 'endereco' as const }]),
       ...(isMesa ? [] : [{ tipo: 'pagamento' as const }]),
       ...(isMesa && temComandaAtiva ? [{ tipo: 'comanda-choice' as const }] : []),
+      ...(isMesa ? [{ tipo: 'tipo-consumo' as const }] : []),
       { tipo: 'resumo' },
     ];
   }
@@ -733,6 +740,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       nome_comanda: mesa && this.comandaEscolhida() === 'nova'
         ? (this.novaComandaNome().trim() || null)
         : undefined,
+      para_viagem: mesa ? this.paraViagem() : null,
       itens: this.cart().map((item) => ({
         quantidade: item.quantidade,
         partes: item.partes.map((p) => ({

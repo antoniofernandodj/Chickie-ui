@@ -6,7 +6,7 @@ import { PedidosLiveService } from '../../../core/services/pedidos-live.service'
 import { PedidoService } from '../../../core/services/pedido.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PhonePipe } from '../../../shared/pipes/phone.pipe';
-import { UiTabBarComponent, ChatPanelComponent, STATUS_PEDIDO_CFG, UiButtonComponent } from '../../../shared/components';
+import { UiTabBarComponent, ChatPanelComponent, STATUS_PEDIDO_CFG, UiButtonComponent, UiConsumoBadgeComponent } from '../../../shared/components';
 import { Pedido, StatusPedido, ItemPedido, PaginatedResponse } from '../../../core/models';
 import type { UiTab } from '../../../shared/components';
 import { ContextMenuDirective } from '../../../shared/directives/context-menu.directive';
@@ -17,7 +17,7 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
 @Component({
   selector: 'admin-pedidos-tab',
   standalone: true,
-  imports: [DecimalPipe, DatePipe, PhonePipe, UiTabBarComponent, ChatPanelComponent, UiButtonComponent, ContextMenuDirective],
+  imports: [DecimalPipe, DatePipe, PhonePipe, UiTabBarComponent, ChatPanelComponent, UiButtonComponent, UiConsumoBadgeComponent, ContextMenuDirective],
   template: `
     <div class="space-y-4">
       <!-- Header + refresh -->
@@ -134,6 +134,7 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                     @if (pedido.nome_requerente) {
                       <span class="text-xs font-bold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">{{ pedido.nome_requerente }}</span>
                     }
+                    <ui-consumo-badge [paraViagem]="pedido.para_viagem" />
                     <span class="text-gray-200 text-xs">·</span>
                     <span class="text-xs font-semibold text-gray-400">{{
                       pedido.criado_em | date: 'dd/MM HH:mm'

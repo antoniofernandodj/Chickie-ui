@@ -41,7 +41,10 @@ export class PdvComponent implements OnInit {
   readonly enviandoPedido = signal(false);
 
   // Novo fluxo de passos
-  readonly pdvStep = signal<'inicio' | 'construcao' | 'identificacao' | 'finalizacao'>('inicio');
+  readonly pdvStep = signal<'inicio' | 'construcao' | 'identificacao' | 'tipo-consumo' | 'finalizacao'>('inicio');
+
+  // Tipo de consumo
+  readonly paraViagem = signal<boolean | null>(null);
   readonly today = new Date();
 
   // Identificação do pedido PDV
@@ -215,6 +218,12 @@ export class PdvComponent implements OnInit {
     this.pdvStep.set('identificacao');
   }
 
+  avancarParaTipoConsumo() {
+    console.info('[OBSERVABILITY] PdvComponent - Advancing to tipo-consumo step');
+    this.paraViagem.set(null);
+    this.pdvStep.set('tipo-consumo');
+  }
+
   avancarParaPagamento() {
     console.info('[OBSERVABILITY] PdvComponent - Advancing to payment step');
     this.pdvStep.set('finalizacao');
@@ -228,6 +237,11 @@ export class PdvComponent implements OnInit {
   voltarParaIdentificacao() {
     console.info('[OBSERVABILITY] PdvComponent - Returning to identification step');
     this.pdvStep.set('identificacao');
+  }
+
+  voltarParaTipoConsumo() {
+    console.info('[OBSERVABILITY] PdvComponent - Returning to tipo-consumo step');
+    this.pdvStep.set('tipo-consumo');
   }
 
   confirmarVenda(metodoPagamento: string) {
@@ -251,6 +265,7 @@ export class PdvComponent implements OnInit {
       origem: 'pdv',
       numero_mesa: mesa,
       nome_requerente: requerente,
+      para_viagem: this.paraViagem(),
       itens: this.itens().map(item => ({
         quantidade: item.quantidade,
         partes: item.partes.map(p => ({

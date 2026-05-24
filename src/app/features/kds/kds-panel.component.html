@@ -154,6 +154,7 @@
                 @if (p.nome_requerente) {
                   <span class="text-xs font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">{{ p.nome_requerente }}</span>
                 }
+                <ui-consumo-badge [paraViagem]="p.para_viagem" />
               </div>
               <span class="text-xs text-gray-500">{{ p.criado_em | date: 'HH:mm' }}</span>
             </div>
@@ -222,6 +223,7 @@
                 @if (p.nome_requerente) {
                   <span class="text-xs font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">{{ p.nome_requerente }}</span>
                 }
+                <ui-consumo-badge [paraViagem]="p.para_viagem" />
               </div>
               <span class="text-xs text-gray-500">{{ p.criado_em | date: 'HH:mm' }}</span>
             </div>
@@ -282,6 +284,7 @@
                 @if (p.nome_requerente) {
                   <span class="text-xs font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">{{ p.nome_requerente }}</span>
                 }
+                <ui-consumo-badge [paraViagem]="p.para_viagem" />
               </div>
               <span class="text-xs text-gray-500">{{ p.criado_em | date: 'HH:mm' }}</span>
             </div>
