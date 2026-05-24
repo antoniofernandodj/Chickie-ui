@@ -109,7 +109,19 @@ import { Comanda, Mesa } from '../../core/models';
                       {{ comanda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                     </p>
                   </div>
-                  <span class="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full font-semibold">Aberta</span>
+                  <div class="flex items-center gap-2">
+                    <button
+                      class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 transition-colors"
+                      title="Imprimir comanda"
+                      (click)="imprimirComanda(comanda)"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                      </svg>
+                    </button>
+                    <span class="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full font-semibold">Aberta</span>
+                  </div>
                 </div>
                 <div class="px-4 py-3 space-y-3">
                   @for (pedido of comanda.pedidos; track pedido.uuid) {
@@ -275,5 +287,85 @@ export class FuncionarioMesasComponent {
 
   precoItem(item: { quantidade: number; partes: { preco_unitario: number }[] }): number {
     return item.partes.reduce((s, p) => s + p.preco_unitario, 0) * item.quantidade;
+  }
+
+  imprimirComanda(comanda: Comanda): void {
+    const fmt = (v: number) =>
+      new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+    const dataAbertura = new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    }).format(new Date(comanda.criado_em));
+
+    const pedidosHtml = comanda.pedidos.map(pedido => {
+      const itensHtml = pedido.itens.map(item => {
+        const nome = item.partes.length > 1
+          ? item.partes.map(p => p.produto_nome).join(' / ')
+          : (item.partes[0]?.produto_nome ?? '—');
+        const preco = this.precoItem(item);
+        const adicionais = item.partes.flatMap(p => p.adicionais);
+        let html = `<div class="item">
+          <span class="item-name">${item.quantidade}× ${nome}</span>
+          <span class="item-price">${fmt(preco)}</span>
+        </div>`;
+        if (item.observacoes) {
+          html += `<div class="obs">Obs: ${item.observacoes}</div>`;
+        }
+        if (adicionais.length) {
+          html += adicionais.map(a => `<div class="adicional">+ ${a.nome}</div>`).join('');
+        }
+        return html;
+      }).join('');
+      const totalPedido = pedido.itens.reduce((s, it) => s + this.precoItem(it), 0);
+      return `<div class="pedido">
+        <div class="pedido-header">Pedido #${pedido.codigo}</div>
+        ${itensHtml}
+        <div class="pedido-total">Subtotal: ${fmt(totalPedido)}</div>
+      </div>`;
+    }).join('');
+
+    const nomeComanda = comanda.nome ? ` — ${comanda.nome}` : '';
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/>
+      <title>Comanda — Mesa ${comanda.numero_mesa}${nomeComanda}</title>
+      <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Courier New',monospace;font-size:12px;padding:12px;max-width:300px;margin:0 auto}
+        .header{text-align:center;border-bottom:2px dashed #000;padding-bottom:10px;margin-bottom:10px}
+        .title{font-size:18px;font-weight:900;letter-spacing:2px}
+        .sub{font-size:13px;font-weight:bold;margin-top:4px}
+        .meta{font-size:10px;color:#555;margin-top:2px}
+        .pedido{border-bottom:1px dashed #bbb;padding:6px 0;margin-bottom:6px}
+        .pedido-header{font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:4px}
+        .item{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+        .item-name{flex:1}
+        .item-price{white-space:nowrap;margin-left:8px;font-weight:600}
+        .obs{font-size:10px;color:#777;margin-left:12px;margin-bottom:2px}
+        .adicional{font-size:10px;color:#555;margin-left:12px}
+        .pedido-total{text-align:right;font-size:11px;color:#555;margin-top:4px}
+        .total-line{border-top:2px dashed #000;margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;font-weight:900;font-size:15px}
+        .footer{text-align:center;margin-top:12px;font-size:10px;color:#888;border-top:1px dashed #ccc;padding-top:8px}
+        @media print{body{padding:4px}}
+      </style>
+      </head><body>
+      <div class="header">
+        <div class="title">COMANDA</div>
+        <div class="sub">Mesa ${comanda.numero_mesa}${nomeComanda}</div>
+        <div class="meta">Aberta em: ${dataAbertura}</div>
+      </div>
+      ${pedidosHtml || '<p style="text-align:center;color:#888;font-size:11px">Nenhum pedido</p>'}
+      <div class="total-line">
+        <span>TOTAL</span>
+        <span>${fmt(Number(comanda.total))}</span>
+      </div>
+      <div class="footer">Obrigado pela preferência!</div>
+      <script>window.onload=()=>{window.print()}<\/script>
+      </body></html>`;
+
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
   }
 }
