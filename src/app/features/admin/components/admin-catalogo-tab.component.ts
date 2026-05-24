@@ -53,19 +53,26 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
             [rows]="2"
           />
 
-          <div class="flex gap-4">
+          <div class="flex gap-4 flex-wrap">
             <ui-checkbox
               formControlName="pizza_mode"
               label="🍕 Modo Pizza"
               size="sm"
-              (change)="$any($event.target).checked && catForm.get('drink_mode')?.setValue(false)"
+              (change)="$any($event.target).checked && (catForm.get('drink_mode')?.setValue(false), catForm.get('montagem_mode')?.setValue(false))"
             />
 
             <ui-checkbox
               formControlName="drink_mode"
               label="🥤 Modo Drink"
               size="sm"
-              (change)="$any($event.target).checked && catForm.get('pizza_mode')?.setValue(false)"
+              (change)="$any($event.target).checked && (catForm.get('pizza_mode')?.setValue(false), catForm.get('montagem_mode')?.setValue(false))"
+            />
+
+            <ui-checkbox
+              formControlName="montagem_mode"
+              label="🥗 Modo Montagem"
+              size="sm"
+              (change)="$any($event.target).checked && (catForm.get('pizza_mode')?.setValue(false), catForm.get('drink_mode')?.setValue(false))"
             />
           </div>
           @if (catError()) {
@@ -333,6 +340,7 @@ export class AdminCatalogoTabComponent {
     ordem: [0, [Validators.min(0)]],
     pizza_mode: [false],
     drink_mode: [false],
+    montagem_mode: [false],
   });
 
   private refreshCategorias() { this.refreshCatTrigger.next(); }
@@ -389,12 +397,13 @@ export class AdminCatalogoTabComponent {
     const body: CreateCategoriaRequest = {
       nome: fv.nome!, descricao: fv.descricao || null, ordem: fv.ordem ?? 0,
       pizza_mode: fv.pizza_mode ?? false, drink_mode: fv.drink_mode ?? false,
+      montagem_mode: fv.montagem_mode ?? false,
     };
     this.catalogoService.criarCategoria(this.lojaUuid(), body).subscribe({
       next: () => {
         this.catLoadingSubmit.set(false);
         toast.success('Categoria criada com sucesso!');
-        this.catForm.reset({ ordem: 0, pizza_mode: false, drink_mode: false });
+        this.catForm.reset({ ordem: 0, pizza_mode: false, drink_mode: false, montagem_mode: false });
         this.refreshCategorias();
       },
       error: (e) => { this.catLoadingSubmit.set(false); this.catError.set(e?.error?.error ?? 'Erro ao criar categoria.'); },
@@ -403,7 +412,7 @@ export class AdminCatalogoTabComponent {
 
   editarCategoria(cat: CategoriaProdutos) {
     this.catEditId.set(cat.uuid);
-    this.catForm.patchValue({ nome: cat.nome, descricao: cat.descricao ?? '', ordem: cat.ordem, pizza_mode: cat.pizza_mode, drink_mode: cat.drink_mode });
+    this.catForm.patchValue({ nome: cat.nome, descricao: cat.descricao ?? '', ordem: cat.ordem, pizza_mode: cat.pizza_mode, drink_mode: cat.drink_mode, montagem_mode: cat.montagem_mode });
     this.catError.set('');
   }
 
@@ -417,12 +426,13 @@ export class AdminCatalogoTabComponent {
     this.catalogoService.atualizarCategoria(this.lojaUuid(), uuid, {
       nome: fv.nome!, descricao: fv.descricao || null, ordem: fv.ordem ?? 0,
       pizza_mode: fv.pizza_mode ?? false, drink_mode: fv.drink_mode ?? false,
+      montagem_mode: fv.montagem_mode ?? false,
     }).subscribe({
       next: () => {
         this.catLoadingSubmit.set(false);
         this.catEditId.set(null);
         toast.success('Categoria atualizada com sucesso!');
-        this.catForm.reset({ ordem: 0, pizza_mode: false, drink_mode: false });
+        this.catForm.reset({ ordem: 0, pizza_mode: false, drink_mode: false, montagem_mode: false });
         this.refreshCategorias();
       },
       error: (e) => { this.catLoadingSubmit.set(false); this.catError.set(e?.error?.error ?? 'Erro ao atualizar categoria.'); },
@@ -431,7 +441,7 @@ export class AdminCatalogoTabComponent {
 
   cancelarEdicaoCategoria() {
     this.catEditId.set(null);
-    this.catForm.reset({ ordem: 0, pizza_mode: false, drink_mode: false });
+    this.catForm.reset({ ordem: 0, pizza_mode: false, drink_mode: false, montagem_mode: false });
     this.catError.set('');
   }
 

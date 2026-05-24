@@ -56,6 +56,12 @@ import type { ContextMenuItem } from '../../../core/services/context-menu.servic
               @if (categoria().pizza_mode) {
                 · <span class="text-xs font-medium text-orange-600">🍕 Modo Pizza</span>
               }
+              @if (categoria().drink_mode) {
+                · <span class="text-xs font-medium text-blue-600">🥤 Modo Drink</span>
+              }
+              @if (categoria().montagem_mode) {
+                · <span class="text-xs font-medium text-green-600">🥗 Modo Montagem</span>
+              }
             </p>
           </div>
         </div>

@@ -29,6 +29,10 @@ import {
   CreatePedidoRequest,
   CreatePagamentoResponse,
   EnderecoFormValue,
+  MontagemCompleta,
+  EtapaComOpcoes,
+  OpcaoMontagem,
+  SelecaoOpcaoRequest,
 } from '../../core/models';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService, CartItem, CartParte } from '../../core/services/cart.service';
@@ -41,6 +45,7 @@ import { GuestEnderecoService, EnderecoGuestSalvo } from '../../core/services/gu
 import { ConfigPedidoService } from '../../core/services/config-pedido.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { CatalogoService } from '../../core/services/catalogo.service';
+import { MontagemService } from '../../core/services/montagem.service';
 import { ComandaService } from '../../core/services/comanda.service';
 import { PushNotificationService } from '../../core/services/push-notification.service';
 import { EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent } from '../../shared/components';
@@ -83,6 +88,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   private configService = inject(ConfigPedidoService);
   private marketingService = inject(MarketingService);
   private catalogoService = inject(CatalogoService);
+  private montagemService = inject(MontagemService);
   private comandaService = inject(ComandaService);
   private push = inject(PushNotificationService);
   private router = inject(Router);
@@ -130,9 +136,9 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     if (s.tipo === 'categoria') {
       const cs = s as CategoriaStep;
       if (cs.categoria.drink_mode) return `${cs.produtos.length} ${cs.produtos.length === 1 ? 'bebida disponível' : 'bebidas disponíveis'}`;
-      return cs.categoria.pizza_mode
-        ? `Até ${this.maxPartes()} sabores por pizza`
-        : `${cs.produtos.length} ${cs.produtos.length === 1 ? 'item disponível' : 'itens disponíveis'}`;
+      if (cs.categoria.pizza_mode) return `Até ${this.maxPartes()} sabores por pizza`;
+      if (cs.categoria.montagem_mode) return `${cs.produtos.length} ${cs.produtos.length === 1 ? 'opção disponível' : 'opções disponíveis'} — monte o seu prato`;
+      return `${cs.produtos.length} ${cs.produtos.length === 1 ? 'item disponível' : 'itens disponíveis'}`;
     }
     if (s.tipo === 'endereco') return 'Onde você quer receber?';
     if (s.tipo === 'pagamento') return 'Como você vai pagar?';
@@ -175,6 +181,49 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
 
   // ── Pizza builder ───────────────────────────────────────────────────────────
   readonly pizzaPartes = signal<CartParte[]>([]);
+
+  // ── Montagem builder ────────────────────────────────────────────────────────
+  // Produto selecionado para montar
+  readonly montagemProduto    = signal<Produto | null>(null);
+  // Configuração carregada do servidor
+  readonly montagemCompleta   = signal<MontagemCompleta | null>(null);
+  // Carregando configuração
+  readonly montagemCarregando = signal(false);
+  // Etapa atual no wizard de montagem (índice em montagemCompleta.etapas)
+  readonly montagemEtapaIdx   = signal(0);
+  // Seleções: etapa_uuid → OpcaoMontagem[]  (com quantity para QuantidadePorOpcao)
+  readonly montagemSelecoes   = signal<Record<string, { opcao: OpcaoMontagem; qty: number }[]>>({});
+
+  get montagemEtapaAtual(): EtapaComOpcoes | null {
+    const mc = this.montagemCompleta();
+    if (!mc) return null;
+    return mc.etapas[this.montagemEtapaIdx()] ?? null;
+  }
+
+  get montagemTotalEtapas(): number {
+    return this.montagemCompleta()?.etapas.length ?? 0;
+  }
+
+  get montagemPrecoTotal(): number {
+    const mc = this.montagemCompleta();
+    if (!mc) return 0;
+    let total = Number(mc.montagem.preco_base);
+    const sel = this.montagemSelecoes();
+    for (const etapaUuid of Object.keys(sel)) {
+      for (const item of sel[etapaUuid]) {
+        total += Number(item.opcao.preco_extra) * item.qty;
+      }
+    }
+    return total;
+  }
+
+  get montagemEtapaValida(): boolean {
+    const etapa = this.montagemEtapaAtual;
+    if (!etapa) return true;
+    const sel = this.montagemSelecoes()[etapa.uuid] ?? [];
+    const totalQty = sel.reduce((s, i) => s + i.qty, 0);
+    return totalQty >= etapa.min_selecoes;
+  }
 
   // ── Endereço ────────────────────────────────────────────────────────────────
   readonly enderecosUsuario = signal<EnderecoUsuario[]>([]);
@@ -383,6 +432,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     this.pizzaAdicionaisPorProduto.set({});
     this.pizzaParteExpandida.set(null);
     this.itemExpandidoId.set(null);
+    this.cancelarMontagem();
     if (this.currentStepIndex() < this.steps.length - 1) {
       this.currentStepIndex.update((i) => i + 1);
     }
@@ -393,6 +443,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     this.pizzaAdicionaisPorProduto.set({});
     this.pizzaParteExpandida.set(null);
     this.itemExpandidoId.set(null);
+    this.cancelarMontagem();
     if (this.currentStepIndex() > 0) {
       this.currentStepIndex.update((i) => i - 1);
     }
@@ -404,6 +455,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       this.pizzaAdicionaisPorProduto.set({});
       this.pizzaParteExpandida.set(null);
       this.itemExpandidoId.set(null);
+      this.cancelarMontagem();
       this.currentStepIndex.set(index);
     }
   }
@@ -499,6 +551,122 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     this.cart.update((c) => c.filter((i) => i.id !== id));
   }
 
+  // ── Montagem builder methods ──────────────────────────────────────────────
+
+  iniciarMontagem(produto: Produto): void {
+    this.montagemProduto.set(produto);
+    this.montagemCompleta.set(null);
+    this.montagemCarregando.set(true);
+    this.montagemEtapaIdx.set(0);
+    this.montagemSelecoes.set({});
+    this.montagemService.buscarPorProduto(produto.uuid).pipe(
+      catchError(() => of(null)),
+    ).subscribe(mc => {
+      this.montagemCarregando.set(false);
+      this.montagemCompleta.set(mc);
+    });
+  }
+
+  cancelarMontagem(): void {
+    this.montagemProduto.set(null);
+    this.montagemCompleta.set(null);
+    this.montagemCarregando.set(false);
+    this.montagemEtapaIdx.set(0);
+    this.montagemSelecoes.set({});
+  }
+
+  montagemToggleOpcao(opcao: OpcaoMontagem): void {
+    const etapa = this.montagemEtapaAtual;
+    if (!etapa) return;
+    this.montagemSelecoes.update(sel => {
+      const current = sel[etapa.uuid] ?? [];
+      const idx = current.findIndex(i => i.opcao.uuid === opcao.uuid);
+      if (idx >= 0) {
+        return { ...sel, [etapa.uuid]: current.filter((_, i) => i !== idx) };
+      }
+      // EscolhaUnica: substitui
+      if (etapa.tipo === 'escolha_unica') {
+        return { ...sel, [etapa.uuid]: [{ opcao, qty: 1 }] };
+      }
+      // Respeita max_selecoes
+      const max = etapa.max_selecoes;
+      if (max !== null && current.length >= max) return sel;
+      return { ...sel, [etapa.uuid]: [...current, { opcao, qty: 1 }] };
+    });
+  }
+
+  montagemSetQtd(opcao: OpcaoMontagem, qty: number): void {
+    const etapa = this.montagemEtapaAtual;
+    if (!etapa) return;
+    if (qty < 1) { this.montagemToggleOpcao(opcao); return; }
+    this.montagemSelecoes.update(sel => {
+      const current = sel[etapa.uuid] ?? [];
+      const idx = current.findIndex(i => i.opcao.uuid === opcao.uuid);
+      if (idx < 0) return sel;
+      const updated = [...current];
+      const max = opcao.max_quantidade;
+      updated[idx] = { opcao, qty: max !== null ? Math.min(qty, max) : qty };
+      return { ...sel, [etapa.uuid]: updated };
+    });
+  }
+
+  montagemOpcaoQtd(opcao: OpcaoMontagem): number {
+    const etapa = this.montagemEtapaAtual;
+    if (!etapa) return 0;
+    return (this.montagemSelecoes()[etapa.uuid] ?? []).find(i => i.opcao.uuid === opcao.uuid)?.qty ?? 0;
+  }
+
+  montagemOpcaoSelecionada(opcao: OpcaoMontagem): boolean {
+    const etapa = this.montagemEtapaAtual;
+    if (!etapa) return false;
+    return (this.montagemSelecoes()[etapa.uuid] ?? []).some(i => i.opcao.uuid === opcao.uuid);
+  }
+
+  montagemAvancarEtapa(): void {
+    if (!this.montagemEtapaValida) return;
+    if (this.montagemEtapaIdx() < this.montagemTotalEtapas - 1) {
+      this.montagemEtapaIdx.update(i => i + 1);
+    } else {
+      this.montagemAdicionarAoCarrinho();
+    }
+  }
+
+  montagemVoltarEtapa(): void {
+    if (this.montagemEtapaIdx() > 0) {
+      this.montagemEtapaIdx.update(i => i - 1);
+    }
+  }
+
+  private montagemAdicionarAoCarrinho(): void {
+    const produto = this.montagemProduto();
+    const mc = this.montagemCompleta();
+    if (!produto || !mc) return;
+
+    // Build selecoes flat list
+    const todasSelecoes: SelecaoOpcaoRequest[] = [];
+    for (const etapa of mc.etapas) {
+      const sels = this.montagemSelecoes()[etapa.uuid] ?? [];
+      for (const { opcao, qty } of sels) {
+        todasSelecoes.push({ opcao_uuid: opcao.uuid, quantidade: qty });
+      }
+    }
+
+    this.cart.update(c => [
+      ...c,
+      {
+        id: this.nextId++,
+        categoria_uuid: produto.categoria_uuid,
+        partes: [{
+          produto,
+          adicionais: [],
+          montagem: { selecoes: todasSelecoes },
+        }],
+        quantidade: 1,
+      },
+    ]);
+    this.cancelarMontagem();
+  }
+
   // ── Adicionais — pizza builder ────────────────────────────────────────────────
   expandirAdicionaisPizzaParte(produtoUuid: string): void {
     this.pizzaParteExpandida.update((p) => (p === produtoUuid ? null : produtoUuid));
@@ -552,6 +720,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   // ── Helpers ───────────────────────────────────────────────────────────────────
   itemPreco(item: CartItem): number {
     if (item.partes.length === 0) return 0;
+    // For montagem items, price will be recalculated server-side; show produto.preco as estimate
     const precoBase = Math.max(...item.partes.map((p) => Number(p.produto.preco)));
     const precoAdicionais = item.partes.reduce(
       (s, p) => s + p.adicionais.reduce((sa, a) => sa + Number(a.preco), 0), 0,
@@ -742,6 +911,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
         partes: item.partes.map((p) => ({
           produto_uuid: p.produto.uuid,
           adicionais: p.adicionais.map((a) => a.uuid),
+          montagem: p.montagem ?? null,
         })),
       })),
       endereco_entrega: mesa ? null : {

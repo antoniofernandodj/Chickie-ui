@@ -168,10 +168,11 @@ export class OwnerPanelComponent {
   readonly catDeleteConfirm = signal<string | null>(null);
 
   readonly catForm = this.fb.group({
-    nome:       ['', Validators.required],
-    descricao:  [''],
-    pizza_mode: [false],
-    drink_mode: [false],
+    nome:          ['', Validators.required],
+    descricao:     [''],
+    pizza_mode:    [false],
+    drink_mode:    [false],
+    montagem_mode: [false],
   });
 
   refreshCategorias() {
@@ -182,17 +183,18 @@ export class OwnerPanelComponent {
     this.catEditandoUuid.set(cat.uuid);
     this.catError.set('');
     this.catForm.setValue({
-      nome:       cat.nome,
-      descricao:  cat.descricao ?? '',
-      pizza_mode: cat.pizza_mode,
-      drink_mode: cat.drink_mode,
+      nome:          cat.nome,
+      descricao:     cat.descricao ?? '',
+      pizza_mode:    cat.pizza_mode,
+      drink_mode:    cat.drink_mode,
+      montagem_mode: cat.montagem_mode,
     });
   }
 
   cancelarEdicaoCategoria() {
     this.catEditandoUuid.set(null);
     this.catError.set('');
-    this.catForm.reset({ nome: '', descricao: '', pizza_mode: false, drink_mode: false });
+    this.catForm.reset({ nome: '', descricao: '', pizza_mode: false, drink_mode: false, montagem_mode: false });
   }
 
   salvarCategoria() {
@@ -202,10 +204,11 @@ export class OwnerPanelComponent {
     }
     const fv = this.catForm.value;
     const body = {
-      nome:       fv.nome!,
-      descricao:  fv.descricao || null,
-      pizza_mode: fv.pizza_mode ?? false,
-      drink_mode: fv.drink_mode ?? false,
+      nome:          fv.nome!,
+      descricao:     fv.descricao || null,
+      pizza_mode:    fv.pizza_mode ?? false,
+      drink_mode:    fv.drink_mode ?? false,
+      montagem_mode: fv.montagem_mode ?? false,
     };
     this.catLoadingSubmit.set(true);
     this.catError.set('');

@@ -158,6 +158,12 @@
         @if (aba() === 'adicionais') {
           <admin-adicionais-tab [lojaUuid]="lojaSelecionada()!.uuid" />
         }
+        @if (aba() === 'ingredientes') {
+          <admin-ingredientes-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
+        @if (aba() === 'montagem') {
+          <admin-montagem-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
         @if (aba() === 'cupons') {
           <admin-cupons-tab [lojaUuid]="lojaSelecionada()!.uuid" />
         }

@@ -1,10 +1,11 @@
 import { Injectable, inject, PLATFORM_ID, signal, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Loja, Produto, Adicional, Pedido } from '../models';
+import { Loja, Produto, Adicional, Pedido, SelecaoOpcaoRequest } from '../models';
 
 export interface CartParte {
   produto:    Produto;
   adicionais: Adicional[];
+  montagem?:  { selecoes: SelecaoOpcaoRequest[] } | null;
 }
 
 export interface CartItem {

@@ -20,6 +20,8 @@ import { AdminMesasTabComponent } from './components/admin-mesas-tab.component';
 import { AdminNavBtnComponent } from './components/admin-nav-btn.component';
 import { AdminLojaTabComponent } from './components/admin-loja-tab.component';
 import { AdminReservasTabComponent } from './components/admin-reservas-tab.component';
+import { AdminIngredientesTabComponent } from './components/admin-ingredientes-tab.component';
+import { AdminMontagemTabComponent } from './components/admin-montagem-tab.component';
 
 @Component({
   selector: 'app-admin',
@@ -41,6 +43,8 @@ import { AdminReservasTabComponent } from './components/admin-reservas-tab.compo
     AdminNavBtnComponent,
     AdminLojaTabComponent,
     AdminReservasTabComponent,
+    AdminIngredientesTabComponent,
+    AdminMontagemTabComponent,
   ],
   templateUrl: './admin.component.html',
 })
@@ -70,6 +74,8 @@ export class AdminComponent {
     { id: 'equipe',        icon: '👥', label: 'Equipe'        },
     { id: 'catalogo',      icon: '📦', label: 'Catálogo'      },
     { id: 'adicionais',    icon: '🧀', label: 'Adicionais'    },
+    { id: 'ingredientes',  icon: '🥬', label: 'Ingredientes'  },
+    { id: 'montagem',      icon: '🥗', label: 'Montagem'      },
     { id: 'cupons',        icon: '🎟️', label: 'Cupons'        },
     { id: 'promocoes',     icon: '📢', label: 'Promoções'     },
     { id: 'avaliacoes',    icon: '⭐', label: 'Avaliações'    },

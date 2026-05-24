@@ -299,6 +299,112 @@ export interface UpdateProdutoRequest {
   destaque?:          boolean;
 }
 
+// ─── Ingrediente ─────────────────────────────────────────────────────────────
+
+export interface Ingrediente {
+  uuid:          string;
+  loja_uuid:     string;
+  nome:          string;
+  unidade_medida:string | null;
+  quantidade:    number;
+  preco_unitario:number;
+  criado_em:     string;
+  atualizado_em: string;
+}
+
+export interface CreateIngredienteRequest {
+  nome:           string;
+  unidade_medida?:string | null;
+  preco_unitario: number;
+}
+
+export interface UpdateIngredienteRequest {
+  nome?:          string;
+  unidade_medida?:string | null;
+  preco_unitario?:number;
+}
+
+// ─── Montagem (config) ────────────────────────────────────────────────────────
+
+export type TipoEtapaMontagem = 'escolha_unica' | 'escolha_multipla' | 'quantidade_por_opcao';
+export type PapelEtapa        = 'base' | 'ingrediente' | 'molho' | 'extra' | 'outro';
+
+export interface MontagemConfig {
+  uuid:        string;
+  loja_uuid:   string;
+  produto_uuid:string;
+  nome:        string;
+  descricao:   string | null;
+  preco_base:  number;
+  criado_em:   string;
+  atualizado_em:string;
+}
+
+export interface EtapaMontagem {
+  uuid:              string;
+  montagem_uuid:     string;
+  nome:              string;
+  descricao:         string | null;
+  papel:             PapelEtapa;
+  tipo:              TipoEtapaMontagem;
+  ordem:             number;
+  min_selecoes:      number;
+  max_selecoes:      number | null;
+  selecoes_gratuitas:number | null;
+  criado_em:         string;
+}
+
+export interface OpcaoMontagem {
+  uuid:            string;
+  etapa_uuid:      string;
+  ingrediente_uuid:string;
+  nome:            string;
+  descricao:       string | null;
+  preco_extra:     number;
+  gratis:          boolean;
+  disponivel:      boolean;
+  ordem:           number;
+  max_quantidade:  number | null;
+  criado_em:       string;
+}
+
+export interface EtapaComOpcoes extends EtapaMontagem {
+  opcoes: OpcaoMontagem[];
+}
+
+export interface MontagemCompleta {
+  montagem: MontagemConfig;
+  etapas:   EtapaComOpcoes[];
+}
+
+export interface CriarMontagemRequest {
+  produto_uuid: string;
+  nome:         string;
+  descricao?:   string | null;
+  preco_base:   number;
+}
+
+export interface CriarEtapaRequest {
+  nome:               string;
+  descricao?:         string | null;
+  papel:              PapelEtapa;
+  tipo:               TipoEtapaMontagem;
+  ordem:              number;
+  min_selecoes:       number;
+  max_selecoes?:      number | null;
+  selecoes_gratuitas?:number | null;
+}
+
+export interface CriarOpcaoRequest {
+  ingrediente_uuid: string;
+  nome:             string;
+  descricao?:       string | null;
+  preco_extra:      number;
+  gratis:           boolean;
+  ordem:            number;
+  max_quantidade?:  number | null;
+}
+
 // ─── Adicional ────────────────────────────────────────────────────────────────
 
 export interface Adicional {
@@ -320,36 +426,40 @@ export interface CreateAdicionalRequest {
 // ─── Categoria ────────────────────────────────────────────────────────────────
 
 export interface CategoriaProdutos {
-  uuid:       string;
-  loja_uuid:  string | null;
-  nome:       string;
-  descricao:  string | null;
-  ordem:      number;
-  pizza_mode: boolean;
-  drink_mode: boolean;
-  criado_em:  string;
+  uuid:          string;
+  loja_uuid:     string | null;
+  nome:          string;
+  descricao:     string | null;
+  ordem:         number;
+  pizza_mode:    boolean;
+  drink_mode:    boolean;
+  montagem_mode: boolean;
+  criado_em:     string;
 }
 
 export interface CreateCategoriaRequest {
-  nome:       string;
-  descricao?: string | null;
-  ordem:      number;
-  pizza_mode: boolean;
-  drink_mode: boolean;
+  nome:          string;
+  descricao?:    string | null;
+  ordem:         number;
+  pizza_mode:    boolean;
+  drink_mode:    boolean;
+  montagem_mode: boolean;
 }
 
 export interface CreateCategoriaGlobalRequest {
-  nome:       string;
-  descricao?: string | null;
-  pizza_mode: boolean;
-  drink_mode: boolean;
+  nome:          string;
+  descricao?:    string | null;
+  pizza_mode:    boolean;
+  drink_mode:    boolean;
+  montagem_mode: boolean;
 }
 
 export interface UpdateCategoriaGlobalRequest {
-  nome:       string;
-  descricao?: string | null;
-  pizza_mode: boolean;
-  drink_mode: boolean;
+  nome:          string;
+  descricao?:    string | null;
+  pizza_mode:    boolean;
+  drink_mode:    boolean;
+  montagem_mode: boolean;
 }
 
 export interface CategoriaCobertura {
