@@ -286,7 +286,6 @@ export class PdvComponent implements OnInit {
         quantidade: item.quantidade,
         partes: item.partes.map(p => ({
           produto_uuid: p.produto.uuid,
-          posicao: p.posicao,
           adicionais: p.adicionais.map(a => a.uuid),
         })),
       })),

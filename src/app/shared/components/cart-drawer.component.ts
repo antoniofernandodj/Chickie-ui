@@ -202,7 +202,7 @@ export class CartDrawerComponent {
 
   itemLabel(item: CartItem): string {
     if (item.partes.length === 1) return item.partes[0].produto.nome;
-    return item.partes.map(p => `${p.posicao}/${item.partes.length} ${p.produto.nome}`).join(' + ');
+    return item.partes.map((p, i) => `${i + 1}/${item.partes.length} ${p.produto.nome}`).join(' + ');
   }
 
   itemPreco(item: CartItem): number {

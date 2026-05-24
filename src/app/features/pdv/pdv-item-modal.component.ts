@@ -104,14 +104,14 @@ import { catchError, of } from 'rxjs';
             @if (pizzaPartes().length > 0) {
               <section class="space-y-3">
                 <h4 class="font-bold text-gray-900">Adicionais por sabor</h4>
-                @for (parte of pizzaPartes(); track parte.posicao) {
+                @for (parte of pizzaPartes(); track parte.produto.uuid; let i = $index) {
                   <div class="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
                     <ui-button
                       variant="flat"
                       [fullWidth]="true"
                       (click)="
                         pizzaParteExpandida.set(
-                          pizzaParteExpandida() === parte.posicao ? null : parte.posicao
+                          pizzaParteExpandida() === parte.produto.uuid ? null : parte.produto.uuid
                         )
                       "
                     >
@@ -120,21 +120,21 @@ import { catchError, of } from 'rxjs';
                           <span
                             class="w-5 h-5 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center font-bold"
                           >
-                            {{ parte.posicao }}
+                            {{ i + 1 }}
                           </span>
                           <span class="font-bold text-sm text-gray-700">{{ parte.produto.nome }}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                          @if ((pizzaAdicionaisPorPosicao()[parte.posicao]?.length ?? 0) > 0) {
+                          @if ((pizzaAdicionaisPorProduto()[parte.produto.uuid]?.length ?? 0) > 0) {
                             <span
                               class="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold"
                             >
-                              +{{ pizzaAdicionaisPorPosicao()[parte.posicao].length }}
+                              +{{ pizzaAdicionaisPorProduto()[parte.produto.uuid].length }}
                             </span>
                           }
                           <svg
                             class="w-4 h-4 text-gray-400 transition-transform"
-                            [class.rotate-180]="pizzaParteExpandida() === parte.posicao"
+                            [class.rotate-180]="pizzaParteExpandida() === parte.produto.uuid"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -150,18 +150,18 @@ import { catchError, of } from 'rxjs';
                       </div>
                     </ui-button>
 
-                    @if (pizzaParteExpandida() === parte.posicao) {
+                    @if (pizzaParteExpandida() === parte.produto.uuid) {
                       <div class="p-4 bg-white border-t border-gray-100">
                         <div class="flex flex-wrap gap-2">
                           @for (ad of adicionaisDisponiveis(); track ad.uuid) {
                             <ui-button
                               [variant]="
-                                isAdicionalSelectedForParte(parte.posicao, ad.uuid)
+                                isAdicionalSelectedForParte(parte.produto.uuid, ad.uuid)
                                   ? 'primary'
                                   : 'secondary'
                               "
                               size="xs"
-                              (click)="toggleAdicionalPizzaParte(parte.posicao, ad)"
+                              (click)="toggleAdicionalPizzaParte(parte.produto.uuid, ad)"
                               >{{ ad.nome }} (+R$ {{ ad.preco | number: '1.2-2' }})</ui-button
                             >
                           }
@@ -234,8 +234,8 @@ export class PdvItemModalComponent implements OnInit {
 
   // Pizza states
   readonly pizzaPartes = signal<CartParte[]>([]);
-  readonly pizzaAdicionaisPorPosicao = signal<Record<number, Adicional[]>>({});
-  readonly pizzaParteExpandida = signal<number | null>(null);
+  readonly pizzaAdicionaisPorProduto = signal<Record<string, Adicional[]>>({});
+  readonly pizzaParteExpandida = signal<string | null>(null);
 
   // Normal states
   readonly adicionaisSelecionados = signal<Adicional[]>([]);
@@ -255,7 +255,7 @@ export class PdvItemModalComponent implements OnInit {
 
     // Se for pizza, já começa com o sabor clicado selecionado
     if (this.categoria.pizza_mode) {
-      this.pizzaPartes.set([{ produto: this.produto, posicao: 1, adicionais: [] }]);
+      this.pizzaPartes.set([{ produto: this.produto, adicionais: [] }]);
     }
   }
 
@@ -263,25 +263,14 @@ export class PdvItemModalComponent implements OnInit {
   togglePizzaParte(p: Produto) {
     const partes = this.pizzaPartes();
     const idx = partes.findIndex((item) => item.produto.uuid === p.uuid);
-    
+
     if (idx >= 0) {
-      // Remove
-      const filtered = partes
-        .filter((_, i) => i !== idx)
-        .map((item, i) => ({ ...item, posicao: i + 1 }));
-      
-      const adMap = this.pizzaAdicionaisPorPosicao();
-      const newMap: Record<number, Adicional[]> = {};
-      filtered.forEach((item, i) => {
-        const oldPosicao = partes.find(pp => pp.produto.uuid === item.produto.uuid)?.posicao;
-        if (oldPosicao != null && adMap[oldPosicao]) newMap[i + 1] = adMap[oldPosicao];
-      });
-      
-      this.pizzaAdicionaisPorPosicao.set(newMap);
+      // Remove — preserve adicionais keyed by uuid
+      const filtered = partes.filter((_, i) => i !== idx);
       this.pizzaPartes.set(filtered);
     } else if (partes.length < this.maxPartes()) {
       // Add
-      this.pizzaPartes.set([...partes, { produto: p, posicao: partes.length + 1, adicionais: [] }]);
+      this.pizzaPartes.set([...partes, { produto: p, adicionais: [] }]);
     }
   }
 
@@ -290,31 +279,32 @@ export class PdvItemModalComponent implements OnInit {
   }
 
   getPizzaPartePosicao(uuid: string) {
-    return this.pizzaPartes().find((p) => p.produto.uuid === uuid)?.posicao ?? 0;
+    const idx = this.pizzaPartes().findIndex((p) => p.produto.uuid === uuid);
+    return idx >= 0 ? idx + 1 : 0;
   }
 
-  toggleAdicionalPizzaParte(posicao: number, ad: Adicional) {
-    this.pizzaAdicionaisPorPosicao.update((map) => {
-      const current = map[posicao] ?? [];
+  toggleAdicionalPizzaParte(produtoUuid: string, ad: Adicional) {
+    this.pizzaAdicionaisPorProduto.update((map) => {
+      const current = map[produtoUuid] ?? [];
       const idx = current.findIndex((a) => a.uuid === ad.uuid);
       return {
         ...map,
-        [posicao]: idx >= 0 ? current.filter((_, i) => i !== idx) : [...current, ad],
+        [produtoUuid]: idx >= 0 ? current.filter((_, i) => i !== idx) : [...current, ad],
       };
     });
   }
 
-  isAdicionalSelectedForParte(posicao: number, uuid: string) {
-    return (this.pizzaAdicionaisPorPosicao()[posicao] ?? []).some((a) => a.uuid === uuid);
+  isAdicionalSelectedForParte(produtoUuid: string, uuid: string) {
+    return (this.pizzaAdicionaisPorProduto()[produtoUuid] ?? []).some((a) => a.uuid === uuid);
   }
 
   pizzaBuilderPreco(): number {
     const partes = this.pizzaPartes();
     if (partes.length === 0) return 0;
     const precoBase = Math.max(...partes.map((p) => Number(p.produto.preco)));
-    const adMap = this.pizzaAdicionaisPorPosicao();
+    const adMap = this.pizzaAdicionaisPorProduto();
     const precoAdicionais = partes.reduce(
-      (s, p) => s + (adMap[p.posicao] ?? []).reduce((sa, a) => sa + Number(a.preco), 0), 0,
+      (s, p) => s + (adMap[p.produto.uuid] ?? []).reduce((sa, a) => sa + Number(a.preco), 0), 0,
     );
     return precoBase + precoAdicionais;
   }
@@ -343,15 +333,15 @@ export class PdvItemModalComponent implements OnInit {
   adicionar() {
     if (this.categoria.pizza_mode) {
       const partes = this.pizzaPartes();
-      const adMap = this.pizzaAdicionaisPorPosicao();
-      
+      const adMap = this.pizzaAdicionaisPorProduto();
+
       const item = {
         categoria_uuid: this.categoria.uuid,
         partes: partes.map(p => ({
-          ...p,
-          adicionais: adMap[p.posicao] ?? []
+          produto: p.produto,
+          adicionais: adMap[p.produto.uuid] ?? [],
         })),
-        quantidade: 1
+        quantidade: 1,
       };
       this.adicionarItem.emit(item);
     } else {
@@ -359,10 +349,9 @@ export class PdvItemModalComponent implements OnInit {
         categoria_uuid: this.categoria.uuid,
         partes: [{
           produto: this.produto,
-          posicao: 1,
-          adicionais: this.adicionaisSelecionados()
+          adicionais: this.adicionaisSelecionados(),
         }],
-        quantidade: 1
+        quantidade: 1,
       };
       this.adicionarItem.emit(item);
     }

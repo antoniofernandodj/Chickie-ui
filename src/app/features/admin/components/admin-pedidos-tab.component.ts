@@ -198,12 +198,12 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                             <p class="text-sm font-medium text-gray-800 mb-1">
                               {{ item.quantidade }}× Pizza ({{ item.partes.length }} sabores)
                             </p>
-                            @for (parte of item.partes; track parte.uuid) {
+                            @for (parte of item.partes; track parte.uuid; let i = $index) {
                               <div class="flex items-start gap-1.5 text-xs text-gray-600">
                                 <span
                                   class="w-4 h-4 rounded-full text-white flex items-center justify-center font-bold shrink-0 mt-0.5"
                                   style="background: var(--color-brand); font-size: 10px"
-                                  >{{ parte.posicao }}</span
+                                  >{{ i + 1 }}</span
                                 >
                                 <span>
                                   {{ parte.produto_nome }}
@@ -470,14 +470,14 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                         </span>
                       </div>
                       <div class="px-4 py-2.5 space-y-2">
-                        @for (parte of item.partes; track parte.uuid) {
+                        @for (parte of item.partes; track parte.uuid; let i = $index) {
                           <div>
                             <div class="flex items-center gap-2">
                               @if (item.partes.length > 1) {
                                 <span
                                   class="w-4 h-4 rounded-full text-white text-xs font-bold flex items-center justify-center shrink-0"
                                   style="background: var(--color-brand); font-size: 9px"
-                                  >{{ parte.posicao }}</span
+                                  >{{ i + 1 }}</span
                                 >
                               }
                               <span class="text-sm text-gray-700 font-medium">{{

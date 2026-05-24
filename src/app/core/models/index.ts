@@ -379,15 +379,48 @@ export interface AdicionalDeItemDePedido {
   preco:     number;
 }
 
+// ─── Montagem (modo Spoleto/Subway) ───────────────────────────────────────────
+
+export interface SelecaoMontagemPedido {
+  opcao_uuid:        string;
+  ingrediente_uuid:  string;
+  nome:              string;
+  papel:             'base' | 'ingrediente' | 'molho' | 'extra' | 'outro';
+  quantidade:        number;
+  preco_aplicado:    number;
+}
+
+export interface MontagemDeItemDePedido {
+  montagem_uuid: string;
+  preco_base:    number;
+  selecoes:      SelecaoMontagemPedido[];
+  preco_total:   number;
+}
+
+// ─── Request types ────────────────────────────────────────────────────────────
+
+export interface SelecaoOpcaoRequest {
+  opcao_uuid: string;
+  quantidade: number;
+}
+
+export interface MontagemRequest {
+  selecoes: SelecaoOpcaoRequest[];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export interface ParteDeItemPedido {
-  uuid:          string;
-  loja_uuid:     string;
-  item_uuid:     string;
-  produto_nome:  string;
-  produto_uuid:  string;
-  preco_unitario:number;
-  posicao:       number;
-  adicionais:    AdicionalDeItemDePedido[];
+  uuid:           string;
+  loja_uuid:      string;
+  item_uuid:      string;
+  produto_nome:   string;
+  produto_uuid:   string;
+  preco_unitario: number;
+  categoria_uuid: string | null;
+  categoria_nome: string | null;
+  adicionais:     AdicionalDeItemDePedido[];
+  montagem:       MontagemDeItemDePedido | null;
 }
 
 export interface ItemPedido {
@@ -438,8 +471,8 @@ export interface CreatePedidoItemRequest {
   observacoes?:string | null;
   partes: {
     produto_uuid: string;
-    posicao:      number;
     adicionais:   string[];
+    montagem?:    MontagemRequest | null;
   }[];
 }
 

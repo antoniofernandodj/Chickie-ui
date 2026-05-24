@@ -289,11 +289,11 @@
                     <div class="font-bold text-gray-900">
                       {{ item.partes.length === 1 ? item.partes[0].produto.nome : item.partes.map(p => p.produto.nome).join(' + ') }}
                     </div>
-                    @for (parte of item.partes; track parte.posicao) {
+                    @for (parte of item.partes; track parte.produto.uuid; let i = $index) {
                       @if (parte.adicionais.length > 0) {
                         <div class="text-[10px] text-gray-500 mt-1">
                           @if (item.partes.length > 1) {
-                            <span class="font-bold">Parte {{ parte.posicao }}:</span>
+                            <span class="font-bold">Parte {{ i + 1 }}:</span>
                           }
                           + {{ parte.adicionais.map(a => a.nome).join(', ') }}
                         </div>

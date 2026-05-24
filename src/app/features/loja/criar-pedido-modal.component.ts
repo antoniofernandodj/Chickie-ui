@@ -165,10 +165,10 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   // ── Adicionais ──────────────────────────────────────────────────────────────
   readonly adicionaisDisponiveis = signal<Adicional[]>([]);
 
-  // Pizza: adicionais por posicao da parte (chave: posicao)
-  readonly pizzaAdicionaisPorPosicao = signal<Record<number, Adicional[]>>({});
-  // Pizza: qual parte está com painel de adicionais aberto
-  readonly pizzaParteExpandida = signal<number | null>(null);
+  // Pizza: adicionais por produto uuid da parte (chave: produto.uuid)
+  readonly pizzaAdicionaisPorProduto = signal<Record<string, Adicional[]>>({});
+  // Pizza: qual parte está com painel de adicionais aberto (produto uuid)
+  readonly pizzaParteExpandida = signal<string | null>(null);
 
   // Não-pizza: qual item do cart está com painel de adicionais aberto
   readonly itemExpandidoId = signal<number | null>(null);
@@ -380,7 +380,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     }
 
     this.pizzaPartes.set([]);
-    this.pizzaAdicionaisPorPosicao.set({});
+    this.pizzaAdicionaisPorProduto.set({});
     this.pizzaParteExpandida.set(null);
     this.itemExpandidoId.set(null);
     if (this.currentStepIndex() < this.steps.length - 1) {
@@ -390,7 +390,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
 
   voltar(): void {
     this.pizzaPartes.set([]);
-    this.pizzaAdicionaisPorPosicao.set({});
+    this.pizzaAdicionaisPorProduto.set({});
     this.pizzaParteExpandida.set(null);
     this.itemExpandidoId.set(null);
     if (this.currentStepIndex() > 0) {
@@ -401,7 +401,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   irParaStep(index: number): void {
     if (index < this.currentStepIndex()) {
       this.pizzaPartes.set([]);
-      this.pizzaAdicionaisPorPosicao.set({});
+      this.pizzaAdicionaisPorProduto.set({});
       this.pizzaParteExpandida.set(null);
       this.itemExpandidoId.set(null);
       this.currentStepIndex.set(index);
@@ -429,7 +429,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
         {
           id: this.nextId++,
           categoria_uuid: produto.categoria_uuid,
-          partes: [{ produto, posicao: 1, adicionais: [] }],
+          partes: [{ produto, adicionais: [] }],
           quantidade: 1,
         },
       ]);
@@ -455,21 +455,16 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     const partes = this.pizzaPartes();
     const idx = partes.findIndex((p) => p.produto.uuid === produto.uuid);
     if (idx >= 0) {
-      const filtered = partes
-        .filter((_, i) => i !== idx)
-        .map((p, i) => ({ ...p, posicao: i + 1 }));
-      // limpa adicionais da posicao removida e reindexar
-      const adMap = this.pizzaAdicionaisPorPosicao();
-      const newMap: Record<number, Adicional[]> = {};
-      filtered.forEach((p, i) => {
-        const oldPosicao = partes.find(pp => pp.produto.uuid === p.produto.uuid)?.posicao;
-        if (oldPosicao != null && adMap[oldPosicao]) newMap[i + 1] = adMap[oldPosicao];
+      const filtered = partes.filter((_, i) => i !== idx);
+      this.pizzaAdicionaisPorProduto.update((map) => {
+        const newMap = { ...map };
+        delete newMap[produto.uuid];
+        return newMap;
       });
-      this.pizzaAdicionaisPorPosicao.set(newMap);
       this.pizzaPartes.set(filtered);
-      if (this.pizzaParteExpandida() === idx + 1) this.pizzaParteExpandida.set(null);
+      if (this.pizzaParteExpandida() === produto.uuid) this.pizzaParteExpandida.set(null);
     } else if (partes.length < this.maxPartes()) {
-      this.pizzaPartes.set([...partes, { produto, posicao: partes.length + 1, adicionais: [] }]);
+      this.pizzaPartes.set([...partes, { produto, adicionais: [] }]);
     }
   }
 
@@ -478,24 +473,25 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   }
 
   getPizzaPartePosicao(produtoUuid: string): number {
-    return this.pizzaPartes().find((p) => p.produto.uuid === produtoUuid)?.posicao ?? 0;
+    const idx = this.pizzaPartes().findIndex((p) => p.produto.uuid === produtoUuid);
+    return idx >= 0 ? idx + 1 : 0;
   }
 
   adicionarPizza(): void {
     const partes = this.pizzaPartes();
     if (partes.length === 0) return;
-    const adMap = this.pizzaAdicionaisPorPosicao();
+    const adMap = this.pizzaAdicionaisPorProduto();
     this.cart.update((c) => [
       ...c,
       {
         id: this.nextId++,
         categoria_uuid: partes[0].produto.categoria_uuid,
-        partes: partes.map((p) => ({ ...p, adicionais: adMap[p.posicao] ?? [] })),
+        partes: partes.map((p) => ({ produto: p.produto, adicionais: adMap[p.produto.uuid] ?? [] })),
         quantidade: 1,
       },
     ]);
     this.pizzaPartes.set([]);
-    this.pizzaAdicionaisPorPosicao.set({});
+    this.pizzaAdicionaisPorProduto.set({});
     this.pizzaParteExpandida.set(null);
   }
 
@@ -504,23 +500,23 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   }
 
   // ── Adicionais — pizza builder ────────────────────────────────────────────────
-  expandirAdicionaisPizzaParte(posicao: number): void {
-    this.pizzaParteExpandida.update((p) => (p === posicao ? null : posicao));
+  expandirAdicionaisPizzaParte(produtoUuid: string): void {
+    this.pizzaParteExpandida.update((p) => (p === produtoUuid ? null : produtoUuid));
   }
 
-  toggleAdicionalPizzaParte(posicao: number, adicional: Adicional): void {
-    this.pizzaAdicionaisPorPosicao.update((map) => {
-      const current = map[posicao] ?? [];
+  toggleAdicionalPizzaParte(produtoUuid: string, adicional: Adicional): void {
+    this.pizzaAdicionaisPorProduto.update((map) => {
+      const current = map[produtoUuid] ?? [];
       const idx = current.findIndex((a) => a.uuid === adicional.uuid);
       return {
         ...map,
-        [posicao]: idx >= 0 ? current.filter((_, i) => i !== idx) : [...current, adicional],
+        [produtoUuid]: idx >= 0 ? current.filter((_, i) => i !== idx) : [...current, adicional],
       };
     });
   }
 
-  isAdicionalSelectedForParte(posicao: number, uuid: string): boolean {
-    return (this.pizzaAdicionaisPorPosicao()[posicao] ?? []).some((a) => a.uuid === uuid);
+  isAdicionalSelectedForParte(produtoUuid: string, uuid: string): boolean {
+    return (this.pizzaAdicionaisPorProduto()[produtoUuid] ?? []).some((a) => a.uuid === uuid);
   }
 
   // ── Adicionais — cart items (não-pizza) ───────────────────────────────────────
@@ -565,7 +561,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
 
   itemLabel(item: CartItem): string {
     if (item.partes.length === 1) return item.partes[0].produto.nome;
-    return item.partes.map((p) => `${p.posicao}/${item.partes.length} ${p.produto.nome}`).join(' + ');
+    return item.partes.map((p, i) => `${i + 1}/${item.partes.length} ${p.produto.nome}`).join(' + ');
   }
 
   adicionaisLabel(parte: CartParte): string {
@@ -576,9 +572,9 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     const partes = this.pizzaPartes();
     if (partes.length === 0) return 0;
     const precoBase = Math.max(...partes.map((p) => Number(p.produto.preco)));
-    const adMap = this.pizzaAdicionaisPorPosicao();
+    const adMap = this.pizzaAdicionaisPorProduto();
     const precoAdicionais = partes.reduce(
-      (s, p) => s + (adMap[p.posicao] ?? []).reduce((sa, a) => sa + Number(a.preco), 0), 0,
+      (s, p) => s + (adMap[p.produto.uuid] ?? []).reduce((sa, a) => sa + Number(a.preco), 0), 0,
     );
     return precoBase + precoAdicionais;
   }
@@ -745,7 +741,6 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
         quantidade: item.quantidade,
         partes: item.partes.map((p) => ({
           produto_uuid: p.produto.uuid,
-          posicao: p.posicao,
           adicionais: p.adicionais.map((a) => a.uuid),
         })),
       })),

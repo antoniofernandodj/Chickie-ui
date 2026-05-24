@@ -4,7 +4,6 @@ import { Loja, Produto, Adicional, Pedido } from '../models';
 
 export interface CartParte {
   produto:    Produto;
-  posicao:    number;
   adicionais: Adicional[];
 }
 
@@ -75,7 +74,7 @@ export class CartService {
         {
           id: Date.now(),
           categoria_uuid: produto.categoria_uuid,
-          partes: [{ produto, posicao: 1, adicionais: [] }],
+          partes: [{ produto, adicionais: [] }],
           quantidade: 1,
         },
       ]);
@@ -162,7 +161,7 @@ export class CartService {
           .map(a => adicionalMap.get(a.nome.toLowerCase().trim()))
           .filter((a): a is Adicional => a !== undefined);
 
-        partes.push({ produto, posicao: parte.posicao, adicionais });
+        partes.push({ produto, adicionais });
       }
 
       if (partes.length > 0) {

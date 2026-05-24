@@ -186,7 +186,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   // ── Helpers ───────────────────────────────────────────────────────────────────
   itemLabel(item: ReturnType<typeof this.itens>[number]): string {
     if (item.partes.length === 1) return item.partes[0].produto.nome;
-    return item.partes.map(p => `${p.posicao}/${item.partes.length} ${p.produto.nome}`).join(' + ');
+    return item.partes.map((p, i) => `${i + 1}/${item.partes.length} ${p.produto.nome}`).join(' + ');
   }
 
   itemPreco(item: ReturnType<typeof this.itens>[number]): number {
@@ -405,7 +405,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         quantidade: item.quantidade,
         partes: item.partes.map(p => ({
           produto_uuid: p.produto.uuid,
-          posicao:      p.posicao,
           adicionais:   p.adicionais.map(a => a.uuid),
         })),
       })),
