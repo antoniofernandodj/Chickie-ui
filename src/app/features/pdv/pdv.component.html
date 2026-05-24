@@ -19,29 +19,36 @@
           <ui-button
             [fullWidth]="true"
             size="lg"
+            [disabled]="!lojaAbertaAgora()"
             (click)="iniciarPedido()"
             class="!rounded-3xl !py-6 !text-2xl !font-black shadow-2xl shadow-orange-200"
           >
-            Iniciar Novo Pedido
-            <svg
-              class="w-8 h-8 ml-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="3"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
+            @if (!lojaAbertaAgora()) {
+              🔒 Loja fechada no momento
+            } @else {
+              Iniciar Novo Pedido
+              <svg
+                class="w-8 h-8 ml-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="3"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+            }
           </ui-button>
 
           <div class="pt-8 border-t border-gray-100 flex justify-center items-center gap-8">
             <div class="text-center">
               <div class="text-2xl font-bold text-gray-900">{{ loja()?.nome }}</div>
-              <div class="text-sm text-gray-400">Loja Aberta</div>
+              <div class="text-sm" [class]="lojaAbertaAgora() ? 'text-green-600' : 'text-red-500'">
+                {{ lojaAbertaAgora() ? 'Loja Aberta' : 'Loja Fechada' }}
+              </div>
             </div>
             <a
               [routerLink]="lojaUuid() ? ['/admin', lojaUuid(), 'telao'] : ['/telao']"

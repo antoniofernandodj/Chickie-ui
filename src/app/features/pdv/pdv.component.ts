@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { catchError, of, switchMap, filter, tap, map } from 'rxjs';
+import { catchError, of, switchMap, filter, tap, map, distinctUntilChanged } from 'rxjs';
 import { toast } from 'ngx-sonner';
 
 import { FuncionarioService } from '../../core/services/funcionario.service';
@@ -12,6 +12,7 @@ import { LojaService } from '../../core/services/loja.service';
 import { CartService } from '../../core/services/cart.service';
 import { PedidoService } from '../../core/services/pedido.service';
 import { AuthService } from '../../core/services/auth.service';
+import { HorarioService } from '../../core/services/horario.service';
 
 import { Produto, CategoriaProdutos, CreatePedidoRequest } from '../../core/models';
 import { PdvItemModalComponent } from './pdv-item-modal.component';
@@ -33,6 +34,7 @@ export class PdvComponent implements OnInit {
   private cartService = inject(CartService);
   private pedidoService = inject(PedidoService);
   private auth = inject(AuthService);
+  private horarioService = inject(HorarioService);
 
   // --- Estado ---
   readonly loading = signal(true);
@@ -77,6 +79,20 @@ export class PdvComponent implements OnInit {
       switchMap(uuid => this.lojaService.buscarPorUuid(uuid).pipe(catchError(() => of(null))))
     )
   );
+
+  /** Status em tempo real via SSE — atualiza ao fechar/abrir a loja */
+  readonly _lojaStatus = toSignal(
+    toObservable(this.lojaUuid).pipe(
+      distinctUntilChanged(),
+      switchMap(uuid =>
+        uuid
+          ? this.horarioService.sseStatus(uuid).pipe(catchError(() => of(null)))
+          : of(null)
+      )
+    )
+  );
+
+  readonly lojaAbertaAgora = computed(() => this._lojaStatus()?.aberta ?? true);
 
   readonly _categoriasRaw = toSignal(
     toObservable(this.lojaUuid).pipe(
