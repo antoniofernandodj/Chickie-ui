@@ -179,6 +179,16 @@ export class OwnerPanelComponent {
     this.refreshCatTrigger.next();
   }
 
+  onToggleMode(mode: 'pizza' | 'drink' | 'montagem') {
+    if (this.catForm.get(`${mode}_mode`)?.value) {
+      this.catForm.patchValue({
+        pizza_mode: mode === 'pizza',
+        drink_mode: mode === 'drink',
+        montagem_mode: mode === 'montagem'
+      });
+    }
+  }
+
   iniciarEdicaoCategoria(cat: CategoriaProdutos) {
     this.catEditandoUuid.set(cat.uuid);
     this.catError.set('');

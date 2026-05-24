@@ -58,21 +58,21 @@ const COMPRESSED_IMAGE_QUALITY = 0.82;
               formControlName="pizza_mode"
               label="🍕 Modo Pizza"
               size="sm"
-              (change)="$any($event.target).checked && (catForm.get('drink_mode')?.setValue(false), catForm.get('montagem_mode')?.setValue(false))"
+              (change)="onToggleMode('pizza')"
             />
 
             <ui-checkbox
               formControlName="drink_mode"
               label="🥤 Modo Drink"
               size="sm"
-              (change)="$any($event.target).checked && (catForm.get('pizza_mode')?.setValue(false), catForm.get('montagem_mode')?.setValue(false))"
+              (change)="onToggleMode('drink')"
             />
 
             <ui-checkbox
               formControlName="montagem_mode"
               label="🥗 Modo Montagem"
               size="sm"
-              (change)="$any($event.target).checked && (catForm.get('pizza_mode')?.setValue(false), catForm.get('drink_mode')?.setValue(false))"
+              (change)="onToggleMode('montagem')"
             />
           </div>
           @if (catError()) {
@@ -344,6 +344,16 @@ export class AdminCatalogoTabComponent {
   });
 
   private refreshCategorias() { this.refreshCatTrigger.next(); }
+
+  onToggleMode(mode: 'pizza' | 'drink' | 'montagem') {
+    if (this.catForm.get(`${mode}_mode`)?.value) {
+      this.catForm.patchValue({
+        pizza_mode: mode === 'pizza',
+        drink_mode: mode === 'drink',
+        montagem_mode: mode === 'montagem'
+      });
+    }
+  }
 
   onCategoriaDrop(event: CdkDragDrop<CategoriaProdutos[]>) {
     if (event.previousIndex === event.currentIndex) return;

@@ -243,17 +243,17 @@
             <ui-checkbox
               formControlName="pizza_mode"
               label="🍕 Pizza mode"
-              (change)="$any($event.target).checked && (catForm.get('drink_mode')?.setValue(false), catForm.get('montagem_mode')?.setValue(false))"
+              (change)="onToggleMode('pizza')"
             />
             <ui-checkbox
               formControlName="drink_mode"
               label="🥤 Drink mode"
-              (change)="$any($event.target).checked && (catForm.get('pizza_mode')?.setValue(false), catForm.get('montagem_mode')?.setValue(false))"
+              (change)="onToggleMode('drink')"
             />
             <ui-checkbox
               formControlName="montagem_mode"
               label="🥗 Montagem mode"
-              (change)="$any($event.target).checked && (catForm.get('pizza_mode')?.setValue(false), catForm.get('drink_mode')?.setValue(false))"
+              (change)="onToggleMode('montagem')"
             />
           </div>
 

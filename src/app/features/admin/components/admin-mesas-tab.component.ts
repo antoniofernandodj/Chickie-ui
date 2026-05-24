@@ -20,7 +20,7 @@ import { ComandaService } from '../../../core/services/comanda.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { MesasLiveService } from '../../../core/services/mesas-live.service';
 import { ReservaMesaService } from '../../../core/services/reserva-mesa.service';
-import { UiButtonComponent, UiInputComponent } from '../../../shared/components';
+import { UiButtonComponent } from '../../../shared/components';
 import { Comanda, Mesa, NovaMesa, ReservaMesa } from '../../../core/models';
 
 interface LinhaForm {
@@ -31,7 +31,7 @@ interface LinhaForm {
 @Component({
   selector: 'admin-mesas-tab',
   standalone: true,
-  imports: [FormsModule, CurrencyPipe, UiButtonComponent, UiInputComponent],
+  imports: [FormsModule, CurrencyPipe, UiButtonComponent],
   providers: [MesasLiveService],
   template: `
     <div class="space-y-8">
