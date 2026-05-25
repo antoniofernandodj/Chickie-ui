@@ -23,6 +23,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         [placeholder]="placeholder()"
         [disabled]="isDisabled()"
         [value]="innerValue()"
+        [attr.autocomplete]="autocomplete() || null"
         (input)="onInput($event)"
         (blur)="onTouched()"
         [class]="inputCls()"
@@ -75,10 +76,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   `,
 })
 export class UiPasswordInputComponent implements ControlValueAccessor {
-  label       = input('Senha');
-  placeholder = input('••••••••');
-  size        = input<'sm' | 'md'>('md');
-  error       = input<string | null | undefined>(null);
+  label        = input('Senha');
+  placeholder  = input('••••••••');
+  size         = input<'sm' | 'md'>('md');
+  error        = input<string | null | undefined>(null);
+  autocomplete = input<string>('');
 
   innerValue = signal('');
   isDisabled = signal(false);

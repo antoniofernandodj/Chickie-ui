@@ -28,18 +28,21 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
         <form
           [formGroup]="funcForm"
           (ngSubmit)="adicionarFuncionario()"
+          autocomplete="off"
           class="space-y-3"
         >
           <ui-input
             formControlName="nome"
             label="Nome *"
             size="sm"
+            autocomplete="off"
             [error]="ff.nome.invalid && ff.nome.touched ? 'Nome é obrigatório' : null"
           />
           <ui-input
             formControlName="username"
             label="Username *"
             size="sm"
+            autocomplete="off"
             [state]="
               !ff.username.invalid && funcUsernameChecking()
                 ? 'warning'
@@ -97,6 +100,7 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
             formControlName="senha"
             label="Senha *"
             size="sm"
+            autocomplete="new-password"
             [error]="
               ff.senha.invalid && ff.senha.touched
                 ? ff.senha.errors?.['required']
@@ -280,18 +284,21 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
         <form
           [formGroup]="entregForm"
           (ngSubmit)="adicionarEntregador()"
+          autocomplete="off"
           class="space-y-3"
         >
           <ui-input
             formControlName="nome"
             label="Nome *"
             size="sm"
+            autocomplete="off"
             [error]="ef.nome.invalid && ef.nome.touched ? 'Nome é obrigatório' : null"
           />
           <ui-input
             formControlName="username"
             label="Username *"
             size="sm"
+            autocomplete="off"
             [state]="
               !ef.username.invalid && entregUsernameChecking()
                 ? 'warning'
@@ -325,6 +332,7 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
             type="email"
             label="E-mail *"
             size="sm"
+            autocomplete="off"
             [state]="
               !ef.email.invalid && entregEmailChecking()
                 ? 'warning'
@@ -353,6 +361,7 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
             formControlName="senha"
             label="Senha *"
             size="sm"
+            autocomplete="new-password"
             [error]="
               ef.senha.invalid && ef.senha.touched
                 ? ef.senha.errors?.['required']
@@ -367,6 +376,7 @@ import { AdminEditBtnComponent } from './admin-edit-btn.component';
             size="sm"
             placeholder="(21) 9 9999-9999"
             mask="phone"
+            autocomplete="off"
             [error]="
               ef.celular.invalid && ef.celular.touched
                 ? ef.celular.errors?.['required']
