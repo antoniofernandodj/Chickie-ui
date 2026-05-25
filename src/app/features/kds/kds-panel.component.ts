@@ -9,7 +9,7 @@ import { PedidosLiveService } from '../../core/services/pedidos-live.service';
 import { FuncionarioService } from '../../core/services/funcionario.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PedidoService } from '../../core/services/pedido.service';
-import { Pedido, StatusPedido } from '../../core/models';
+import { Pedido, StatusPedido, MontagemDeItemDePedido, ParteDeItemPedido } from '../../core/models';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -202,6 +202,18 @@ export class KdsPanelComponent {
         toast.error(err?.error?.error || 'Erro ao atualizar pedido');
       }
     });
+  }
+
+  papelEmoji(papel: string): string {
+    const map: Record<string, string> = {
+      base: '🌾', ingrediente: '🥬', molho: '🫙', extra: '➕', outro: '📦',
+    };
+    return map[papel] ?? '•';
+  }
+
+  selecaoNomes(montagem: MontagemDeItemDePedido | null | undefined): string {
+    if (!montagem?.selecoes?.length) return '';
+    return montagem.selecoes.map(s => s.nome).join(', ');
   }
 
   getStatusLabel(status: StatusPedido): string {

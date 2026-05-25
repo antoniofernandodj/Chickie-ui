@@ -7,7 +7,7 @@ import { PedidoService } from '../../../core/services/pedido.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PhonePipe } from '../../../shared/pipes/phone.pipe';
 import { UiTabBarComponent, ChatPanelComponent, STATUS_PEDIDO_CFG, UiButtonComponent, UiConsumoBadgeComponent } from '../../../shared/components';
-import { Pedido, StatusPedido, ItemPedido, PaginatedResponse } from '../../../core/models';
+import { Pedido, StatusPedido, ItemPedido, PaginatedResponse, MontagemDeItemDePedido } from '../../../core/models';
 import type { UiTab } from '../../../shared/components';
 import { ContextMenuDirective } from '../../../shared/directives/context-menu.directive';
 import type { ContextMenuItem } from '../../../core/services/context-menu.service';
@@ -192,6 +192,11 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                                     ? ' e mais ' + (item.partes[0].adicionais.length - 1)
                                     : ''
                                 }}
+                              </p>
+                            }
+                            @if (item.partes[0].montagem?.selecoes?.length) {
+                              <p class="text-xs text-teal-600 mt-0.5 truncate">
+                                🥗 {{ selecaoNomes(item.partes[0].montagem) }}
                               </p>
                             }
                           } @else {
@@ -483,9 +488,9 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                               <span class="text-sm text-gray-700 font-medium">{{
                                 parte.produto_nome
                               }}</span>
-                              <span class="text-xs text-gray-400 ml-auto"
-                                >R$ {{ parte.preco_unitario | number: '1.2-2' }}</span
-                              >
+                              <span class="text-xs text-gray-400 ml-auto">
+                                R$ {{ (parte.montagem?.preco_total ?? parte.preco_unitario) | number: '1.2-2' }}
+                              </span>
                             </div>
                             @if (parte.adicionais.length > 0) {
                               <div class="ml-6 mt-1 flex flex-wrap gap-1">
@@ -498,6 +503,22 @@ const STATUS_CFG = STATUS_PEDIDO_CFG;
                                       >+R\${{ ad.preco | number: '1.2-2' }}</span
                                     >
                                   </span>
+                                }
+                              </div>
+                            }
+                            @if (parte.montagem?.selecoes?.length) {
+                              <div class="ml-6 mt-1.5 space-y-0.5">
+                                @for (sel of parte.montagem!.selecoes; track sel.opcao_uuid) {
+                                  <div class="flex items-center gap-1.5 text-xs text-teal-700">
+                                    <span>{{ papelEmoji(sel.papel) }}</span>
+                                    <span>{{ sel.nome }}</span>
+                                    @if (sel.quantidade > 1) {
+                                      <span class="text-gray-500 font-semibold">×{{ sel.quantidade }}</span>
+                                    }
+                                    @if (sel.preco_aplicado > 0) {
+                                      <span class="text-gray-400 ml-auto">+R$ {{ sel.preco_aplicado | number: '1.2-2' }}</span>
+                                    }
+                                  </div>
                                 }
                               </div>
                             }
@@ -889,11 +910,26 @@ export class AdminPedidosTabComponent {
 
   itemPrecoPedido(item: ItemPedido): number {
     if (item.partes.length === 0) return 0;
-    const base = Math.max(...item.partes.map(p => Number(p.preco_unitario)));
+    // Itens de montagem (Spoleto/Subway): preço real é montagem.preco_total
+    const base = item.partes.length === 1 && item.partes[0].montagem
+      ? Number(item.partes[0].montagem.preco_total)
+      : Math.max(...item.partes.map(p => Number(p.preco_unitario)));
     const extras = item.partes.reduce(
       (s, p) => s + p.adicionais.reduce((sa, a) => sa + Number(a.preco), 0), 0,
     );
     return base + extras;
+  }
+
+  papelEmoji(papel: string): string {
+    const map: Record<string, string> = {
+      base: '🌾', ingrediente: '🥬', molho: '🫙', extra: '➕', outro: '📦',
+    };
+    return map[papel] ?? '•';
+  }
+
+  selecaoNomes(montagem: MontagemDeItemDePedido | null | undefined): string {
+    if (!montagem?.selecoes?.length) return '';
+    return montagem.selecoes.map(s => s.nome).join(', ');
   }
 
   pedidoMenuItems(pedido: Pedido): ContextMenuItem[] {

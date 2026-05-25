@@ -10,7 +10,7 @@ import { PagamentoService } from '../../core/services/pagamento.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { LojaService } from '../../core/services/loja.service';
-import { Pedido, StatusPedido, CreatePagamentoResponse } from '../../core/models';
+import { Pedido, StatusPedido, CreatePagamentoResponse, MontagemDeItemDePedido } from '../../core/models';
 import { FormsModule } from '@angular/forms';
 import { ChatPanelComponent } from '../../shared/components/chat-panel.component';
 import { UiSkeletonComponent, UiButtonComponent, UiInputComponent } from '../../shared/components';
@@ -259,11 +259,31 @@ export class PedidoDetalheComponent {
   isDone  (s: StatusPedido) { return ORDER.indexOf(s) < this.currentIndex(); }
 
   totalItem(item: Pedido['itens'][number]): number {
+    // Para itens de montagem (Spoleto/Subway) o preço real é montagem.preco_total
+    if (item.partes.length === 1 && item.partes[0].montagem) {
+      const p = item.partes[0];
+      return (
+        Number(p.montagem!.preco_total) +
+        p.adicionais.reduce((a, ad) => a + Number(ad.preco), 0)
+      ) * item.quantidade;
+    }
     return item.partes.reduce(
       (acc, p) =>
-        acc + p.preco_unitario + p.adicionais.reduce((a, ad) => a + ad.preco, 0),
+        acc + Number(p.preco_unitario) + p.adicionais.reduce((a, ad) => a + Number(ad.preco), 0),
       0,
     ) * item.quantidade;
+  }
+
+  papelEmoji(papel: string): string {
+    const map: Record<string, string> = {
+      base: '🌾', ingrediente: '🥬', molho: '🫙', extra: '➕', outro: '📦',
+    };
+    return map[papel] ?? '•';
+  }
+
+  selecaoNomes(montagem: MontagemDeItemDePedido | null | undefined): string {
+    if (!montagem?.selecoes?.length) return '';
+    return montagem.selecoes.map(s => s.nome).join(', ');
   }
 
   // ── Modal de avaliação ────────────────────────────────────────────────────

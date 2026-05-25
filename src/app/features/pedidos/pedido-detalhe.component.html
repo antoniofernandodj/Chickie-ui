@@ -347,14 +347,30 @@
               @for (parte of item.partes; track parte.uuid) {
                 <p class="text-xs text-gray-500 ml-3">
                   — {{ parte.produto_nome }}
-                  <span class="text-gray-400"
-                    >(R$ {{ parte.preco_unitario | number: '1.2-2' }})</span
-                  >
+                  <span class="text-gray-400">
+                    (R$ {{ (parte.montagem?.preco_total ?? parte.preco_unitario) | number: '1.2-2' }})
+                  </span>
                 </p>
                 @for (ad of parte.adicionais; track ad.uuid) {
                   <p class="text-xs text-gray-400 ml-6">
                     + {{ ad.nome }} (R$ {{ ad.preco | number: '1.2-2' }})
                   </p>
+                }
+                @if (parte.montagem?.selecoes?.length) {
+                  <div class="ml-6 mt-1 space-y-0.5">
+                    @for (sel of parte.montagem!.selecoes; track sel.opcao_uuid) {
+                      <div class="flex items-center gap-1 text-xs text-teal-700">
+                        <span>{{ papelEmoji(sel.papel) }}</span>
+                        <span>{{ sel.nome }}</span>
+                        @if (sel.quantidade > 1) {
+                          <span class="font-semibold text-gray-600">×{{ sel.quantidade }}</span>
+                        }
+                        @if (sel.preco_aplicado > 0) {
+                          <span class="text-gray-400 ml-1">(+R$ {{ sel.preco_aplicado | number: '1.2-2' }})</span>
+                        }
+                      </div>
+                    }
+                  </div>
                 }
               }
               @if (item.observacoes) {
