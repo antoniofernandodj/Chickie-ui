@@ -105,9 +105,15 @@ export class PdvComponent implements OnInit {
   readonly categorias = computed(() => {
     const allCats = this._categoriasRaw();
     const allProds = this.produtos();
-    return allCats.filter(cat => 
-      allProds.some(p => p.categoria_uuid === cat.uuid)
-    ).sort((a, b) => a.ordem - b.ordem);
+    return allCats.filter(cat => {
+      // Categorias montagem_mode só aparecem se tiverem ao menos um produto com montagem configurada
+      const prodsEfetivos = allProds.filter(p => {
+        if (p.categoria_uuid !== cat.uuid) return false;
+        if (cat.montagem_mode && !p.tem_montagem) return false;
+        return true;
+      });
+      return prodsEfetivos.length > 0;
+    }).sort((a, b) => a.ordem - b.ordem);
   });
 
   readonly produtos = toSignal(
@@ -126,7 +132,14 @@ export class PdvComponent implements OnInit {
 
   // --- Filtros ---
   readonly produtosFiltrados = computed(() => {
-    let list = this.produtos();
+    const allCats = this._categoriasRaw();
+    // Ocultar produtos de categorias montagem_mode sem montagem configurada
+    let list = this.produtos().filter(p => {
+      const cat = allCats.find(c => c.uuid === p.categoria_uuid);
+      if (cat?.montagem_mode && !p.tem_montagem) return false;
+      return true;
+    });
+
     const search = this.searchTerm().toLowerCase().trim();
     const cat = this.categoriaSelecionada();
 

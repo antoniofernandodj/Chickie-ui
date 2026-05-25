@@ -496,8 +496,9 @@
     }
   </main>
 
-  <!-- FAB -->
-  @if (!produtosLoading() && produtos().length > 0) {
+  <!-- FAB — só aparece se há ao menos uma categoria com produtos disponíveis.
+       Categorias montagem_mode sem montagem configurada não contam. -->
+  @if (!produtosLoading() && produtosPorCategoria().length > 0) {
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 w-full max-w-sm">
       <ui-button
         [fullWidth]="true"
