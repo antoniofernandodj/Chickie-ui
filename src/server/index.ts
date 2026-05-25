@@ -12,6 +12,7 @@ import {
   privateDecrypt,
   createDecipheriv,
   createPrivateKey,
+  createHash,
   constants,
 } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -78,6 +79,10 @@ function loadOrCreateKeys(): LogKeys {
 
 const { publicKey: LOG_PUBLIC_KEY, privateKey: LOG_PRIVATE_KEY_PEM } = loadOrCreateKeys();
 
+/** Fingerprint curto da chave pública (12 hex chars = 48 bits). Usado pelo cliente
+ *  para detectar rotação de chaves sem precisar tentar decriptar. */
+const LOG_KEY_ID = createHash('sha256').update(LOG_PUBLIC_KEY).digest('hex').slice(0, 12);
+
 // ─── Server ───────────────────────────────────────────────────────────────────
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
@@ -89,9 +94,9 @@ app.get('/api/hello', async () => {
   return { message: 'Olá do servidor chickie-ui! 🐣' };
 });
 
-// Expõe a public key para o cliente criptografar os logs em runtime
+// Expõe a public key (+ fingerprint) para o cliente criptografar os logs em runtime
 app.get('/api/logs/public-key', async () => {
-  return { publicKey: LOG_PUBLIC_KEY };
+  return { publicKey: LOG_PUBLIC_KEY, keyId: LOG_KEY_ID };
 });
 
 // ─── Logging ──────────────────────────────────────────────────────────────────
@@ -120,19 +125,38 @@ function printLog(level: string, message: string, timestamp: string) {
   }
 }
 
+/** Erro lançado quando o payload foi encriptado com uma chave antiga (rotação). */
+class KeyRotationError extends Error {
+  constructor() { super('key_rotation'); this.name = 'KeyRotationError'; }
+}
+
 function decryptLogPayload(body: any): { level: string; message: string; timestamp: string } {
+  // 0. Checa o fingerprint da chave antes de tentar decriptar.
+  //    Se o cliente enviou um keyId diferente do atual, a chave foi rotacionada
+  //    (servidor reiniciou sem persistência, por ex.) — não é um erro real.
+  if (typeof body.keyId === 'string' && body.keyId !== LOG_KEY_ID) {
+    throw new KeyRotationError();
+  }
+
   const privateKey = createPrivateKey(LOG_PRIVATE_KEY_PEM);
 
-  // 1. Decripta a chave AES efêmera com a RSA private key
+  // 1. Valida o tamanho de encryptedKey (RSA-2048 sempre produz exatamente 256 bytes)
+  const encKeyBuf = Buffer.from(body.encryptedKey as string, 'base64');
+  if (encKeyBuf.length !== 256) {
+    // Tamanho errado → cliente usou chave de tamanho diferente (provavelmente rotação)
+    throw new KeyRotationError();
+  }
+
+  // 2. Decripta a chave AES efêmera com a RSA private key
   const aesKeyBuffer = privateDecrypt(
     { key: privateKey, padding: constants.RSA_PKCS1_OAEP_PADDING, oaepHash: 'sha256' },
-    Buffer.from(body.encryptedKey, 'base64'),
+    encKeyBuf,
   );
 
-  // 2. Decripta o payload com AES-GCM
+  // 3. Decripta o payload com AES-GCM
   //    Web Crypto API concatena o auth tag (16 bytes) ao final do ciphertext
-  const ivBuffer     = Buffer.from(body.iv, 'base64');
-  const encryptedBuf = Buffer.from(body.encryptedData, 'base64');
+  const ivBuffer     = Buffer.from(body.iv as string, 'base64');
+  const encryptedBuf = Buffer.from(body.encryptedData as string, 'base64');
   const authTag      = encryptedBuf.subarray(encryptedBuf.length - 16);
   const ciphertext   = encryptedBuf.subarray(0, encryptedBuf.length - 16);
 
@@ -151,7 +175,13 @@ app.post('/api/logs', async (request, reply) => {
     try {
       ({ level, message, timestamp } = decryptLogPayload(body));
     } catch (err) {
-      console.error('[logs] Falha ao decriptar payload:', (err as Error).message);
+      if (err instanceof KeyRotationError) {
+        // Esperado: cliente usou chave antiga após reinício do servidor.
+        // O cliente buscará a nova chave e reenviará automaticamente.
+      } else {
+        // Falha real de decriptação — payload corrompido ou bug no cliente.
+        console.error('[logs] Falha ao decriptar payload:', (err as Error).message);
+      }
       return reply.code(400).send({ error: 'invalid_payload' });
     }
   } else {

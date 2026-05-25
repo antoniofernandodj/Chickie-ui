@@ -12,6 +12,7 @@
 
 export interface EncryptedLogPayload {
   encrypted: true;
+  keyId:         string; // fingerprint da chave usada (12 hex chars) — detecta rotação
   encryptedKey:  string; // base64 — chave AES encriptada com RSA public key
   encryptedData: string; // base64 — payload AES-GCM (dados + auth tag 16 bytes no final)
   iv:            string; // base64 — IV aleatório de 12 bytes para AES-GCM
@@ -50,14 +51,25 @@ async function importPublicKey(pem: string): Promise<CryptoKey> {
   return _cachedPublicKey;
 }
 
+/**
+ * Converte ArrayBuffer/Uint8Array para base64 sem usar spread operator.
+ * O spread pode causar "Maximum call stack size exceeded" em arrays grandes
+ * (ex.: ciphertext de uma mensagem de log muito longa).
+ */
 function bufToBase64(buf: ArrayBuffer | Uint8Array): string {
   const arr = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
-  return btoa(String.fromCharCode(...arr));
+  let binary = '';
+  const CHUNK = 8192; // processa em blocos para evitar estouro de pilha
+  for (let i = 0; i < arr.length; i += CHUNK) {
+    binary += String.fromCharCode(...arr.subarray(i, i + CHUNK));
+  }
+  return btoa(binary);
 }
 
 export async function encryptLogPayload(
   data: object,
   publicKeyPem: string,
+  keyId: string,
 ): Promise<EncryptedLogPayload> {
   const publicKey = await importPublicKey(publicKeyPem);
 
@@ -88,6 +100,7 @@ export async function encryptLogPayload(
 
   return {
     encrypted:     true,
+    keyId,
     encryptedKey:  bufToBase64(encryptedKey),
     encryptedData: bufToBase64(encryptedData),
     iv:            bufToBase64(iv),

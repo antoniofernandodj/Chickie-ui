@@ -41,24 +41,28 @@ const originalConsole = {
 // Rotação de chaves: se o servidor retornar 400 (invalid_payload), o cliente
 // invalida todos os caches e busca a nova chave pública antes de reenviar.
 
-const LOG_PK_LS_KEY = '__log_pk__';
+const LOG_PK_LS_KEY    = '__log_pk__';
+const LOG_KEY_ID_LS_KEY = '__log_pk_id__';
 
-let _cachedKey: string | null = null;    // memória (mais rápido, dura a sessão)
-let _fetchPromise: Promise<string | null> | null = null; // evita requests paralelos
+interface CachedKeyEntry { pem: string; keyId: string; }
 
-function getPublicKey(): Promise<string | null> {
+let _cachedEntry: CachedKeyEntry | null = null; // memória (dura a sessão)
+let _fetchPromise: Promise<CachedKeyEntry | null> | null = null; // evita requests paralelos
+
+function getPublicKeyEntry(): Promise<CachedKeyEntry | null> {
   // 1. Memória
-  if (_cachedKey) return Promise.resolve(_cachedKey);
+  if (_cachedEntry) return Promise.resolve(_cachedEntry);
 
   // 2. Fetch em andamento — aguarda o mesmo
   if (_fetchPromise) return _fetchPromise;
 
-  // 3. localStorage (persiste entre refreshes)
+  // 3. localStorage (persiste entre refreshes — inclui keyId para detectar rotação)
   try {
-    const stored = localStorage.getItem(LOG_PK_LS_KEY);
-    if (stored) {
-      _cachedKey = stored;
-      return Promise.resolve(_cachedKey);
+    const pem   = localStorage.getItem(LOG_PK_LS_KEY);
+    const keyId = localStorage.getItem(LOG_KEY_ID_LS_KEY);
+    if (pem && keyId) {
+      _cachedEntry = { pem, keyId };
+      return Promise.resolve(_cachedEntry);
     }
   } catch { /* SSR ou modo privado com restrições */ }
 
@@ -66,10 +70,16 @@ function getPublicKey(): Promise<string | null> {
   _fetchPromise = fetch('/api/logs/public-key')
     .then((res) => res.json())
     .then((data) => {
-      const key = (data as any).publicKey as string;
-      _cachedKey = key;
-      try { localStorage.setItem(LOG_PK_LS_KEY, key); } catch { /* ignore */ }
-      return key;
+      const entry: CachedKeyEntry = {
+        pem:   (data as any).publicKey as string,
+        keyId: (data as any).keyId     as string,
+      };
+      _cachedEntry = entry;
+      try {
+        localStorage.setItem(LOG_PK_LS_KEY,     entry.pem);
+        localStorage.setItem(LOG_KEY_ID_LS_KEY, entry.keyId);
+      } catch { /* ignore */ }
+      return entry;
     })
     .catch(() => null)
     .finally(() => { _fetchPromise = null; });
@@ -83,10 +93,13 @@ function getPublicKey(): Promise<string | null> {
  * foram rotacionadas (ex.: reinicialização do servidor).
  */
 function invalidatePublicKeyCache(): void {
-  _cachedKey    = null;
+  _cachedEntry  = null;
   _fetchPromise = null;
   clearPublicKeyCache(); // descarta a CryptoKey importada em log-crypto.ts
-  try { localStorage.removeItem(LOG_PK_LS_KEY); } catch { /* ignore */ }
+  try {
+    localStorage.removeItem(LOG_PK_LS_KEY);
+    localStorage.removeItem(LOG_KEY_ID_LS_KEY);
+  } catch { /* ignore */ }
 }
 
 // ─── Logger ───────────────────────────────────────────────────────────────────
@@ -144,12 +157,12 @@ async function sendToServer(level: LogLevel, args: any[]) {
   // Tenta enviar o log encriptado; em caso de 400 (invalid_payload) invalida o
   // cache de chaves e retenta uma única vez com a nova chave pública do servidor.
   for (let attempt = 0; attempt < 2; attempt++) {
-    const publicKey = await getPublicKey();
-    if (!publicKey) return; // servidor indisponível — descarta silenciosamente
+    const entry = await getPublicKeyEntry();
+    if (!entry) return; // servidor indisponível — descarta silenciosamente
 
     let res: Response | undefined;
     try {
-      const encrypted = await encryptLogPayload(payload, publicKey);
+      const encrypted = await encryptLogPayload(payload, entry.pem, entry.keyId);
       res = await fetch('/api/logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
