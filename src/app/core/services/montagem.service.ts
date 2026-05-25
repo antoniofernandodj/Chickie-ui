@@ -34,6 +34,13 @@ export class MontagemService {
     return this.http.delete<void>(`${this.base}/${uuid}`);
   }
 
+  duplicar(montagemUuid: string, produtoDestinoUuid: string): Observable<{ uuid: string }> {
+    return this.http.post<{ uuid: string }>(
+      `${this.base}/${montagemUuid}/duplicar`,
+      { produto_uuid: produtoDestinoUuid },
+    );
+  }
+
   // ── Admin — Etapas ─────────────────────────────────────────────────────────
 
   criarEtapa(montagemUuid: string, body: CriarEtapaRequest): Observable<{ uuid: string }> {
@@ -48,6 +55,13 @@ export class MontagemService {
 
   criarOpcao(etapaUuid: string, body: CriarOpcaoRequest): Observable<{ uuid: string }> {
     return this.http.post<{ uuid: string }>(`${this.base}/etapas/${etapaUuid}/opcoes`, body);
+  }
+
+  criarOpcoesBulk(etapaUuid: string, items: Omit<CriarOpcaoRequest, 'ordem'>[]): Observable<import('../models').OpcaoMontagem[]> {
+    return this.http.post<import('../models').OpcaoMontagem[]>(
+      `${this.base}/etapas/${etapaUuid}/opcoes/bulk`,
+      items,
+    );
   }
 
   deletarOpcao(uuid: string): Observable<void> {

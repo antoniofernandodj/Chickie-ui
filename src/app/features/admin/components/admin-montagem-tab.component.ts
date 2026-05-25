@@ -1,5 +1,5 @@
 import { Component, inject, input, signal, computed } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
@@ -14,7 +14,6 @@ import {
   Ingrediente,
   PapelEtapa,
   TipoEtapaMontagem,
-  EtapaComOpcoes,
 } from '../../../core/models';
 import { UiInputComponent, UiSelectComponent, UiTextareaComponent, UiButtonComponent, UiCheckboxComponent } from '../../../shared/components';
 
@@ -27,9 +26,9 @@ const PAPEIS: { value: PapelEtapa; label: string }[] = [
 ];
 
 const TIPOS: { value: TipoEtapaMontagem; label: string }[] = [
-  { value: 'escolha_unica',      label: 'Escolha única (radio)'       },
-  { value: 'escolha_multipla',   label: 'Múltipla seleção (checkbox)' },
-  { value: 'quantidade_por_opcao', label: 'Quantidade por opção'      },
+  { value: 'escolha_unica',        label: 'Escolha única (radio)'       },
+  { value: 'escolha_multipla',     label: 'Múltipla seleção (checkbox)' },
+  { value: 'quantidade_por_opcao', label: 'Quantidade por opção'        },
 ];
 
 @Component({
@@ -83,9 +82,14 @@ const TIPOS: { value: TipoEtapaMontagem; label: string }[] = [
                 + Criar Montagem
               </ui-button>
             } @else {
-              <ui-button variant="danger" size="sm" (click)="deletarMontagem()">
-                🗑️ Excluir Montagem
-              </ui-button>
+              <div class="flex gap-2">
+                <ui-button variant="secondary" size="sm" (click)="abrirDuplicar()">
+                  📋 Duplicar
+                </ui-button>
+                <ui-button variant="danger" size="sm" (click)="deletarMontagem()">
+                  🗑️ Excluir
+                </ui-button>
+              </div>
             }
           </div>
 
@@ -98,9 +102,11 @@ const TIPOS: { value: TipoEtapaMontagem; label: string }[] = [
           } @else if (!montagemExistente()) {
             <p class="text-sm text-gray-500">Este produto ainda não tem montagem configurada.</p>
           } @else {
+
             <!-- Criar montagem -->
             @if (criandoMontagem()) {
-              <form [formGroup]="montagemForm" (ngSubmit)="salvarMontagem(prod.uuid)" class="space-y-3 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <form [formGroup]="montagemForm" (ngSubmit)="salvarMontagem(prod.uuid)"
+                    class="space-y-3 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <h4 class="text-sm font-semibold text-gray-800">Nova Montagem</h4>
                 <ui-input formControlName="nome" label="Nome *" size="sm" />
                 <ui-textarea formControlName="descricao" label="Descrição" size="sm" [rows]="2" />
@@ -112,11 +118,50 @@ const TIPOS: { value: TipoEtapaMontagem; label: string }[] = [
               </form>
             }
 
+            <!-- Duplicar montagem para outro produto -->
+            @if (duplicando()) {
+              <div class="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-xl space-y-3">
+                <h4 class="text-sm font-semibold text-gray-800">📋 Duplicar montagem para outro produto</h4>
+                <p class="text-xs text-gray-500">
+                  Selecione o produto destino. Todas as etapas e opções serão copiadas com novos IDs.
+                </p>
+                <div class="grid sm:grid-cols-2 gap-2">
+                  @for (dest of produtosDestinoDisponivel(); track dest.uuid) {
+                    <button
+                      type="button"
+                      class="text-left p-3 rounded-xl border transition-colors text-sm"
+                      [class]="produtoDestino()?.uuid === dest.uuid
+                        ? 'border-purple-500 bg-purple-100 font-semibold'
+                        : 'border-gray-200 bg-white hover:border-purple-300'"
+                      (click)="produtoDestino.set(dest)"
+                    >
+                      {{ dest.nome }}
+                    </button>
+                  }
+                  @if (produtosDestinoDisponivel().length === 0) {
+                    <p class="text-xs text-gray-400 col-span-2">
+                      Não há outros produtos montáveis sem montagem configurada.
+                    </p>
+                  }
+                </div>
+                <div class="flex gap-2">
+                  <ui-button size="sm" [disabled]="!produtoDestino()" (click)="confirmarDuplicar()">
+                    Duplicar
+                  </ui-button>
+                  <ui-button variant="secondary" size="sm" (click)="fecharDuplicar()">
+                    Cancelar
+                  </ui-button>
+                </div>
+              </div>
+            }
+
             <!-- Etapas existentes -->
             @if (montagemCompleta(); as mc) {
               <div class="space-y-4">
                 @for (etapa of mc.etapas; track etapa.uuid) {
                   <div class="border border-gray-200 rounded-xl overflow-hidden">
+
+                    <!-- Cabeçalho da etapa -->
                     <div class="bg-gray-50 px-4 py-3 flex items-center justify-between">
                       <div>
                         <p class="text-sm font-semibold text-gray-900">{{ etapa.nome }}</p>
@@ -127,49 +172,97 @@ const TIPOS: { value: TipoEtapaMontagem; label: string }[] = [
                       </div>
                       <ui-button variant="danger" size="xs" (click)="deletarEtapa(etapa.uuid)">🗑️</ui-button>
                     </div>
-                    <!-- Opções da etapa -->
+
+                    <!-- Opções existentes -->
                     <div class="p-4 space-y-2">
                       @for (opcao of etapa.opcoes; track opcao.uuid) {
                         <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded-lg">
                           <div class="flex items-center gap-2 min-w-0">
-                            <span class="text-xs text-gray-500">{{ opcao.ordem }}.</span>
-                            <span class="text-sm text-gray-800">{{ opcao.nome }}</span>
+                            <span class="text-xs text-gray-400 tabular-nums">{{ opcao.ordem }}.</span>
+                            <span class="text-sm text-gray-800 truncate">{{ opcao.nome }}</span>
                             @if (opcao.gratis) {
-                              <span class="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">grátis</span>
+                              <span class="shrink-0 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">grátis</span>
                             } @else {
-                              <span class="text-xs text-gray-500">+R$ {{ opcao.preco_extra | number: '1.2-2' }}</span>
+                              <span class="shrink-0 text-xs text-gray-500">+R$ {{ opcao.preco_extra | number: '1.2-2' }}</span>
                             }
                           </div>
-                          <ui-button variant="danger" size="xs" (click)="deletarOpcao(opcao.uuid)">×</ui-button>
+                          <ui-button variant="danger" size="xs" (click)="deletarOpcao(opcao.uuid, etapa.uuid)">×</ui-button>
                         </div>
                       }
-                      <!-- Adicionar opção -->
+
+                      <!-- ── Painel bulk de novas opções ── -->
                       @if (etapaExpandida() === etapa.uuid) {
-                        <form [formGroup]="opcaoForm" (ngSubmit)="salvarOpcao(etapa.uuid)" class="mt-2 p-3 bg-green-50 border border-green-200 rounded-xl space-y-2">
-                          <h5 class="text-xs font-semibold text-gray-700">Nova Opção</h5>
-                          <ui-select formControlName="ingrediente_uuid" label="Ingrediente *" size="sm">
-                            <option value="">Selecione...</option>
-                            @for (ing of ingredientes(); track ing.uuid) {
-                              <option [value]="ing.uuid">{{ ing.nome }}</option>
-                            }
-                          </ui-select>
-                          <ui-input formControlName="nome" label="Nome exibido" size="sm" placeholder="Deixe vazio para usar o do ingrediente" />
-                          <div class="grid grid-cols-2 gap-2">
-                            <ui-input formControlName="preco_extra" label="Preço extra (R$)" type="number" size="sm" min="0" step="0.01" />
-                            <ui-input formControlName="ordem" label="Ordem" type="number" size="sm" min="1" />
+                        <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-xl space-y-3">
+
+                          <!-- Legenda colunas -->
+                          <div class="grid grid-cols-[1fr_1fr_6rem_5rem_2rem] gap-2 px-1">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Ingrediente *</span>
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Nome exibido</span>
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Preço extra</span>
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Grátis</span>
+                            <span></span>
                           </div>
-                          <div class="flex gap-4">
-                            <ui-checkbox formControlName="gratis" label="Sempre grátis" size="sm" />
-                          </div>
-                          <div class="flex gap-2">
-                            <ui-button type="submit" size="sm" [disabled]="opcaoForm.invalid">Adicionar</ui-button>
-                            <ui-button type="button" variant="secondary" size="sm" (click)="etapaExpandida.set(null)">Cancelar</ui-button>
-                          </div>
-                        </form>
+
+                          <!-- Linhas do FormArray -->
+                          <form [formGroup]="bulkForm" (ngSubmit)="salvarOpcoesBulk(etapa.uuid)" class="space-y-2">
+                            <div formArrayName="linhas">
+                              @for (ctrl of bulkLinhasAsGroups; track $index; let i = $index) {
+                                <div [formGroupName]="i"
+                                     class="grid grid-cols-[1fr_1fr_6rem_5rem_2rem] gap-2 items-center">
+                                  <!-- Ingrediente -->
+                                  <select formControlName="ingrediente_uuid"
+                                          class="h-8 rounded-lg border border-gray-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+                                    <option value="">Selecione...</option>
+                                    @for (ing of ingredientes(); track ing.uuid) {
+                                      <option [value]="ing.uuid">{{ ing.nome }}</option>
+                                    }
+                                  </select>
+                                  <!-- Nome override -->
+                                  <input formControlName="nome" type="text"
+                                         placeholder="Usa nome do ingrediente"
+                                         class="h-8 rounded-lg border border-gray-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                                  <!-- Preço extra -->
+                                  <input formControlName="preco_extra" type="number" min="0" step="0.01"
+                                         class="h-8 rounded-lg border border-gray-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                                  <!-- Grátis -->
+                                  <label class="flex items-center justify-center gap-1.5 cursor-pointer select-none">
+                                    <input formControlName="gratis" type="checkbox"
+                                           class="h-4 w-4 rounded accent-orange-500" />
+                                    <span class="text-xs text-gray-600">grátis</span>
+                                  </label>
+                                  <!-- Remover linha -->
+                                  <button type="button" (click)="removerLinha(i)"
+                                          class="flex h-7 w-7 items-center justify-center rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors text-base font-bold">
+                                    ×
+                                  </button>
+                                </div>
+                              }
+                            </div>
+
+                            <!-- Ações -->
+                            <div class="flex items-center justify-between pt-1">
+                              <button type="button" (click)="adicionarLinha()"
+                                      class="flex items-center gap-1.5 rounded-lg border border-dashed border-green-400 px-3 py-1.5 text-xs font-semibold text-green-700 hover:bg-green-100 transition-colors">
+                                + Adicionar linha
+                              </button>
+                              <div class="flex gap-2">
+                                <ui-button type="button" variant="secondary" size="sm" (click)="fecharBulk()">
+                                  Cancelar
+                                </ui-button>
+                                <ui-button type="submit" size="sm"
+                                           [disabled]="bulkForm.invalid || bulkLinhas.length === 0">
+                                  Salvar todas ({{ bulkLinhas.length }})
+                                </ui-button>
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+
                       } @else {
-                        <ui-button variant="secondary" size="xs" [fullWidth]="true" (click)="abrirNovaOpcao(etapa.uuid)">
-                          + Adicionar opção
-                        </ui-button>
+                        <button type="button" (click)="abrirBulkOpcoes(etapa.uuid)"
+                                class="mt-1 w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs font-medium text-gray-500 hover:border-orange-400 hover:text-orange-600 transition-colors">
+                          + Adicionar opções
+                        </button>
                       }
                     </div>
                   </div>
@@ -177,7 +270,8 @@ const TIPOS: { value: TipoEtapaMontagem; label: string }[] = [
 
                 <!-- Criar nova etapa -->
                 @if (criandoEtapa()) {
-                  <form [formGroup]="etapaForm" (ngSubmit)="salvarEtapa(mc.montagem.uuid)" class="p-4 bg-blue-50 border border-blue-200 rounded-xl space-y-3">
+                  <form [formGroup]="etapaForm" (ngSubmit)="salvarEtapa(mc.montagem.uuid)"
+                        class="p-4 bg-blue-50 border border-blue-200 rounded-xl space-y-3">
                     <h4 class="text-sm font-semibold text-gray-800">Nova Etapa</h4>
                     <ui-input formControlName="nome" label="Nome *" size="sm" />
                     <ui-textarea formControlName="descricao" label="Descrição" size="sm" [rows]="2" />
@@ -193,8 +287,7 @@ const TIPOS: { value: TipoEtapaMontagem; label: string }[] = [
                         }
                       </ui-select>
                     </div>
-                    <div class="grid grid-cols-3 gap-2">
-                      <ui-input formControlName="ordem" label="Ordem" type="number" size="sm" min="1" />
+                    <div class="grid grid-cols-2 gap-2">
                       <ui-input formControlName="min_selecoes" label="Mín. seleções" type="number" size="sm" min="0" />
                       <ui-input formControlName="max_selecoes" label="Máx. seleções" type="number" size="sm" min="1" placeholder="∞" />
                     </div>
@@ -204,7 +297,7 @@ const TIPOS: { value: TipoEtapaMontagem; label: string }[] = [
                     </div>
                   </form>
                 } @else {
-                  <ui-button variant="secondary" size="sm" [fullWidth]="true" (click)="criandoEtapa.set(true)">
+                  <ui-button variant="secondary" size="sm" [fullWidth]="true" (click)="abrirNovaEtapa(mc)">
                     + Adicionar Etapa
                   </ui-button>
                 }
@@ -249,7 +342,7 @@ export class AdminMontagemTabComponent {
   );
 
   readonly produtosMontagemMode = computed<Produto[]>(() => {
-    const cats = this._categorias() ?? [];
+    const cats  = this._categorias()  ?? [];
     const prods = this._todosProdutos() ?? [];
     const uuidsMontagem = new Set(cats.filter(c => c.montagem_mode).map(c => c.uuid));
     return prods.filter(p => uuidsMontagem.has(p.categoria_uuid));
@@ -262,14 +355,14 @@ export class AdminMontagemTabComponent {
 
   readonly montagemCompleta   = signal<MontagemCompleta | null>(null);
   readonly carregandoMontagem = signal(false);
-  readonly montagemExistente  = signal(true); // will be set after load
+  readonly montagemExistente  = signal(true);
 
   selecionarProduto(prod: Produto) {
     this.produtoSelecionado.set(prod);
     this.montagemCompleta.set(null);
     this.criandoMontagem.set(false);
     this.criandoEtapa.set(false);
-    this.etapaExpandida.set(null);
+    this.fecharBulk();
     this.carregarMontagem(prod.uuid);
   }
 
@@ -342,19 +435,58 @@ export class AdminMontagemTabComponent {
     });
   }
 
+  // ── Duplicar montagem ─────────────────────────────────────────────────────
+  readonly duplicando     = signal(false);
+  readonly produtoDestino = signal<Produto | null>(null);
+
+  readonly produtosDestinoDisponivel = computed<Produto[]>(() => {
+    const atual = this.produtoSelecionado();
+    return this.produtosMontagemMode().filter(p => p.uuid !== atual?.uuid);
+  });
+
+  abrirDuplicar() {
+    this.produtoDestino.set(null);
+    this.duplicando.set(true);
+  }
+
+  fecharDuplicar() {
+    this.duplicando.set(false);
+    this.produtoDestino.set(null);
+  }
+
+  confirmarDuplicar() {
+    const mc   = this.montagemCompleta();
+    const dest = this.produtoDestino();
+    if (!mc || !dest) return;
+
+    this.montagemSvc.duplicar(mc.montagem.uuid, dest.uuid).subscribe({
+      next: () => {
+        toast.success(`Montagem duplicada para "${dest.nome}"!`);
+        this.fecharDuplicar();
+      },
+      error: (e) => toast.error(e?.error?.error ?? 'Erro ao duplicar montagem.'),
+    });
+  }
+
   // ── Etapas ────────────────────────────────────────────────────────────────
   readonly criandoEtapa = signal(false);
 
   etapaForm = this.fb.group({
-    nome:          ['', Validators.required],
-    descricao:     [''],
-    papel:         ['ingrediente' as PapelEtapa, Validators.required],
-    tipo:          ['escolha_multipla' as TipoEtapaMontagem, Validators.required],
-    ordem:         [1, [Validators.required, Validators.min(1)]],
-    min_selecoes:  [0, [Validators.required, Validators.min(0)]],
-    max_selecoes:  [null as number | null],
+    nome:               ['', Validators.required],
+    descricao:          [''],
+    papel:              ['ingrediente' as PapelEtapa, Validators.required],
+    tipo:               ['escolha_multipla' as TipoEtapaMontagem, Validators.required],
+    ordem:              [1, [Validators.required, Validators.min(1)]],
+    min_selecoes:       [0, [Validators.required, Validators.min(0)]],
+    max_selecoes:       [null as number | null],
     selecoes_gratuitas: [null as number | null],
   });
+
+  abrirNovaEtapa(mc: MontagemCompleta) {
+    const nextOrdem = (mc.etapas?.length ?? 0) + 1;
+    this.etapaForm.reset({ nome: '', papel: 'ingrediente', tipo: 'escolha_multipla', ordem: nextOrdem, min_selecoes: 0 });
+    this.criandoEtapa.set(true);
+  }
 
   salvarEtapa(montagemUuid: string) {
     if (this.etapaForm.invalid) { this.etapaForm.markAllAsTouched(); return; }
@@ -372,7 +504,7 @@ export class AdminMontagemTabComponent {
       next: () => {
         toast.success('Etapa criada!');
         this.criandoEtapa.set(false);
-        this.etapaForm.reset({ nome: '', papel: 'ingrediente', tipo: 'escolha_multipla', ordem: 1, min_selecoes: 0 });
+        this.etapaForm.reset({ nome: '', papel: 'ingrediente', tipo: 'escolha_multipla', min_selecoes: 0 });
         const prod = this.produtoSelecionado();
         if (prod) this.carregarMontagem(prod.uuid);
       },
@@ -392,59 +524,109 @@ export class AdminMontagemTabComponent {
     });
   }
 
-  // ── Opções ────────────────────────────────────────────────────────────────
+  // ── Opções — Bulk insert ──────────────────────────────────────────────────
   readonly etapaExpandida = signal<string | null>(null);
 
-  opcaoForm = this.fb.group({
-    ingrediente_uuid: ['', Validators.required],
-    nome:             [''],
-    descricao:        [''],
-    preco_extra:      [0, [Validators.required, Validators.min(0)]],
-    gratis:           [false],
-    ordem:            [1, [Validators.required, Validators.min(1)]],
-    max_quantidade:   [null as number | null],
+  /** FormGroup raiz contendo o FormArray de linhas */
+  bulkForm = this.fb.group({
+    linhas: this.fb.array([] as FormGroup[]),
   });
 
-  abrirNovaOpcao(etapaUuid: string) {
-    this.etapaExpandida.set(etapaUuid);
-    const mc = this.montagemCompleta();
-    const etapa = mc?.etapas.find(e => e.uuid === etapaUuid);
-    const nextOrdem = (etapa?.opcoes.length ?? 0) + 1;
-    this.opcaoForm.reset({ ingrediente_uuid: '', nome: '', descricao: '', preco_extra: 0, gratis: false, ordem: nextOrdem });
+  /** Acesso tipado ao FormArray */
+  get bulkLinhas(): FormArray {
+    return this.bulkForm.get('linhas') as FormArray;
   }
 
-  salvarOpcao(etapaUuid: string) {
-    if (this.opcaoForm.invalid) { this.opcaoForm.markAllAsTouched(); return; }
-    const fv = this.opcaoForm.value;
-    // Use ingredient name if no override name given
-    const ing = this.ingredientes().find(i => i.uuid === fv.ingrediente_uuid);
-    const nome = fv.nome?.trim() || ing?.nome || '';
-    this.montagemSvc.criarOpcao(etapaUuid, {
-      ingrediente_uuid: fv.ingrediente_uuid!,
-      nome,
-      descricao:        fv.descricao || null,
-      preco_extra:      Number(fv.preco_extra ?? 0),
-      gratis:           fv.gratis ?? false,
-      ordem:            Number(fv.ordem ?? 1),
-      max_quantidade:   fv.max_quantidade ? Number(fv.max_quantidade) : null,
-    }).subscribe({
-      next: () => {
-        toast.success('Opção adicionada!');
-        this.etapaExpandida.set(null);
-        const prod = this.produtoSelecionado();
-        if (prod) this.carregarMontagem(prod.uuid);
-      },
-      error: (e) => toast.error(e?.error?.error ?? 'Erro ao adicionar opção.'),
+  /** Cast para uso no template com @for */
+  get bulkLinhasAsGroups(): FormGroup[] {
+    return this.bulkLinhas.controls as FormGroup[];
+  }
+
+  private novaLinhaGroup(): FormGroup {
+    return this.fb.group({
+      ingrediente_uuid: ['', Validators.required],
+      nome:             [''],
+      preco_extra:      [0, [Validators.required, Validators.min(0)]],
+      gratis:           [false],
     });
   }
 
-  deletarOpcao(uuid: string) {
+  abrirBulkOpcoes(etapaUuid: string) {
+    // Limpa linhas anteriores e começa com 1 linha vazia
+    while (this.bulkLinhas.length > 0) this.bulkLinhas.removeAt(0);
+    this.bulkLinhas.push(this.novaLinhaGroup());
+    this.etapaExpandida.set(etapaUuid);
+  }
+
+  fecharBulk() {
+    this.etapaExpandida.set(null);
+    while (this.bulkLinhas.length > 0) this.bulkLinhas.removeAt(0);
+  }
+
+  adicionarLinha() {
+    this.bulkLinhas.push(this.novaLinhaGroup());
+  }
+
+  removerLinha(index: number) {
+    this.bulkLinhas.removeAt(index);
+  }
+
+  salvarOpcoesBulk(etapaUuid: string) {
+    if (this.bulkForm.invalid || this.bulkLinhas.length === 0) {
+      this.bulkForm.markAllAsTouched();
+      return;
+    }
+
+    const items = (this.bulkLinhas.value as any[]).map(row => {
+      const ing  = this.ingredientes().find(i => i.uuid === row.ingrediente_uuid);
+      const nome = (row.nome as string)?.trim() || ing?.nome || '';
+      return {
+        ingrediente_uuid: row.ingrediente_uuid as string,
+        nome,
+        preco_extra:  Number(row.preco_extra ?? 0),
+        gratis:       Boolean(row.gratis),
+        max_quantidade: null,
+      };
+    });
+
+    this.montagemSvc.criarOpcoesBulk(etapaUuid, items).subscribe({
+      next: (criadas) => {
+        toast.success(`${criadas.length} opção(ões) adicionada(s)!`);
+        // Atualização reativa direta — sem reload completo
+        this.montagemCompleta.update(mc => {
+          if (!mc) return mc;
+          return {
+            ...mc,
+            etapas: mc.etapas.map(e =>
+              e.uuid === etapaUuid
+                ? { ...e, opcoes: [...e.opcoes, ...criadas] }
+                : e
+            ),
+          };
+        });
+        this.fecharBulk();
+      },
+      error: (e) => toast.error(e?.error?.error ?? 'Erro ao adicionar opções.'),
+    });
+  }
+
+  deletarOpcao(uuid: string, etapaUuid: string) {
     if (!confirm('Remover esta opção?')) return;
     this.montagemSvc.deletarOpcao(uuid).subscribe({
       next: () => {
         toast.success('Opção removida!');
-        const prod = this.produtoSelecionado();
-        if (prod) this.carregarMontagem(prod.uuid);
+        // Atualização reativa direta — remove só o item excluído
+        this.montagemCompleta.update(mc => {
+          if (!mc) return mc;
+          return {
+            ...mc,
+            etapas: mc.etapas.map(e =>
+              e.uuid === etapaUuid
+                ? { ...e, opcoes: e.opcoes.filter(o => o.uuid !== uuid) }
+                : e
+            ),
+          };
+        });
       },
       error: (e) => toast.error(e?.error?.error ?? 'Erro ao remover opção.'),
     });
