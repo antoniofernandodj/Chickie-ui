@@ -24,11 +24,13 @@ import { formatCpf } from '../../core/utils/cpf-utils';
       [placeholder]="placeholder()"
       [disabled]="isDisabled()"
       [value]="innerValue()"
+      [readOnly]="disableAutofill() && autofillBlocked()"
       [attr.min]="min() ?? null"
       [attr.max]="max() ?? null"
       [attr.step]="step() ?? null"
       [attr.autocomplete]="autocomplete() || null"
       (input)="onInput($event)"
+      (focus)="autofillBlocked.set(false)"
       (blur)="onTouched()"
       [class]="inputCls()"
     />
@@ -53,9 +55,11 @@ export class UiInputComponent implements ControlValueAccessor {
   max          = input<string | number | null>(null);
   step         = input<string | number | null>(null);
   autocomplete = input<string>('');
+  disableAutofill = input(false);
 
   innerValue = signal('');
   isDisabled = signal(false);
+  autofillBlocked = signal(true);
 
   private onChange: (v: string) => void = () => {};
   onTouched: () => void = () => {};
