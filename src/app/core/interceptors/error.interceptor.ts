@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import { AuthService } from '../services/auth.service';
+import { SILENT_ERROR } from './http-context-tokens';
 
 function extractErrorMessage(error: HttpErrorResponse): string | null {
   const body = error.error;
@@ -31,6 +32,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const platformId = inject(PLATFORM_ID);
   const auth = inject(AuthService);
   const router = inject(Router);
+  const silent = req.context.get(SILENT_ERROR);
 
   return next(req).pipe(
     catchError((err: HttpErrorResponse) => {
@@ -45,6 +47,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         router.navigate(['/auth/login']);
         return throwError(() => err);
       }
+
+      // Requisições marcadas com SILENT_ERROR não exibem toast — o caller trata o erro
+      if (silent) return throwError(() => err);
 
       if (err.status === 429) {
         toast.warning('Muitas requisições. Aguarde um momento e tente novamente.');

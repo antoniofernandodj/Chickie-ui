@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -8,6 +8,7 @@ import {
   CriarEtapaRequest,
   CriarOpcaoRequest,
 } from '../models';
+import { SILENT_ERROR } from '../interceptors/http-context-tokens';
 
 @Injectable({ providedIn: 'root' })
 export class MontagemService {
@@ -17,7 +18,10 @@ export class MontagemService {
   // ── Público ────────────────────────────────────────────────────────────────
 
   buscarPorProduto(produtoUuid: string): Observable<MontagemCompleta> {
-    return this.http.get<MontagemCompleta>(`${this.base}/produto/${produtoUuid}`);
+    // SILENT_ERROR=true: o 404 "sem montagem" é esperado — o componente trata, sem toast
+    return this.http.get<MontagemCompleta>(`${this.base}/produto/${produtoUuid}`, {
+      context: new HttpContext().set(SILENT_ERROR, true),
+    });
   }
 
   // ── Admin — Montagem ───────────────────────────────────────────────────────
