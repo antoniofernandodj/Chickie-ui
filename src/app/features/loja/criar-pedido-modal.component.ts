@@ -213,7 +213,9 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     const sel = this.montagemSelecoes();
     for (const etapaUuid of Object.keys(sel)) {
       for (const item of sel[etapaUuid]) {
-        total += Number(item.opcao.preco_extra) * item.qty;
+        if (!item.opcao.gratis) {
+          total += Number(item.opcao.preco_extra) * item.qty;
+        }
       }
     }
     return total;
