@@ -1,4 +1,4 @@
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, inject, signal, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { SwPush } from '@angular/service-worker';
 import { HttpClient } from '@angular/common/http';
@@ -14,6 +14,46 @@ export class PushNotificationService {
   private readonly api = environment.apiUrl;
 
   private vapidKey: string | null = null;
+
+  // ── Soft-ask ────────────────────────────────────────────────────────────────
+  /** true enquanto o modal de pré-permissão estiver visível */
+  readonly softAskVisivel = signal(false);
+
+  private softAskResolve: ((granted: boolean) => void) | null = null;
+
+  /**
+   * Exibe o modal customizado de permissão e aguarda a resposta do usuário.
+   * Retorna `true` se ele clicou em "Ativar", `false` se recusou ou dispensou.
+   * Se a permissão já estiver concedida/negada, resolve imediatamente sem exibir o modal.
+   */
+  async pedirPermissaoViaSoftAsk(): Promise<boolean> {
+    if (!isPlatformBrowser(this.platformId)) return false;
+
+    const perm = Notification.permission;
+    if (perm === 'granted') return true;
+    if (perm === 'denied')  return false;
+
+    // permissão ainda "default" → mostrar modal
+    return new Promise<boolean>(resolve => {
+      this.softAskResolve = resolve;
+      this.softAskVisivel.set(true);
+    });
+  }
+
+  /** Chamado pelo modal quando o usuário clica em "Ativar notificações" */
+  confirmarSoftAsk(): void {
+    this.softAskVisivel.set(false);
+    this.softAskResolve?.(true);
+    this.softAskResolve = null;
+  }
+
+  /** Chamado pelo modal quando o usuário clica em "Agora não" ou fecha o modal */
+  recusarSoftAsk(): void {
+    this.softAskVisivel.set(false);
+    this.softAskResolve?.(false);
+    this.softAskResolve = null;
+  }
+  // ────────────────────────────────────────────────────────────────────────────
 
   async carregarVapidKey(): Promise<string> {
     if (!isPlatformBrowser(this.platformId)) {
@@ -58,6 +98,13 @@ export class PushNotificationService {
         return;
       }
 
+      // Soft-ask: mostrar modal customizado antes de acionar a permissão nativa
+      const confirmado = await this.pedirPermissaoViaSoftAsk();
+      if (!confirmado) {
+        console.info('[PUSH] subscribe: usuário recusou o soft-ask, abortando');
+        return;
+      }
+
       console.info('[PUSH] solicitando subscription ao browser (usuário)...');
       const sub = await this.swPush.requestSubscription({ serverPublicKey: publicKey });
 
@@ -98,10 +145,17 @@ export class PushNotificationService {
       }
 
       if (currentPermission === 'default') {
+        // Soft-ask: mostrar modal customizado antes de acionar a permissão nativa
+        const confirmado = await this.pedirPermissaoViaSoftAsk();
+        if (!confirmado) {
+          console.info('[PUSH] subscribePorPedido: usuário recusou o soft-ask', { pedidoUuid });
+          return;
+        }
+
         const result = await Notification.requestPermission();
-        console.info('[PUSH] resultado do pedido de permissão:', result, { pedidoUuid });
+        console.info('[PUSH] resultado do pedido de permissão nativa:', result, { pedidoUuid });
         if (result !== 'granted') {
-          console.warn('[PUSH] permissão não concedida:', result, { pedidoUuid });
+          console.warn('[PUSH] permissão não concedida na janela nativa:', result, { pedidoUuid });
           return;
         }
       }

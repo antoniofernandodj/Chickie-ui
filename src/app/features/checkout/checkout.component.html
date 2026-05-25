@@ -1,3 +1,11 @@
+<!-- Modal de permissão de notificações (soft-ask) -->
+@if (push.softAskVisivel()) {
+  <app-push-permissao-modal
+    (confirmar)="push.confirmarSoftAsk()"
+    (recusar)="push.recusarSoftAsk()"
+  />
+}
+
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
     <!-- Page header -->

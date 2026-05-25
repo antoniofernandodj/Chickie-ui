@@ -34,14 +34,14 @@ import { EnderecoUsuarioService } from '../../core/services/endereco-usuario.ser
 import { GuestEnderecoService, EnderecoGuestSalvo } from '../../core/services/guest-endereco.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { HorarioService } from '../../core/services/horario.service';
-import { EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent } from '../../shared/components';
+import { EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent, PushPermissaoModalComponent } from '../../shared/components';
 
 type CheckoutStep = 'endereco' | 'pagamento' | 'resumo';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, SlicePipe, EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent],
+  imports: [FormsModule, DecimalPipe, SlicePipe, EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent, PushPermissaoModalComponent],
   templateUrl: './checkout.component.html',
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
@@ -49,7 +49,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private auth                = inject(AuthService);
   private pedidoService       = inject(PedidoService);
   private comandaService      = inject(ComandaService);
-  private push                = inject(PushNotificationService);
+  readonly push               = inject(PushNotificationService);
   private pedidoLocalStorage  = inject(PedidoLocalStorageService);
   private pagamentoService    = inject(PagamentoService);
   private pedidosLive         = inject(PedidosLiveService);
