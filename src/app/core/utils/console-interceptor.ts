@@ -1,6 +1,7 @@
 import { LogLevel, LogLevelPriority, LogPayload } from '../models';
 import { isDevMode } from '@angular/core';
 import { environment } from '../../../environments/environment';
+import { encryptLogPayload } from './log-crypto';
 
 /**
  * Configuration for the logging system
@@ -12,7 +13,7 @@ interface LoggerConfig {
 
 const config: LoggerConfig = {
   serverLevel: (environment as any).serverLogLevel || (isDevMode() ? 'debug' : 'warn'),
-  browserLevel: (environment as any).logLevel || (isDevMode() ? 'debug' : 'error'), 
+  browserLevel: (environment as any).logLevel || (isDevMode() ? 'debug' : 'error'),
 };
 
 /**
@@ -32,6 +33,49 @@ const originalConsole = {
   error: console.error,
 };
 
+// ─── Public key — cache-aside ─────────────────────────────────────────────────
+// Ordem de busca: memória → localStorage → servidor.
+// O servidor gera/persiste a chave automaticamente no startup (server-keys.json).
+// Zero chaves no bundle ou no repositório.
+
+const LOG_PK_LS_KEY = '__log_pk__';
+
+let _cachedKey: string | null = null;    // memória (mais rápido, dura a sessão)
+let _fetchPromise: Promise<string | null> | null = null; // evita requests paralelos
+
+function getPublicKey(): Promise<string | null> {
+  // 1. Memória
+  if (_cachedKey) return Promise.resolve(_cachedKey);
+
+  // 2. Fetch em andamento — aguarda o mesmo
+  if (_fetchPromise) return _fetchPromise;
+
+  // 3. localStorage (persiste entre refreshes)
+  try {
+    const stored = localStorage.getItem(LOG_PK_LS_KEY);
+    if (stored) {
+      _cachedKey = stored;
+      return Promise.resolve(_cachedKey);
+    }
+  } catch { /* SSR ou modo privado com restrições */ }
+
+  // 4. Busca no servidor e popula os dois caches
+  _fetchPromise = fetch('/api/logs/public-key')
+    .then((res) => res.json())
+    .then((data) => {
+      const key = (data as any).publicKey as string;
+      _cachedKey = key;
+      try { localStorage.setItem(LOG_PK_LS_KEY, key); } catch { /* ignore */ }
+      return key;
+    })
+    .catch(() => null)
+    .finally(() => { _fetchPromise = null; });
+
+  return _fetchPromise;
+}
+
+// ─── Logger ───────────────────────────────────────────────────────────────────
+
 /**
  * Structured Logger that can be used instead of console
  */
@@ -49,10 +93,9 @@ function handleLog(level: LogLevel, args: any[]) {
 
     // Check if should show in browser
     if (!isDevMode() && level === 'error') {
-       // In prod, we might still want to show ONLY errors in browser if browserLevel allows
-       if (priority >= LogLevelPriority[config.browserLevel]) {
-         originalConsole[level].apply(console, args);
-       }
+      if (priority >= LogLevelPriority[config.browserLevel]) {
+        originalConsole[level].apply(console, args);
+      }
     } else if (isDevMode() && priority >= LogLevelPriority[config.browserLevel]) {
       originalConsole[level].apply(console, args);
     }
@@ -66,7 +109,7 @@ function handleLog(level: LogLevel, args: any[]) {
   }
 }
 
-function sendToServer(level: LogLevel, args: any[]) {
+async function sendToServer(level: LogLevel, args: any[]) {
   const payload: LogPayload = {
     level,
     message: args
@@ -83,11 +126,20 @@ function sendToServer(level: LogLevel, args: any[]) {
     timestamp: new Date().toISOString(),
   };
 
-  fetch('/api/logs', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  }).catch(() => {});
+  // Busca a public key do servidor (cacheada após a primeira chamada)
+  const publicKey = await getPublicKey();
+  if (!publicKey) return; // servidor indisponível ou erro — descarta silenciosamente
+
+  try {
+    const encrypted = await encryptLogPayload(payload, publicKey);
+    fetch('/api/logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(encrypted),
+    }).catch(() => {});
+  } catch {
+    // Criptografia falhou (browser muito antigo?) — descarta sem vazar em plaintext
+  }
 }
 
 /**
