@@ -1,3 +1,11 @@
+<!-- Modal de permissão de notificações (soft-ask) — z-[60] para ficar sobre o modal de pedido -->
+@if (push.softAskVisivel()) {
+  <app-push-permissao-modal
+    (confirmar)="push.confirmarSoftAsk()"
+    (recusar)="push.recusarSoftAsk()"
+  />
+}
+
 <!-- Overlay -->
 <div
   class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"

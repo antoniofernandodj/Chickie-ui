@@ -48,7 +48,7 @@ import { CatalogoService } from '../../core/services/catalogo.service';
 import { MontagemService } from '../../core/services/montagem.service';
 import { ComandaService } from '../../core/services/comanda.service';
 import { PushNotificationService } from '../../core/services/push-notification.service';
-import { EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent } from '../../shared/components';
+import { EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent, PushPermissaoModalComponent } from '../../shared/components';
 
 // ─── Local types ──────────────────────────────────────────────────────────────
 
@@ -68,7 +68,7 @@ type Step = CategoriaStep | FixedStep;
 
 @Component({
   selector: 'app-criar-pedido-modal',
-  imports: [FormsModule, DatePipe, DecimalPipe, EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent],
+  imports: [FormsModule, DatePipe, DecimalPipe, EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent, PushPermissaoModalComponent],
   templateUrl: './criar-pedido-modal.component.html',
 })
 export class CriarPedidoModalComponent implements OnInit, OnDestroy {
@@ -90,7 +90,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   private catalogoService = inject(CatalogoService);
   private montagemService = inject(MontagemService);
   private comandaService = inject(ComandaService);
-  private push = inject(PushNotificationService);
+  readonly push = inject(PushNotificationService);
   private router = inject(Router);
 
   readonly mesa = computed(() => this.cartService.mesa());
