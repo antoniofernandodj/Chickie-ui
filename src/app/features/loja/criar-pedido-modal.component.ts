@@ -42,6 +42,7 @@ import { PagamentoService } from '../../core/services/pagamento.service';
 import { PedidosLiveService } from '../../core/services/pedidos-live.service';
 import { EnderecoUsuarioService } from '../../core/services/endereco-usuario.service';
 import { GuestEnderecoService, EnderecoGuestSalvo } from '../../core/services/guest-endereco.service';
+import { GuestContatoService, ContatoGuestSalvo } from '../../core/services/guest-contato.service';
 import { ConfigPedidoService } from '../../core/services/config-pedido.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { CatalogoService } from '../../core/services/catalogo.service';
@@ -85,6 +86,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   private pedidosLive = inject(PedidosLiveService);
   private enderecoService = inject(EnderecoUsuarioService);
   private guestEnderecoService = inject(GuestEnderecoService);
+  private guestContatoService = inject(GuestContatoService);
   private configService = inject(ConfigPedidoService);
   private marketingService = inject(MarketingService);
   private catalogoService = inject(CatalogoService);
@@ -228,6 +230,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
   // ── Endereço ────────────────────────────────────────────────────────────────
   readonly enderecosUsuario = signal<EnderecoUsuario[]>([]);
   readonly enderecosGuestSalvos = signal<EnderecoGuestSalvo[]>([]);
+  readonly contatosGuestSalvos  = signal<ContatoGuestSalvo[]>([]);
   enderecoSelecionadoUuid: string | null = null;
   enderecoGuestSelecionadoId: string | null = null;
 
@@ -263,6 +266,10 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
     const digits = input.value.replace(/\D/g, '').slice(0, 11);
     input.value = formatPhone(digits);
     this.contato = digits;
+  }
+
+  selecionarContatoGuest(contato: ContatoGuestSalvo): void {
+    this.contato = contato.numero;
   }
 
   // ── Tipo de consumo (mesa/pdv) ───────────────────────────────────────────────
@@ -393,6 +400,7 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
         .subscribe((list) => this.enderecosUsuario.set(list));
     } else {
       this.enderecosGuestSalvos.set(this.guestEnderecoService.listar());
+      this.contatosGuestSalvos.set(this.guestContatoService.listar());
     }
   }
 
@@ -940,6 +948,10 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       next: (res) => {
         if (!isAuth) {
           this.push.subscribePorPedido(res.uuid);
+          // Salva contato para sugestão no próximo atendimento
+          if (this.contato.length === 11) {
+            this.guestContatoService.salvar(this.contato);
+          }
         }
 
         // Tenta buscar pedido completo para salvar em localStorage; ignora erro

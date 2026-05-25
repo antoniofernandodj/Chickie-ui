@@ -1011,6 +1011,31 @@
                   [(ngModel)]="contato"
                   placeholder="(21) 9 9999-9999"
                 />
+
+                <!-- Sugestões de contatos usados anteriormente (apenas guest) -->
+                @if (!isAuthenticated() && contatosGuestSalvos().length > 0) {
+                  <div class="mt-2">
+                    <p class="text-xs text-gray-400 mb-1.5">Usados anteriormente:</p>
+                    <div class="flex flex-wrap gap-1.5">
+                      @for (c of contatosGuestSalvos(); track c.id) {
+                        <button
+                          type="button"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all"
+                          [class]="contato === c.numero
+                            ? 'border-orange-400 bg-orange-50 text-orange-700'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'"
+                          (click)="selecionarContatoGuest(c)"
+                        >
+                          <span>📱</span>
+                          {{ c.numeroFormatado }}
+                          @if (contato === c.numero) {
+                            <span class="text-orange-500">✓</span>
+                          }
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
               </section>
 
               <!-- Observações -->

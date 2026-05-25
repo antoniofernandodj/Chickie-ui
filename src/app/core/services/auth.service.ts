@@ -45,6 +45,13 @@ export class AuthService {
   readonly isFuncionario = computed(() => this.userClass() === 'funcionario');
   readonly isOwner = computed(() => this.userClass() === 'owner');
 
+  private readonly _celularTrigger = signal<Date>(new Date());
+  readonly celularUsuario = computed<string | null>(() => {
+    this._celularTrigger();
+    if (!isPlatformBrowser(this.platformId)) return null;
+    return localStorage.getItem('chickie_celular');
+  });
+
   // Coordenação de refresh concorrente
   private _isRefreshing = false;
   private readonly _refreshSubject = new BehaviorSubject<string | null>(null);
@@ -67,6 +74,10 @@ export class AuthService {
             this._userClassTrigger.set(new Date());
           }
           if (user.nome) this.saveItem('chickie_nome', user.nome);
+          if (user.celular) {
+            this.saveItem('chickie_celular', user.celular.replace(/\D/g, ''));
+            this._celularTrigger.set(new Date());
+          }
           this._tokenStatus.set('valid');
         },
         error: (err) => {
@@ -111,9 +122,11 @@ export class AuthService {
     this.removeItem('chickie_refresh_token');
     this.removeItem('chickie_nome');
     this.removeItem('chickie_classe');
+    this.removeItem('chickie_celular');
     this._token.set(null);
     this._tokenStatus.set('unauthenticated');
     this._userClassTrigger.set(new Date());
+    this._celularTrigger.set(new Date());
   }
 
   private saveTokens(accessToken: string, refreshToken: string): void {
@@ -145,6 +158,10 @@ export class AuthService {
         }
         if (res.usuario.nome) {
           this.saveItem('chickie_nome', res.usuario.nome);
+        }
+        if (res.usuario.celular) {
+          this.saveItem('chickie_celular', res.usuario.celular.replace(/\D/g, ''));
+          this._celularTrigger.set(new Date());
         }
       }),
     );
@@ -223,6 +240,10 @@ export class AuthService {
         }
         if (user.nome) {
           this.saveItem('chickie_nome', user.nome);
+        }
+        if (user.celular) {
+          this.saveItem('chickie_celular', user.celular.replace(/\D/g, ''));
+          this._celularTrigger.set(new Date());
         }
       }),
     );

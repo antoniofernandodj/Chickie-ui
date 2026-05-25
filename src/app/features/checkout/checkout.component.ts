@@ -227,6 +227,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         .listar()
         .pipe(catchError(() => of([])))
         .subscribe(list => this.enderecosUsuario.set(list));
+
+      const celular = this.auth.celularUsuario();
+      if (celular) this.contato = celular;
     } else {
       this.enderecosGuestSalvos.set(this.guestEnderecoService.listar());
     }
