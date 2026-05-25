@@ -353,6 +353,14 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       const items = this.cart();
       if (this.loja) this.cartService.sincronizar(this.loja, items);
     });
+
+    // Pre-preenche contato com celular do usuário quando ele estiver disponível
+    effect(() => {
+      const celular = this.auth.celularUsuario();
+      if (celular && this.auth.isAuthenticated() && !this.contato) {
+        this.contato = celular;
+      }
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

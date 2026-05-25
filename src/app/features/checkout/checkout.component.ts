@@ -3,6 +3,7 @@ import {
   inject,
   signal,
   computed,
+  effect,
   OnInit,
   OnDestroy,
 } from '@angular/core';
@@ -203,6 +204,16 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────────
+  constructor() {
+    // Pre-preenche contato com celular do usuário quando ele estiver disponível
+    effect(() => {
+      const celular = this.auth.celularUsuario();
+      if (celular && this.auth.isAuthenticated() && !this.contato) {
+        this.contato = celular;
+      }
+    });
+  }
+
   ngOnInit(): void {
     if (!this.loja() || this.itens().length === 0) {
       this.router.navigate(['/']);
