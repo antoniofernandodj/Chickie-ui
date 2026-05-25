@@ -261,7 +261,17 @@ export class LojaDetalheComponent {
   }
 
   selecionarProduto(_p: Produto): void {
+    if (!this.lojaAbertaAgora() || this.mesaBloqueada()) return;
     this.abrirModalPedido();
+  }
+
+  /** Classes CSS condicionais para os cards de produto.
+   *  Quando a loja está fechada ou a mesa bloqueada, remove hover/cursor interativos
+   *  e aplica visual de desabilitado. */
+  get produtoCardClasses(): string {
+    return (this.lojaAbertaAgora() && !this.mesaBloqueada())
+      ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 group'
+      : 'cursor-not-allowed opacity-50';
   }
 
   formatarDia(dia: number): string {

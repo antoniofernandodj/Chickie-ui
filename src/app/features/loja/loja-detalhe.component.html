@@ -343,7 +343,8 @@
             @for (p of destaques(); track p.uuid) {
               <div
                 (click)="selecionarProduto(p)"
-                class="bg-white rounded-2xl shadow-sm border-2 border-orange-100 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all group"
+                class="bg-white rounded-2xl shadow-sm border-2 border-orange-100 overflow-hidden transition-all"
+                [class]="produtoCardClasses"
               >
                 <div class="relative h-40 overflow-hidden">
                   @if (p.imagem_url) {
@@ -396,7 +397,8 @@
               @for (p of group.produtos; track p.uuid) {
                 <div
                   (click)="selecionarProduto(p)"
-                  class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all group"
+                  class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all"
+                  [class]="produtoCardClasses"
                 >
                   <div
                     class="relative h-36 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100"
@@ -449,7 +451,8 @@
             @for (p of disponiveis(); track p.uuid) {
               <div
                 (click)="selecionarProduto(p)"
-                class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all group"
+                class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all"
+                [class]="produtoCardClasses"
               >
                 <div
                   class="relative h-36 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100"
