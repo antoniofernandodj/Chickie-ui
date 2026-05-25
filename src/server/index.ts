@@ -18,36 +18,41 @@ import {
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 // ─── RSA Keys ────────────────────────────────────────────────────────────────
-// Gerado automaticamente no primeiro startup. Persiste entre reinicializações.
-// O arquivo é ignorado pelo git (server-keys.json está no .gitignore).
+// Prioridade:
+//   1. Variáveis de ambiente FRONTEND_PUBLIC_KEY + FRONTEND_PRIVATE_KEY (produção/Dokploy)
+//   2. Arquivo server-keys.json no project root (dev local)
+//   3. Geração automática em memória (fallback — chaves duram só a sessão)
 
 interface LogKeys {
   publicKey: string;
   privateKey: string;
 }
 
+/** Normaliza PEM: o Dokploy pode armazenar \n como literal "\\n" na env var. */
+function normalizePem(raw: string): string {
+  return raw.replace(/\\n/g, '\n').trim();
+}
+
 function loadOrCreateKeys(): LogKeys {
-  // Prioridade de path:
-  //   1. Variável de ambiente LOG_KEYS_PATH (produção/deploy customizado)
-  //   2. Dois níveis acima do arquivo compilado (project root em dist/chickie-ui/server/)
-  //      → dist/chickie-ui/server/../../  = dist/chickie-ui/ … ainda dentro de dist
-  //   3. process.cwd() como fallback final (compatível com `npm run serve:ssr`)
-  const keysPath = process.env['LOG_KEYS_PATH']
-    ? resolve(process.env['LOG_KEYS_PATH'])
-    : (() => {
-        // import.meta.dirname aponta para o diretório do bundle compilado.
-        // Subimos até o project-root tentando encontrar package.json.
-        let dir = import.meta.dirname;
-        for (let i = 0; i < 5; i++) {
-          const candidate = join(dir, 'server-keys.json');
-          const pkgJson   = join(dir, 'package.json');
-          // Para quando encontrar o package.json (project root) ou o arquivo já existir
-          if (existsSync(candidate)) return candidate;
-          if (existsSync(pkgJson))   return candidate; // usa este diretório
-          dir = resolve(dir, '..');
-        }
-        return join(process.cwd(), 'server-keys.json'); // fallback
-      })();
+  // 1. Env vars (Dokploy / produção) — fonte canônica, não regenera nunca
+  const envPublic  = process.env['FRONTEND_PUBLIC_KEY'];
+  const envPrivate = process.env['FRONTEND_PRIVATE_KEY'];
+  if (envPublic && envPrivate) {
+    console.log('[logs] Chaves RSA carregadas das variáveis de ambiente');
+    return { publicKey: normalizePem(envPublic), privateKey: normalizePem(envPrivate) };
+  }
+
+  // 2. Arquivo local (dev) — persiste entre restarts sem precisar de env vars
+  const keysPath = (() => {
+    let dir = import.meta.dirname;
+    for (let i = 0; i < 5; i++) {
+      const candidate = join(dir, 'server-keys.json');
+      if (existsSync(candidate)) return candidate;
+      if (existsSync(join(dir, 'package.json'))) return candidate;
+      dir = resolve(dir, '..');
+    }
+    return join(process.cwd(), 'server-keys.json');
+  })();
 
   if (existsSync(keysPath)) {
     console.log(`[logs] Chaves RSA carregadas de ${keysPath}`);
@@ -58,23 +63,22 @@ function loadOrCreateKeys(): LogKeys {
     }
   }
 
+  // 3. Gera novo par e tenta persistir localmente
   const { publicKey, privateKey } = generateKeyPairSync('rsa', {
     modulusLength: 2048,
-    publicKeyEncoding: { type: 'spki', format: 'pem' },
+    publicKeyEncoding:  { type: 'spki',  format: 'pem' },
     privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
   });
 
-  const keys: LogKeys = { publicKey, privateKey };
   try {
-    writeFileSync(keysPath, JSON.stringify(keys, null, 2), { mode: 0o600 });
+    writeFileSync(keysPath, JSON.stringify({ publicKey, privateKey }, null, 2), { mode: 0o600 });
     console.log(`[logs] Par de chaves RSA gerado → ${keysPath}`);
   } catch (err) {
-    // Sem permissão de escrita — chaves ficam só em memória (ok para dev/test)
-    console.warn(`[logs] Não foi possível persistir chaves em ${keysPath}: ${(err as Error).message}`);
-    console.warn('[logs] As chaves serão regeneradas no próximo restart (clientes precisarão buscar nova PK)');
+    console.warn(`[logs] Não foi possível persistir chaves: ${(err as Error).message}`);
+    console.warn('[logs] Configure FRONTEND_PUBLIC_KEY + FRONTEND_PRIVATE_KEY para evitar rotação no restart');
   }
 
-  return keys;
+  return { publicKey, privateKey };
 }
 
 const { publicKey: LOG_PUBLIC_KEY, privateKey: LOG_PRIVATE_KEY_PEM } = loadOrCreateKeys();
