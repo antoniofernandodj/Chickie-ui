@@ -197,6 +197,9 @@
             (updated)="refreshLoja()"
           />
         }
+        @if (aba() === 'backup') {
+          <admin-backup-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
       </main>
     </div>
   }

@@ -22,6 +22,7 @@ import { AdminLojaTabComponent } from './components/admin-loja-tab.component';
 import { AdminReservasTabComponent } from './components/admin-reservas-tab.component';
 import { AdminIngredientesTabComponent } from './components/admin-ingredientes-tab.component';
 import { AdminMontagemTabComponent } from './components/admin-montagem-tab.component';
+import { AdminBackupTabComponent } from './components/admin-backup-tab.component';
 
 @Component({
   selector: 'app-admin',
@@ -45,6 +46,7 @@ import { AdminMontagemTabComponent } from './components/admin-montagem-tab.compo
     AdminReservasTabComponent,
     AdminIngredientesTabComponent,
     AdminMontagemTabComponent,
+    AdminBackupTabComponent,
   ],
   templateUrl: './admin.component.html',
 })
@@ -85,6 +87,7 @@ export class AdminComponent {
     { id: 'mesas',         icon: '🪑', label: 'Mesas'         },
     { id: 'reservas',      icon: '📅', label: 'Reservas'      },
     { id: 'perfil',        icon: '🏪', label: 'Perfil Loja'   },
+    { id: 'backup',        icon: '💾', label: 'Backup'        },
   ];
 
   readonly abaLabel = computed(() =>
