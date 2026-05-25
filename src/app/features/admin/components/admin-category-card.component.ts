@@ -20,6 +20,7 @@ import type { ContextMenuItem } from '../../../core/services/context-menu.servic
     <div
       class="bg-white rounded-xl border border-gray-200 overflow-hidden"
       cdkDrag
+      [cdkDragDisabled]="!categoria().loja_uuid"
     >
       <!-- Categoria header -->
       <div
@@ -29,8 +30,11 @@ import type { ContextMenuItem } from '../../../core/services/context-menu.servic
         <div class="flex items-center gap-2 flex-1 min-w-0">
           <span
             cdkDragHandle
-            class="cursor-grab text-gray-300 hover:text-gray-500 transition-colors shrink-0"
-            title="Arrastar para reordenar"
+            class="shrink-0 transition-colors"
+            [class]="categoria().loja_uuid
+              ? 'cursor-grab text-gray-300 hover:text-gray-500'
+              : 'cursor-not-allowed text-gray-200'"
+            [title]="categoria().loja_uuid ? 'Arrastar para reordenar' : 'Categoria global — não pode ser reordenada'"
           >
             <svg
               class="w-4 h-4"
@@ -47,7 +51,17 @@ import type { ContextMenuItem } from '../../../core/services/context-menu.servic
             </svg>
           </span>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-gray-900">{{ categoria().nome }}</p>
+            <div class="flex items-center gap-2 flex-wrap">
+              <p class="text-sm font-semibold text-gray-900">{{ categoria().nome }}</p>
+              @if (!categoria().loja_uuid) {
+                <span
+                  class="inline-flex items-center gap-1 text-[10px] font-medium bg-blue-50 text-blue-600 border border-blue-200 rounded-full px-2 py-0.5"
+                  title="Categoria global — gerenciada pelo sistema, não pode ser editada ou removida"
+                >
+                  🌐 Global
+                </span>
+              }
+            </div>
             @if (categoria().descricao) {
               <p class="text-xs text-gray-500">{{ categoria().descricao }}</p>
             }

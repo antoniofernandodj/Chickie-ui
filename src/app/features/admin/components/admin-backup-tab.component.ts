@@ -101,6 +101,26 @@ export class AdminBackupTabComponent {
   readonly restaurando    = signal(false);
   readonly arquivoSelecionado = signal<File | null>(null);
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  /**
+   * Remove as definições de categorias globais (loja_uuid === null) do snapshot.
+   * Os PRODUTOS dessas categorias são preservados — eles referenciam o UUID da
+   * categoria global que já existe no banco, portanto a restauração apenas
+   * os reanexa à categoria existente.
+   *
+   * Sem esse filtro, o backend recriaria as categorias globais com o UUID da
+   * loja corrente, transformando-as em categorias locais (e permitindo deletá-las).
+   */
+  private filtrarCategoriasGlobais(snapshot: object): object {
+    const s = snapshot as Record<string, unknown>;
+    if (!Array.isArray(s['categorias'])) return snapshot;
+    return {
+      ...s,
+      categorias: (s['categorias'] as any[]).filter((c: any) => c.loja_uuid !== null),
+    };
+  }
+
   // ── Export ────────────────────────────────────────────────────────────────
 
   exportar() {
@@ -109,7 +129,9 @@ export class AdminBackupTabComponent {
 
     this.backupSvc.exportar(this.lojaUuid()).subscribe({
       next: (snapshot) => {
-        const json = JSON.stringify(snapshot, null, 2);
+        // Filtra categorias globais — apenas seus produtos vão no arquivo.
+        const snapshotFiltrado = this.filtrarCategoriasGlobais(snapshot);
+        const json = JSON.stringify(snapshotFiltrado, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const url  = URL.createObjectURL(blob);
 
@@ -156,6 +178,9 @@ export class AdminBackupTabComponent {
         toast.error('Arquivo inválido — não é um JSON válido.');
         return;
       }
+
+      // Remove categorias globais antes de enviar — o backend não deve recriá-las.
+      snapshot = this.filtrarCategoriasGlobais(snapshot);
 
       this.backupSvc.restaurar(this.lojaUuid(), snapshot).subscribe({
         next: (res: any) => {

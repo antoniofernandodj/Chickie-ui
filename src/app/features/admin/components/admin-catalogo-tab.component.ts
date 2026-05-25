@@ -456,6 +456,12 @@ export class AdminCatalogoTabComponent {
   }
 
   deletarCategoria(uuid: string, nome: string) {
+    // Guard: categorias globais (loja_uuid === null) nunca podem ser removidas.
+    const cat = this.categorias().find(c => c.uuid === uuid);
+    if (!cat?.loja_uuid) {
+      toast.error('Categorias globais não podem ser removidas.');
+      return;
+    }
     if (!confirm(`Deletar categoria "${nome}"? Apenas funciona se não houver produtos vinculados.`)) return;
     this.catalogoService.deletarCategoria(this.lojaUuid(), uuid).subscribe({
       next: () => { toast.success('Categoria deletada com sucesso!'); this.refreshCategorias(); },
