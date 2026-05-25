@@ -211,12 +211,17 @@ export class LojaDetalheComponent {
   readonly produtosPorCategoria = computed(() => {
     const cats = this.categorias();
     const prods = this.produtos().filter((p) => p.disponivel);
-    
+
     console.debug('[LOG-TEST] Processando produtos por categoria', { catsCount: cats.length, prodsCount: prods.length });
-    
+
     const grouped = cats
       .map((cat) => {
-        const catProds = prods.filter((p) => p.categoria_uuid === cat.uuid);
+        const catProds = prods.filter((p) => {
+          if (p.categoria_uuid !== cat.uuid) return false;
+          // Ocultar produtos de categoria montagem_mode sem montagem configurada
+          if (cat.montagem_mode && !p.tem_montagem) return false;
+          return true;
+        });
         return {
           categoria: cat,
           produtos: catProds,

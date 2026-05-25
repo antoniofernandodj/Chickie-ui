@@ -272,6 +272,8 @@ export interface Produto {
   destaque:           boolean;
   criado_em:          string;
   atualizado_em:      string;
+  /** Campo virtual retornado pela API: true se o produto possui ao menos uma montagem configurada. */
+  tem_montagem?:      boolean;
 }
 
 export interface CreateProdutoRequest {

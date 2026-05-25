@@ -403,7 +403,12 @@ export class CriarPedidoModalComponent implements OnInit, OnDestroy {
       .map((cat) => ({
         tipo: 'categoria' as const,
         categoria: cat,
-        produtos: disponiveis.filter((p) => p.categoria_uuid === cat.uuid),
+        produtos: disponiveis.filter((p) => {
+          if (p.categoria_uuid !== cat.uuid) return false;
+          // Ocultar produtos de categoria montagem_mode sem montagem configurada
+          if (cat.montagem_mode && !p.tem_montagem) return false;
+          return true;
+        }),
       }))
       .filter((s) => s.produtos.length > 0);
 
