@@ -26,12 +26,35 @@ interface LogKeys {
 }
 
 function loadOrCreateKeys(): LogKeys {
+  // Prioridade de path:
+  //   1. Variável de ambiente LOG_KEYS_PATH (produção/deploy customizado)
+  //   2. Dois níveis acima do arquivo compilado (project root em dist/chickie-ui/server/)
+  //      → dist/chickie-ui/server/../../  = dist/chickie-ui/ … ainda dentro de dist
+  //   3. process.cwd() como fallback final (compatível com `npm run serve:ssr`)
   const keysPath = process.env['LOG_KEYS_PATH']
     ? resolve(process.env['LOG_KEYS_PATH'])
-    : join(process.cwd(), 'server-keys.json');
+    : (() => {
+        // import.meta.dirname aponta para o diretório do bundle compilado.
+        // Subimos até o project-root tentando encontrar package.json.
+        let dir = import.meta.dirname;
+        for (let i = 0; i < 5; i++) {
+          const candidate = join(dir, 'server-keys.json');
+          const pkgJson   = join(dir, 'package.json');
+          // Para quando encontrar o package.json (project root) ou o arquivo já existir
+          if (existsSync(candidate)) return candidate;
+          if (existsSync(pkgJson))   return candidate; // usa este diretório
+          dir = resolve(dir, '..');
+        }
+        return join(process.cwd(), 'server-keys.json'); // fallback
+      })();
 
   if (existsSync(keysPath)) {
-    return JSON.parse(readFileSync(keysPath, 'utf8')) as LogKeys;
+    console.log(`[logs] Chaves RSA carregadas de ${keysPath}`);
+    try {
+      return JSON.parse(readFileSync(keysPath, 'utf8')) as LogKeys;
+    } catch {
+      console.warn(`[logs] Arquivo de chaves corrompido — regenerando em ${keysPath}`);
+    }
   }
 
   const { publicKey, privateKey } = generateKeyPairSync('rsa', {
@@ -41,8 +64,14 @@ function loadOrCreateKeys(): LogKeys {
   });
 
   const keys: LogKeys = { publicKey, privateKey };
-  writeFileSync(keysPath, JSON.stringify(keys, null, 2), { mode: 0o600 });
-  console.log(`[logs] Par de chaves RSA gerado → ${keysPath}`);
+  try {
+    writeFileSync(keysPath, JSON.stringify(keys, null, 2), { mode: 0o600 });
+    console.log(`[logs] Par de chaves RSA gerado → ${keysPath}`);
+  } catch (err) {
+    // Sem permissão de escrita — chaves ficam só em memória (ok para dev/test)
+    console.warn(`[logs] Não foi possível persistir chaves em ${keysPath}: ${(err as Error).message}`);
+    console.warn('[logs] As chaves serão regeneradas no próximo restart (clientes precisarão buscar nova PK)');
+  }
 
   return keys;
 }

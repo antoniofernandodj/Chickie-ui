@@ -1,7 +1,7 @@
 import { LogLevel, LogLevelPriority, LogPayload } from '../models';
 import { isDevMode } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { encryptLogPayload } from './log-crypto';
+import { encryptLogPayload, clearPublicKeyCache } from './log-crypto';
 
 /**
  * Configuration for the logging system
@@ -37,6 +37,9 @@ const originalConsole = {
 // Ordem de busca: memória → localStorage → servidor.
 // O servidor gera/persiste a chave automaticamente no startup (server-keys.json).
 // Zero chaves no bundle ou no repositório.
+//
+// Rotação de chaves: se o servidor retornar 400 (invalid_payload), o cliente
+// invalida todos os caches e busca a nova chave pública antes de reenviar.
 
 const LOG_PK_LS_KEY = '__log_pk__';
 
@@ -72,6 +75,18 @@ function getPublicKey(): Promise<string | null> {
     .finally(() => { _fetchPromise = null; });
 
   return _fetchPromise;
+}
+
+/**
+ * Descarta todos os caches da chave pública (memória, CryptoKey e localStorage).
+ * Chamado quando o servidor retorna 400 invalid_payload — indica que as chaves
+ * foram rotacionadas (ex.: reinicialização do servidor).
+ */
+function invalidatePublicKeyCache(): void {
+  _cachedKey    = null;
+  _fetchPromise = null;
+  clearPublicKeyCache(); // descarta a CryptoKey importada em log-crypto.ts
+  try { localStorage.removeItem(LOG_PK_LS_KEY); } catch { /* ignore */ }
 }
 
 // ─── Logger ───────────────────────────────────────────────────────────────────
@@ -126,19 +141,35 @@ async function sendToServer(level: LogLevel, args: any[]) {
     timestamp: new Date().toISOString(),
   };
 
-  // Busca a public key do servidor (cacheada após a primeira chamada)
-  const publicKey = await getPublicKey();
-  if (!publicKey) return; // servidor indisponível ou erro — descarta silenciosamente
+  // Tenta enviar o log encriptado; em caso de 400 (invalid_payload) invalida o
+  // cache de chaves e retenta uma única vez com a nova chave pública do servidor.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const publicKey = await getPublicKey();
+    if (!publicKey) return; // servidor indisponível — descarta silenciosamente
 
-  try {
-    const encrypted = await encryptLogPayload(payload, publicKey);
-    fetch('/api/logs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(encrypted),
-    }).catch(() => {});
-  } catch {
-    // Criptografia falhou (browser muito antigo?) — descarta sem vazar em plaintext
+    let res: Response | undefined;
+    try {
+      const encrypted = await encryptLogPayload(payload, publicKey);
+      res = await fetch('/api/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(encrypted),
+      });
+    } catch {
+      // Erro de rede ou criptografia — descarta sem vazar em plaintext
+      return;
+    }
+
+    if (res.ok) return; // sucesso ✓
+
+    if (res.status === 400) {
+      // Servidor não conseguiu decriptar → chaves foram rotacionadas.
+      // Invalida todos os caches e busca a nova chave na próxima iteração.
+      invalidatePublicKeyCache();
+      continue;
+    }
+
+    return; // outro erro HTTP — não retenta
   }
 }
 

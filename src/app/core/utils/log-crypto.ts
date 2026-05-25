@@ -21,6 +21,12 @@ export interface EncryptedLogPayload {
 let _cachedPublicKey: CryptoKey | null = null;
 let _cachedPem: string | null = null;
 
+/** Descarta o cache da CryptoKey (chamado quando o servidor rotaciona as chaves). */
+export function clearPublicKeyCache(): void {
+  _cachedPublicKey = null;
+  _cachedPem       = null;
+}
+
 async function importPublicKey(pem: string): Promise<CryptoKey> {
   if (_cachedPublicKey && _cachedPem === pem) return _cachedPublicKey;
 
