@@ -44,8 +44,9 @@ async function importPublicKey(pem: string): Promise<CryptoKey> {
   return _cachedPublicKey;
 }
 
-function bufToBase64(buf: ArrayBuffer): string {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+function bufToBase64(buf: ArrayBuffer | Uint8Array): string {
+  const arr = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  return btoa(String.fromCharCode(...arr));
 }
 
 export async function encryptLogPayload(
