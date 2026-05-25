@@ -1,4 +1,4 @@
-import { Component, inject, input, signal, computed } from '@angular/core';
+import { Component, inject, input, signal, computed, effect, untracked } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -56,13 +56,20 @@ const TIPOS: { value: TipoEtapaMontagem; label: string }[] = [
             @for (prod of produtosMontagemMode(); track prod.uuid) {
               <button
                 type="button"
-                class="text-left p-4 rounded-xl border transition-colors"
+                class="relative text-left p-4 rounded-xl border transition-colors"
                 [class]="produtoSelecionado()?.uuid === prod.uuid
                   ? 'border-orange-500 bg-orange-50'
                   : 'border-gray-200 bg-white hover:border-gray-300'"
                 (click)="selecionarProduto(prod)"
               >
-                <p class="text-sm font-semibold text-gray-900">{{ prod.nome }}</p>
+                <!-- Indicador visual: tem montagem (verde) / sem montagem (cinza) / carregando (pulse) -->
+                <span
+                  class="absolute top-2.5 right-2.5 h-2 w-2 rounded-full"
+                  [class]="statusMontagem().get(prod.uuid) === true  ? 'bg-emerald-400' :
+                           statusMontagem().get(prod.uuid) === false ? 'bg-gray-200' :
+                           'bg-gray-100 animate-pulse'"
+                ></span>
+                <p class="text-sm font-semibold text-gray-900 pr-4">{{ prod.nome }}</p>
                 <p class="text-xs text-gray-400 mt-0.5">R$ {{ prod.preco | number: '1.2-2' }}</p>
               </button>
             }
@@ -348,6 +355,31 @@ export class AdminMontagemTabComponent {
     return prods.filter(p => uuidsMontagem.has(p.categoria_uuid));
   });
 
+  // ── Status de montagem por produto (Map<uuid, tem_montagem>) ─────────────
+  // Preenchido em background assim que a lista de produtos carrega.
+  readonly statusMontagem = signal<Map<string, boolean>>(new Map());
+
+  private readonly _verificarStatus = effect(() => {
+    const prods = this.produtosMontagemMode();
+    if (!prods.length) return;
+
+    // Lê o mapa atual sem registrá-lo como dependência (evita loop)
+    const current = untracked(() => this.statusMontagem());
+    const unchecked = prods.filter(p => !current.has(p.uuid));
+
+    for (const prod of unchecked) {
+      this.montagemSvc.buscarPorProduto(prod.uuid).pipe(
+        catchError(() => of(null)),
+      ).subscribe(mc => {
+        this.statusMontagem.update(m => new Map(m).set(prod.uuid, mc !== null));
+      });
+    }
+  }, { allowSignalWrites: true });
+
+  private setStatus(uuid: string, value: boolean) {
+    this.statusMontagem.update(m => new Map(m).set(uuid, value));
+  }
+
   // ── Produto selecionado ───────────────────────────────────────────────────
   readonly produtoSelecionado = signal<Produto | null>(null);
 
@@ -374,6 +406,7 @@ export class AdminMontagemTabComponent {
       this.carregandoMontagem.set(false);
       this.montagemCompleta.set(mc);
       this.montagemExistente.set(mc !== null);
+      this.setStatus(produtoUuid, mc !== null);
     });
   }
 
@@ -415,6 +448,7 @@ export class AdminMontagemTabComponent {
       next: () => {
         toast.success('Montagem criada!');
         this.criandoMontagem.set(false);
+        this.setStatus(produtoUuid, true);
         this.carregarMontagem(produtoUuid);
       },
       error: (e) => toast.error(e?.error?.error ?? 'Erro ao criar montagem.'),
@@ -429,7 +463,10 @@ export class AdminMontagemTabComponent {
       next: () => {
         toast.success('Montagem excluída!');
         const prod = this.produtoSelecionado();
-        if (prod) this.carregarMontagem(prod.uuid);
+        if (prod) {
+          this.setStatus(prod.uuid, false);
+          this.carregarMontagem(prod.uuid);
+        }
       },
       error: (e) => toast.error(e?.error?.error ?? 'Erro ao excluir montagem.'),
     });
@@ -462,6 +499,7 @@ export class AdminMontagemTabComponent {
     this.montagemSvc.duplicar(mc.montagem.uuid, dest.uuid).subscribe({
       next: () => {
         toast.success(`Montagem duplicada para "${dest.nome}"!`);
+        this.setStatus(dest.uuid, true);
         this.fecharDuplicar();
       },
       error: (e) => toast.error(e?.error?.error ?? 'Erro ao duplicar montagem.'),
