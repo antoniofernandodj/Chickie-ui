@@ -17,12 +17,12 @@ export class FidelidadeService {
 
   /** Público — programas ativos da loja (vitrine). */
   listarProgramasAtivos(lojaUuid: string): Observable<ProgramaFidelidade[]> {
-    return this.http.get<ProgramaFidelidade[]>(`${this.base}/programas/${lojaUuid}`);
+    return this.http.get<ProgramaFidelidade[]>(`${this.base}/programas/loja/${lojaUuid}`);
   }
 
   /** Admin — lista todos os programas (ativos e inativos) da loja. */
   listarProgramasAdmin(lojaUuid: string): Observable<ProgramaFidelidade[]> {
-    return this.http.get<ProgramaFidelidade[]>(`${this.base}/programas/${lojaUuid}/admin`);
+    return this.http.get<ProgramaFidelidade[]>(`${this.base}/programas/loja/${lojaUuid}/admin`);
   }
 
   /** Admin — cria um programa. */
@@ -32,17 +32,17 @@ export class FidelidadeService {
 
   /** Admin — edita programa. */
   atualizarPrograma(uuid: string, body: AtualizarProgramaFidelidadeRequest): Observable<ProgramaFidelidade> {
-    return this.http.patch<ProgramaFidelidade>(`${this.base}/programas/${uuid}`, body);
+    return this.http.patch<ProgramaFidelidade>(`${this.base}/programas/programa/${uuid}`, body);
   }
 
   /** Admin — ativa/desativa. */
   definirStatus(uuid: string, ativo: boolean): Observable<void> {
-    return this.http.patch<void>(`${this.base}/programas/${uuid}/status`, { ativo });
+    return this.http.patch<void>(`${this.base}/programas/programa/${uuid}/status`, { ativo });
   }
 
   /** Admin — remove programa. */
   deletarPrograma(uuid: string): Observable<void> {
-    return this.http.delete<void>(`${this.base}/programas/${uuid}`);
+    return this.http.delete<void>(`${this.base}/programas/programa/${uuid}`);
   }
 
   /** Cliente — progresso nos programas ativos de uma loja. */
