@@ -1,7 +1,7 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
-import { BehaviorSubject, of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { toast } from 'ngx-sonner';
@@ -277,7 +277,7 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
     </div>
   `,
 })
-export class AdminFidelidadeTabComponent {
+export class AdminFidelidadeTabComponent implements OnInit {
   lojaUuid = input.required<string>();
 
   private fidelidadeService = inject(FidelidadeService);
@@ -285,7 +285,7 @@ export class AdminFidelidadeTabComponent {
   private fb = inject(FormBuilder);
 
   // Programas
-  private readonly refreshTrigger = new BehaviorSubject<void>(undefined);
+  private readonly refreshTrigger = new Subject<void>();
   private readonly _programas = toSignal(
     this.refreshTrigger.pipe(
       switchMap(() =>
@@ -358,6 +358,8 @@ export class AdminFidelidadeTabComponent {
       });
     }
   }
+
+  ngOnInit() { this.refresh(); }
 
   private refresh() { this.refreshTrigger.next(); }
 
