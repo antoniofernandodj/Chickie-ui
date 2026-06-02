@@ -1,9 +1,9 @@
-import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
-import { Subject, of } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Subject, combineLatest, of } from 'rxjs';
+import { catchError, startWith, switchMap } from 'rxjs/operators';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { toast } from 'ngx-sonner';
 
 import { FidelidadeService } from '../../../core/services/fidelidade.service';
@@ -277,20 +277,25 @@ import { AdminRemoveBtnComponent } from './admin-remove-btn.component';
     </div>
   `,
 })
-export class AdminFidelidadeTabComponent implements OnInit {
+export class AdminFidelidadeTabComponent {
   lojaUuid = input.required<string>();
 
   private fidelidadeService = inject(FidelidadeService);
   private produtoService = inject(ProdutoService);
   private fb = inject(FormBuilder);
 
-  // Programas
   private readonly refreshTrigger = new Subject<void>();
+  private readonly refresh$ = combineLatest([
+    toObservable(this.lojaUuid),
+    this.refreshTrigger.pipe(startWith(null)),
+  ]);
+
+  // Programas
   private readonly _programas = toSignal(
-    this.refreshTrigger.pipe(
-      switchMap(() =>
+    this.refresh$.pipe(
+      switchMap(([uuid]) =>
         this.fidelidadeService
-          .listarProgramasAdmin(this.lojaUuid())
+          .listarProgramasAdmin(uuid)
           .pipe(catchError(() => of([] as ProgramaFidelidade[]))),
       ),
     ),
@@ -301,10 +306,10 @@ export class AdminFidelidadeTabComponent implements OnInit {
 
   // Produtos da loja (para os selects)
   private readonly _produtos = toSignal(
-    this.refreshTrigger.pipe(
-      switchMap(() =>
+    this.refresh$.pipe(
+      switchMap(([uuid]) =>
         this.produtoService
-          .listarPorLoja(this.lojaUuid())
+          .listarPorLoja(uuid)
           .pipe(catchError(() => of([] as Produto[]))),
       ),
     ),
@@ -358,8 +363,6 @@ export class AdminFidelidadeTabComponent implements OnInit {
       });
     }
   }
-
-  ngOnInit() { this.refresh(); }
 
   private refresh() { this.refreshTrigger.next(); }
 
