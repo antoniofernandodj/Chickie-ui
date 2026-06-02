@@ -175,4 +175,53 @@
       }
     </div>
   }
+
+  <!-- Aba: Recompensas -->
+  @if (abaAtiva() === 'recompensas') {
+    <div class="space-y-4">
+      @if (recompensasLoading()) {
+        @for (_ of [1, 2]; track $index) {
+          <div class="bg-white rounded-2xl p-5 h-24 skeleton"></div>
+        }
+      } @else if (recompensas().length === 0) {
+        <ui-card padding="lg">
+          <div class="text-center py-6">
+            <div class="text-5xl mb-3">🎁</div>
+            <p class="text-gray-600 text-sm">
+              Você ainda não tem recompensas disponíveis.
+            </p>
+            <p class="text-gray-400 text-xs mt-1">
+              Faça pedidos em lojas com programa de fidelidade para acumular brindes.
+            </p>
+          </div>
+        </ui-card>
+      } @else {
+        @for (rec of recompensas(); track rec.uuid) {
+          <ui-card padding="md">
+            <div class="flex items-start gap-3">
+              <span class="text-3xl mt-0.5">🎁</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-semibold text-gray-900 text-sm">
+                  Brinde de fidelidade
+                </p>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  Disponível para resgate em pedidos desta loja.
+                </p>
+                <div class="flex items-center gap-2 mt-2">
+                  <span
+                    class="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700"
+                  >
+                    Disponível
+                  </span>
+                  <span class="text-xs text-gray-500">
+                    Expira em {{ rec.expira_em | date: 'dd/MM/yyyy' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </ui-card>
+        }
+      }
+    </div>
+  }
 </div>

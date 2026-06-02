@@ -8,7 +8,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { DecimalPipe, SlicePipe } from '@angular/common';
+import { DatePipe, DecimalPipe, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, of, Subscription, switchMap } from 'rxjs';
@@ -22,6 +22,7 @@ import {
   CreatePagamentoResponse,
   EnderecoFormValue,
   Comanda,
+  RecompensaFidelidade,
 } from '../../core/models';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -35,6 +36,7 @@ import { EnderecoUsuarioService } from '../../core/services/endereco-usuario.ser
 import { GuestEnderecoService, EnderecoGuestSalvo } from '../../core/services/guest-endereco.service';
 import { MarketingService } from '../../core/services/marketing.service';
 import { HorarioService } from '../../core/services/horario.service';
+import { FidelidadeService } from '../../core/services/fidelidade.service';
 import { EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent, PushPermissaoModalComponent } from '../../shared/components';
 
 type CheckoutStep = 'endereco' | 'pagamento' | 'resumo';
@@ -42,7 +44,7 @@ type CheckoutStep = 'endereco' | 'pagamento' | 'resumo';
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, SlicePipe, EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent, PushPermissaoModalComponent],
+  imports: [FormsModule, DecimalPipe, DatePipe, SlicePipe, EnderecoFormComponent, UiButtonComponent, UiInputComponent, UiTextareaComponent, PushPermissaoModalComponent],
   templateUrl: './checkout.component.html',
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
@@ -58,6 +60,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private guestEnderecoService = inject(GuestEnderecoService);
   private marketingService    = inject(MarketingService);
   private horarioService      = inject(HorarioService);
+  private fidelidadeService   = inject(FidelidadeService);
   private router              = inject(Router);
 
   readonly loja  = computed(() => this.cart.lojaAtual());
@@ -131,6 +134,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   readonly cupomValidado = signal<Cupom | null>(null);
   readonly validandoCupom = signal(false);
   readonly cupomErro      = signal<string | null>(null);
+
+  // ── Fidelidade ──────────────────────────────────────────────────────────────
+  readonly recompensasDisponiveis = signal<RecompensaFidelidade[]>([]);
+  readonly recompensaSelecionada  = signal<RecompensaFidelidade | null>(null);
 
   // PIX pagador (usuário não autenticado)
   readonly pagadorNome         = signal('');
@@ -241,9 +248,25 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
       const celular = this.auth.celularUsuario();
       if (celular) this.contato = celular;
+
+      // Carrega recompensas disponíveis nesta loja
+      const loja = this.loja();
+      if (loja) {
+        this.fidelidadeService
+          .minhasRecompensas()
+          .pipe(catchError(() => of([] as RecompensaFidelidade[])))
+          .subscribe(list => {
+            const desta = list.filter(r => r.loja_uuid === loja.uuid && r.status === 'disponivel');
+            this.recompensasDisponiveis.set(desta);
+          });
+      }
     } else {
       this.enderecosGuestSalvos.set(this.guestEnderecoService.listar());
     }
+  }
+
+  selecionarRecompensa(rec: RecompensaFidelidade | null): void {
+    this.recompensaSelecionada.set(rec);
   }
 
   ngOnDestroy(): void {
@@ -413,6 +436,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       observacoes:     this.observacoes || null,
       contato:         this.contato || null,
       codigo_cupom:    this.cupomValidado()?.codigo ?? null,
+      recompensa_fidelidade_uuid: this.recompensaSelecionada()?.uuid ?? null,
       origem:          mesa ? 'mesa' : undefined,
       numero_mesa:     mesa ?? null,
       itens: this.itens().map(item => ({

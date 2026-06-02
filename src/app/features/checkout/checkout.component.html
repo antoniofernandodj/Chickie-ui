@@ -380,6 +380,46 @@
                 }
               </div>
 
+              <!-- Recompensa de fidelidade -->
+              @if (recompensasDisponiveis().length > 0) {
+                <div class="mb-4">
+                  <p class="text-sm font-medium text-gray-700 mb-1">
+                    🎁 Brinde de fidelidade disponível
+                  </p>
+                  @if (recompensaSelecionada()) {
+                    <div
+                      class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-purple-50 border border-purple-200 text-sm"
+                    >
+                      <span class="font-semibold text-purple-700">
+                        Brinde aplicado ao pedido ✓
+                      </span>
+                      <ui-button
+                        variant="ghost"
+                        size="xs"
+                        (click)="selecionarRecompensa(null)"
+                      >Remover</ui-button>
+                    </div>
+                  } @else {
+                    <div class="space-y-2">
+                      @for (rec of recompensasDisponiveis(); track rec.uuid) {
+                        <button
+                          type="button"
+                          class="w-full text-left px-3 py-2.5 rounded-xl border border-gray-200 hover:border-purple-300 hover:bg-purple-50 text-sm transition-colors"
+                          (click)="selecionarRecompensa(rec)"
+                        >
+                          <span class="font-medium text-gray-900">
+                            Aplicar brinde de fidelidade
+                          </span>
+                          <span class="block text-xs text-gray-500 mt-0.5">
+                            Válido até {{ rec.expira_em | date: 'dd/MM/yyyy' }}
+                          </span>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
               <!-- Observations -->
               <div class="mb-6">
                 <ui-textarea

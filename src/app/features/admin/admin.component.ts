@@ -23,6 +23,7 @@ import { AdminReservasTabComponent } from './components/admin-reservas-tab.compo
 import { AdminIngredientesTabComponent } from './components/admin-ingredientes-tab.component';
 import { AdminMontagemTabComponent } from './components/admin-montagem-tab.component';
 import { AdminBackupTabComponent } from './components/admin-backup-tab.component';
+import { AdminFidelidadeTabComponent } from './components/admin-fidelidade-tab.component';
 
 @Component({
   selector: 'app-admin',
@@ -47,6 +48,7 @@ import { AdminBackupTabComponent } from './components/admin-backup-tab.component
     AdminIngredientesTabComponent,
     AdminMontagemTabComponent,
     AdminBackupTabComponent,
+    AdminFidelidadeTabComponent,
   ],
   templateUrl: './admin.component.html',
 })
@@ -80,6 +82,7 @@ export class AdminComponent {
     { id: 'montagem',      icon: '🥗', label: 'Montagem'      },
     { id: 'cupons',        icon: '🎟️', label: 'Cupons'        },
     { id: 'promocoes',     icon: '📢', label: 'Promoções'     },
+    { id: 'fidelidade',    icon: '🎁', label: 'Fidelidade'    },
     { id: 'avaliacoes',    icon: '⭐', label: 'Avaliações'    },
     { id: 'config-pedido', icon: '⚙️', label: 'Config Pedido' },
     { id: 'enderecos',     icon: '📍', label: 'Endereços'     },

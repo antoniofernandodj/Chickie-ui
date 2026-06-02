@@ -601,6 +601,9 @@ export interface CreatePedidoRequest {
   comanda_uuid?:        string;
   nome_comanda?:        string | null;
   para_viagem?:         boolean | null;
+  recompensa_fidelidade_uuid?: string | null;
+  cnpj_cliente_pj?:     string | null;
+  nome_cliente_pj?:     string | null;
   itens:                CreatePedidoItemRequest[];
   endereco_entrega?: {
     cep?:         string | null;
@@ -981,4 +984,83 @@ export interface LogPayload {
   level:     LogLevel;
   message:   string;
   timestamp?: string;
+}
+
+// ─── Fidelidade ──────────────────────────────────────────────────────────────
+
+export type TipoProgramaFidelidade = 'valor_acumulado' | 'contagem_produto';
+export type StatusProgramaFidelidade = 'ativo' | 'inativo';
+export type StatusRecompensa = 'disponivel' | 'resgatada' | 'expirada';
+
+export interface ProgramaFidelidade {
+  uuid:                       string;
+  loja_uuid:                  string;
+  nome:                       string;
+  descricao:                  string | null;
+  tipo:                       TipoProgramaFidelidade;
+  meta_valor:                 number | null;
+  produto_gatilho_uuid:       string | null;
+  meta_contagem:              number | null;
+  produto_recompensa_uuid:    string;
+  validade_recompensa_dias:   number;
+  status:                     StatusProgramaFidelidade;
+  criado_em:                  string;
+  atualizado_em:              string;
+}
+
+export interface ProgressoFidelidade {
+  uuid:                string;
+  loja_uuid:           string;
+  usuario_uuid:        string;
+  programa_uuid:       string;
+  valor_acumulado:     number;
+  contagem_acumulada:  number;
+  ciclos_completados:  number;
+  atualizado_em:       string;
+}
+
+export interface RecompensaFidelidade {
+  uuid:                    string;
+  loja_uuid:               string;
+  usuario_uuid:            string;
+  programa_uuid:           string;
+  produto_recompensa_uuid: string;
+  pedido_origem_uuid:      string;
+  pedido_resgate_uuid:     string | null;
+  status:                  StatusRecompensa;
+  expira_em:               string;
+  criado_em:               string;
+  resgatado_em:            string | null;
+}
+
+export type FaltaParaProxima =
+  | { tipo: 'valor';    valor: number }
+  | { tipo: 'contagem'; contagem: number };
+
+export interface ProgressoComPrograma {
+  programa:           ProgramaFidelidade;
+  progresso:          ProgressoFidelidade;
+  falta_para_proxima: FaltaParaProxima;
+}
+
+export interface CriarProgramaFidelidadeRequest {
+  loja_uuid:                string;
+  nome:                     string;
+  descricao?:               string | null;
+  tipo:                     TipoProgramaFidelidade;
+  meta_valor?:              number | null;
+  produto_gatilho_uuid?:    string | null;
+  meta_contagem?:           number | null;
+  produto_recompensa_uuid:  string;
+  validade_recompensa_dias?: number;
+}
+
+export interface AtualizarProgramaFidelidadeRequest {
+  nome?:                    string;
+  descricao?:               string | null;
+  meta_valor?:              number | null;
+  produto_gatilho_uuid?:    string | null;
+  meta_contagem?:           number | null;
+  produto_recompensa_uuid?: string;
+  validade_recompensa_dias?: number;
 }

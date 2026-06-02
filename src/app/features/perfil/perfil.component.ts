@@ -3,9 +3,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { BehaviorSubject, catchError, of, switchMap } from 'rxjs';
 import { toast } from 'ngx-sonner';
+import { DatePipe } from '@angular/common';
 import { EnderecoUsuarioService } from '../../core/services/endereco-usuario.service';
 import { AuthService } from '../../core/services/auth.service';
-import { EnderecoUsuario, EnderecoUsuarioRequest } from '../../core/models';
+import { FidelidadeService } from '../../core/services/fidelidade.service';
+import { EnderecoUsuario, EnderecoUsuarioRequest, RecompensaFidelidade } from '../../core/models';
 import {
   UiTabBarComponent, UiCardComponent,
   UiButtonComponent, UiAvatarComponent, UiTab, EnderecoFormComponent,
@@ -13,18 +15,20 @@ import {
 
 @Component({
   selector: 'app-perfil',
-  imports: [ReactiveFormsModule,
+  imports: [ReactiveFormsModule, DatePipe,
     UiTabBarComponent, UiCardComponent, UiButtonComponent, UiAvatarComponent, EnderecoFormComponent],
   templateUrl: './perfil.component.html',
 })
 export class PerfilComponent {
-  private endService = inject(EnderecoUsuarioService);
-  private auth       = inject(AuthService);
-  private fb         = inject(FormBuilder);
+  private endService       = inject(EnderecoUsuarioService);
+  private auth             = inject(AuthService);
+  private fb               = inject(FormBuilder);
+  private fidelidadeService = inject(FidelidadeService);
 
   readonly tabs: UiTab[] = [
-    { id: 'conta',     label: '👤 Conta' },
-    { id: 'enderecos', label: '📍 Endereços' },
+    { id: 'conta',        label: '👤 Conta' },
+    { id: 'enderecos',    label: '📍 Endereços' },
+    { id: 'recompensas',  label: '🎁 Recompensas' },
   ];
 
   readonly abaAtiva   = signal('conta');
@@ -47,6 +51,20 @@ export class PerfilComponent {
   );
   readonly endLoading = computed(() => this._enderecos() === undefined);
   readonly enderecos  = computed(() => this._enderecos() ?? []);
+
+  private readonly recompensasTrigger = new BehaviorSubject<void>(undefined);
+  readonly _recompensas = toSignal(
+    this.recompensasTrigger.pipe(
+      switchMap(() =>
+        this.fidelidadeService.minhasRecompensas().pipe(
+          catchError(() => of([] as RecompensaFidelidade[])),
+        ),
+      ),
+    ),
+    { initialValue: undefined as RecompensaFidelidade[] | undefined } as any,
+  );
+  readonly recompensasLoading = computed(() => this._recompensas() === undefined);
+  readonly recompensas        = computed(() => this._recompensas() ?? []);
 
   formEnd = this.fb.group({
     endereco: [null as any],

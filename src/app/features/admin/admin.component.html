@@ -170,6 +170,9 @@
         @if (aba() === 'promocoes') {
           <admin-promocoes-tab [lojaUuid]="lojaSelecionada()!.uuid" />
         }
+        @if (aba() === 'fidelidade') {
+          <admin-fidelidade-tab [lojaUuid]="lojaSelecionada()!.uuid" />
+        }
         @if (aba() === 'avaliacoes') {
           <admin-avaliacoes-tab [lojaUuid]="lojaSelecionada()!.uuid" />
         }
